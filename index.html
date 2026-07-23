@@ -9,6 +9,22 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="theme-color" content="#e9e6df" />
+<script>
+/* Runs before the first pixel. The real preferences live in IndexedDB, which is
+   async — too late to stop a light-themed flash — so the one bit that decides
+   what the screen looks like is mirrored into localStorage, which is not. */
+(function(){
+  document.documentElement.classList.add("booting");
+  try{
+    var h=JSON.parse(localStorage.getItem("lesekern:boot")||"{}");
+    if(h.dark){
+      document.documentElement.setAttribute("data-boot-dark","1");
+      var m=document.querySelector('meta[name="theme-color"]');
+      if(m) m.setAttribute("content","#191b1f");
+    }
+  }catch(e){}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Space+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -413,9 +429,38 @@
 .voy-shelf .bk{cursor:pointer}
 body.dark .welcome-sea{border-color:rgba(255,255,255,.08)}
 .tbtn.icon{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;line-height:0}
+
+/* --- opening veil ---
+   Everything below it is assembled while it's up: the theme, the shelf, the
+   last book, the fonts. It leaves once there's a finished screen to hand over,
+   so the start page never flickers past on its way to somewhere else. */
+.veil{position:fixed;inset:0;z-index:200;background:#e9e6df;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .32s ease;}
+.veil .vbrand{font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:.01em;
+  color:#26221e;opacity:.5;animation:vfade 1.5s ease-in-out infinite;}
+.veil .vbrand b{color:#7a6a52;font-weight:700;}
+@keyframes vfade{0%,100%{opacity:.34}50%{opacity:.68}}
+html[data-boot-dark] .veil{background:#191b1f;}
+html[data-boot-dark] .veil .vbrand{color:#e9e4dc;}
+html[data-boot-dark] .veil .vbrand b{color:#c9a978;}
+.veil.gone{opacity:0;pointer-events:none;}
+@media(prefers-reduced-motion:reduce){.veil .vbrand{animation:none;opacity:.5}}
+/* opened straight from boot, the Archipel arrives already there rather than fading up */
+.voyage.nofade{transition:none;}
+
+/* The dark palette, applied from the localStorage hint before any script runs.
+   Identical values to body.dark, so when the real preference lands a moment
+   later it changes nothing and no colour transition is triggered. */
+html[data-boot-dark] body{--paper:#191b1f;--paper-2:#212429;--ink:#e9e4dc;--ink-mute:#9a948b;
+  --line:#33373d;--accent:#c9a978;--accent-soft:#4a412f;--rail:#0f1113;}
+/* while booting, everything takes its position instantly — the veil is over it
+   anyway, and a transition that starts under the veil finishes in plain sight */
+html.booting *,html.booting *::before,html.booting *::after{transition:none !important;}
 </style>
 </head>
 <body>
+<div class="veil" id="veil" aria-hidden="true"><div class="vbrand">Lese<b>kern</b></div></div>
 <header>
   <div class="brand">Lese<b>kern</b></div>
   <div class="chapsel" id="chapNav" style="display:none">
@@ -1906,7 +1951,12 @@ function applyPrefs(){
   Object.keys(SW).forEach(id=>{ const el=$("#"+id); if(el) el.classList.toggle("on",!!prefs[SW[id]]); });
   const sl=$("#sizeLabel"); if(sl) sl.textContent=prefs.size+"px";
 }
-function savePrefs(){ applyPrefs(); IDB.set("prefs",{...prefs}); }
+function savePrefs(){
+  applyPrefs(); IDB.set("prefs",{...prefs});
+  try{ localStorage.setItem("lesekern:boot",JSON.stringify({dark:!!prefs.dark})); }catch(e){}
+  const m=document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute("content", prefs.dark?"#191b1f":"#e9e6df");
+}
 function clearTheme(){
   const r=document.documentElement.style;
   ["--paper","--paper-2","--ink","--ink-mute","--accent","--accent-soft","--line","--rail"].forEach(k=>r.removeProperty(k));
@@ -2924,7 +2974,14 @@ function renderIsland(idx){
   $("#backMap").addEventListener("click",renderMap);
   $("#isleGo").addEventListener("click",()=>{ closeVoyage(); renderChapter(idx,true); });
 }
-function openVoyage(){ $("#voyage").classList.add("show"); renderMap(); }
+function openVoyage(instant){
+  const v=$("#voyage");
+  if(instant){                                  // already up when the veil lifts
+    v.classList.add("nofade");
+    requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.remove("nofade")));
+  }
+  v.classList.add("show"); renderMap();
+}
 function closeVoyage(){ $("#voyage").classList.remove("show"); }
 function gameTouch(){
   if(!state.book) return;
@@ -2955,14 +3012,33 @@ setInterval(()=>{ if(state.book) saveProgress(); }, 5000);
 window.addEventListener("pagehide", saveProgress);
 document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveProgress(); });
 
+let _veilUp=true, _welcome="";
+function liftVeil(){
+  if(!_veilUp) return; _veilUp=false;
+  document.documentElement.classList.remove("booting");   // transitions live again
+  const v=$("#veil"); if(!v) return;
+  requestAnimationFrame(()=>{
+    v.classList.add("gone");
+    setTimeout(()=>{ v.remove(); if(_welcome){ toast(_welcome); _welcome=""; } },340);
+  });
+}
+/* Wait for the webfonts too, or the serif would visibly re-flow a moment later —
+   but never wait on them for long, since offline they simply never arrive. */
+async function settle(){
+  try{ await Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,900))]); }catch(e){}
+  liftVeil();
+}
+setTimeout(liftVeil,3000);   // a stalled database must never strand the app behind it
+
 (async function boot(){
   try{
-    if(!(await IDB.ok())){ renderShelf(); if(prefs.startMap) openVoyage(); return; }   // no storage → empty archipelago
+    if(!(await IDB.ok())){ applyPrefs(); renderShelf(); if(prefs.startMap) openVoyage(true); return; }   // no storage → empty archipelago
     const p=await IDB.get("prefs"); if(p) Object.assign(prefs,p);
     applyPrefs();
+    try{ localStorage.setItem("lesekern:boot",JSON.stringify({dark:!!prefs.dark})); }catch(e){}
     await renderShelf();
-    const id=await IDB.get("lastBook"); if(!id){ if(prefs.startMap) openVoyage(); return; }
-    const book=await IDB.get("book:"+id); if(!book||!book.chapters){ if(prefs.startMap) openVoyage(); return; }
+    const id=await IDB.get("lastBook"); if(!id){ if(prefs.startMap) openVoyage(true); return; }
+    const book=await IDB.get("book:"+id); if(!book||!book.chapters){ if(prefs.startMap) openVoyage(true); return; }
     state.book=book; state.tracks=book.tracks||[]; state.chapterIdx=0;
     const prog=await IDB.get("progress:"+id)||{}; state.vocab=prog.vocab||{}; state.cards=prog.cards||[];
     state.game=Object.assign({reviews:0,read:{},names:{},tier:0},prog.game||{});
@@ -2977,10 +3053,11 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveProgr
     enterBook(last!=null?Math.min(last,book.chapters.length-1):0); updateBadges();
     const have=state.tracks.filter(t=>state.audio[t]).length;
     if(have){ $("#dock").classList.add("show"); updateAudioStatus(); }
-    if(prefs.startMap) openVoyage();
-    toast("Welcome back to "+book.title+(have?" — the audio is ready":""));
+    if(prefs.startMap) openVoyage(true);
+    _welcome="Welcome back to "+book.title+(have?" — the audio is ready":"");
     maybeOfferTidy();
-  }catch(e){ if(prefs.startMap && !state.book) openVoyage(); }
+  }catch(e){ if(prefs.startMap && !state.book) openVoyage(true); }
+  finally{ settle(); }
 })();
 </script>
 </body>
