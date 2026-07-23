@@ -214,7 +214,6 @@
   .reader-wrap,.panel,.voy-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
   header{padding-top:calc(11px + env(safe-area-inset-top));}
   .voy-head{padding-top:calc(13px + env(safe-area-inset-top));}
-  .menu{top:calc(52px + env(safe-area-inset-top));}
   .dock{padding-bottom:calc(11px + env(safe-area-inset-bottom));}
 
   @media(max-width:760px){
@@ -233,7 +232,6 @@
     .start textarea{resize:none;min-height:110px;}
     .start{margin:3vh auto;}
     .start h1{font-size:30px;}
-    .menu{right:12px;left:12px;width:auto;}
   }
   @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important;}}
 
@@ -372,10 +370,25 @@
   body.dark .w.speaking{background:var(--accent-soft);}
   body.dark .isle.locked{filter:grayscale(.6) brightness(.8);}
 
-  .menu{position:fixed;top:52px;right:16px;z-index:70;background:var(--paper-2);
+  /* The menu is taller than a phone. It has to be able to scroll on its own —
+     and it has to stop that scroll from leaking into the page behind it. */
+  .menu{position:fixed;right:16px;z-index:70;background:var(--paper-2);
     border:1px solid var(--line);border-radius:14px;padding:14px;width:250px;
-    box-shadow:0 18px 44px -20px rgba(0,0,0,.5);display:none;}
+    box-shadow:0 18px 44px -20px rgba(0,0,0,.5);display:none;
+    top:calc(52px + env(safe-area-inset-top));
+    max-height:calc(100vh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;scrollbar-width:thin;}
+  @supports(height:100dvh){
+    .menu{max-height:calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));}
+  }
+  /* Must come *after* the rule above, not up with the other phone rules —
+     equal specificity, so whichever is written last is the one that lands. */
+  @media(max-width:760px){ .menu{left:12px;right:12px;width:auto;} }
   .menu.show{display:block;}
+  .menu::-webkit-scrollbar{width:7px;}
+  .menu::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 22%,transparent);border-radius:4px;}
+  .menu::-webkit-scrollbar-track{background:transparent;}
   .menu h4{font-size:12px;margin:0 0 9px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);}
   .menu .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px;font-size:13px;}
   .menu .stepper{display:flex;gap:5px;}
@@ -428,11 +441,24 @@
   .tidy .row{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;}
 
   /* ============ dock extras ============ */
-  .dock .sk{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.1);
-    border:1px solid rgba(255,255,255,.2);color:var(--paper);font-size:10.5px;font-weight:700;flex:0 0 auto;}
+  .dock .sk{min-width:34px;height:34px;padding:0 6px;border-radius:9px;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);color:var(--paper);font-size:10.5px;font-weight:700;flex:0 0 auto;
+    font-variant-numeric:tabular-nums;}
   .dock .sk:hover{background:rgba(255,255,255,.2);}
-  @media(max-width:900px){ .dock{flex-wrap:wrap;gap:9px;padding:9px 12px;} .dock .time{min-width:0;font-size:11px;}
-    .dock .trk{display:none;} .scrub{order:5;flex:1 1 100%;} }
+  /* On a phone the scrubber used to sit on the *lower* row of the dock — the
+     last five millimetres of the screen, right on top of the home indicator,
+     where a thumb can barely reach it and a swipe closes the app instead. It
+     now takes the row above the buttons, with a 30px-tall grab area. */
+  @media(max-width:900px){ .dock{flex-wrap:wrap;gap:9px;padding:7px 12px;} .dock .time{min-width:0;font-size:11px;}
+    .dock .trk{display:none;} .scrub{order:-1;flex:1 1 100%;} }
+  @media(pointer:coarse){
+    .scrub{height:30px;background:transparent;margin:0;}
+    .scrub::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:rgba(255,255,255,.2);}
+    .scrub::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-7px;border-radius:50%;
+      background:var(--accent);box-shadow:0 1px 5px rgba(0,0,0,.45);}
+    .scrub::-moz-range-track{height:6px;border-radius:3px;background:rgba(255,255,255,.2);}
+    .scrub::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:var(--accent);}
+  }
 
   /* chapter footer */
   .chap-end{margin:44px 0 10px;padding-top:22px;border-top:1px solid var(--line);
@@ -628,6 +654,55 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   .bk .m .gh{color:var(--accent);opacity:.8;}
   .isle.ghosted .isle-bloom:after{content:" · text away";opacity:.7;}
   .isle-stars{font-size:11px;letter-spacing:.06em;color:var(--accent);}
+
+  /* ============================================================================
+     SOFT TRANSITIONS — moving between two places used to be a hard cut: the
+     harbour vanished and the islands were simply *there*. Every step now
+     dissolves. Going deeper (shelf → book, islands → an island) the new view
+     rises a little as it arrives; coming back up it settles instead, so the
+     direction of travel is legible without a single label.
+     ==========================================================================*/
+  .voyage{transform:scale(1.012);transition:opacity .45s ease, transform .5s cubic-bezier(.22,.8,.24,1);}
+  .voyage.show{transform:scale(1);}
+  #voyScroll{transition:opacity .2s ease, transform .24s cubic-bezier(.22,.8,.24,1);will-change:opacity,transform;}
+  #voyScroll.vs-out{opacity:0;transform:translateY(7px) scale(.995);}      /* leaving, going deeper */
+  #voyScroll.vs-out.vs-up{transform:translateY(-5px) scale(1.005);}        /* leaving, coming back */
+  #voyScroll.vs-in{opacity:0;transform:translateY(-9px) scale(1.008);}
+  #voyScroll.vs-in.vs-up{transform:translateY(9px) scale(.994);}
+  /* the reader, arriving from the map */
+  #reader.rd-in{opacity:0;transform:translateY(8px);}
+  #reader{transition:opacity .42s ease, transform .42s cubic-bezier(.22,.8,.24,1);}
+
+  /* ============================================================================
+     TRANSLATION — a sentence, its English, and where the English came from.
+     Sits above the audio dock, never on top of it.
+     ==========================================================================*/
+  .w.tsel{background:color-mix(in srgb,var(--der) 15%,transparent);
+    box-shadow:inset 0 -1.5px 0 color-mix(in srgb,var(--der) 50%,transparent);}
+  body.dark .w.tsel{background:color-mix(in srgb,var(--der) 34%,transparent);}
+  .trbar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));
+    transform:translate(-50%,16px);width:min(94vw,660px);z-index:55;
+    background:var(--paper-2);border:1px solid var(--line);border-radius:15px;
+    padding:13px 15px 11px;box-shadow:0 22px 55px -24px rgba(0,0,0,.6);
+    opacity:0;pointer-events:none;max-height:44vh;overflow-y:auto;overscroll-behavior:contain;
+    transition:opacity .28s ease, transform .32s cubic-bezier(.22,.8,.24,1), bottom .3s ease;}
+  .trbar.show{opacity:1;pointer-events:auto;transform:translate(-50%,0);}
+  body.dock-on .trbar{bottom:calc(var(--dockh,64px) + 12px);}
+  .tr-de{font-family:var(--serif);font-size:15px;line-height:1.5;color:var(--ink-2);
+    padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--line);}
+  .tr-en{font-family:var(--serif);font-size:17px;line-height:1.5;color:var(--ink);}
+  .tr-wait{font-family:var(--mono);font-size:12px;color:var(--ink-mute);}
+  .tr-rough{font-family:var(--sans);font-size:13px;line-height:1.7;color:var(--ink-2);}
+  .tr-rough b{font-family:var(--serif);font-weight:500;color:var(--ink);}
+  .tr-rough .sep{color:var(--ink-3);opacity:.6;margin:0 3px;}
+  .tr-foot{display:flex;align-items:center;gap:10px;margin-top:11px;}
+  .tr-via{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);}
+  .tr-x{margin-left:auto;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;
+    background:var(--paper);border:1px solid var(--line);color:var(--ink-2);}
+  .tr-x:hover{border-color:var(--accent);}
+  .tbtn.on{background:var(--der);color:#fff;border-color:var(--der);font-weight:600;}
+  /* seven actions is a lot for a 390px screen — the wordmark yields first */
+  @media(max-width:430px){ .brand span{display:none;} .top-actions{gap:5px;} .tbtn{padding:8px;} }
 </style>
 </head>
 <body>
@@ -670,6 +745,7 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
     <button class="tbtn" id="btnAudio" style="display:none" title="Audiobook" aria-label="Audiobook"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12.4V10a6.4 6.4 0 0 1 12.8 0v2.4"/><rect x="2.2" y="11.6" width="3.6" height="5.2" rx="1.6"/><rect x="14.2" y="11.6" width="3.6" height="5.2" rx="1.6"/></g></svg><span class="lbl" id="audioLbl">Audiobook</span></button>
     <button class="tbtn" id="btnLoad" style="display:none" title="Bookshelf" aria-label="Bookshelf"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.2" width="3.4" height="13.6" rx="1"/><rect x="8" y="3.2" width="3.4" height="13.6" rx="1"/><path d="M13.4 5.1l3.2.9-2.6 10.4-3.2-.9z"/></g></svg><span class="lbl">Bookshelf</span></button>
     <button class="tbtn" id="btnLog" style="display:none" title="Logbuch" aria-label="Logbuch"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3.4h9.2a2 2 0 0 1 2 2v11.2H6a2 2 0 0 1-2-2z"/><path d="M7 7h6M7 10h6M7 13h3.6"/></g></svg><span class="lbl" id="logLbl">Logbuch</span></button>
+    <button class="tbtn" id="btnTrans" style="display:none" title="Translate a sentence" aria-label="Translate" aria-pressed="false"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 5.2h6.8"/><path d="M5.8 3.3v1.9"/><path d="M7.7 5.2c0 3.3-2.1 6-5.3 7.2"/><path d="M4 8.8c.9 2 2.6 3.4 4.8 4"/><path d="M10.4 17.1 13.6 8.6l3.2 8.5"/><path d="M11.5 14.3h4.2"/></g></svg><span class="lbl">Translate</span></button>
     <button class="tbtn" id="btnMenu" title="Settings" aria-label="Settings"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><circle cx="10" cy="10" r="2.7"/><path d="M10 2.6l1.3 1.9 2.3-.4.5 2.3 2 1.2-1 2.1 1 2.1-2 1.2-.5 2.3-2.3-.4L10 17.4l-1.3-1.9-2.3.4-.5-2.3-2-1.2 1-2.1-1-2.1 2-1.2.5-2.3 2.3.4z"/></g></svg><span class="lbl">Settings</span></button>
     <button class="tbtn solid rail-toggle" id="btnRail" style="display:none" title="Study" aria-label="Study"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.4 2.8h9.2v14.4L10 13.4l-4.6 3.8z"/></g></svg><span class="lbl">Study</span></button>
   </div>
@@ -680,6 +756,14 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   <div class="row"><span>Line spacing</span><span class="stepper"><button id="leadDown">−</button><button id="leadUp">+</button></span></div>
   <div class="row"><span>Dark mode</span><span class="sw" id="swDark"></span></div>
   <div class="row"><span>Tint each chapter</span><span class="sw" id="swTint"></span></div>
+  <h4>Audiobook</h4>
+  <div class="row"><span>Jump by</span><span class="stepper"><button id="skipDown" aria-label="Shorter jump">−</button><span class="wear" id="skipLabel" style="align-self:center">15s</span><button id="skipUp" aria-label="Longer jump">+</button></span></div>
+  <div class="hint" style="margin:2px 0 0">How far the −/+ buttons in the player move the audio. The ← and → keys use the same step.</div>
+  <h4>Translation</h4>
+  <div class="row"><span id="trDlLab">Offline translator</span><button class="mini-btn" id="trDl">Fetch it</button></div>
+  <div class="hint" id="trDlNote">A real German→English translation model, about 40 MB, fetched once and then kept on this device. After that it works with no connection at all, and not one sentence you read is ever sent anywhere.</div>
+  <div class="row" style="margin-top:12px"><span>Use an online translator</span><span class="sw" id="swTrans"></span></div>
+  <div class="hint">A fallback for before the model is aboard. It sends the tapped sentence to a public translation service. Every answer is kept here, so the same sentence never travels twice.</div>
   <h4>Sound</h4>
   <div class="row"><span>Background piano</span><span class="sw" id="swMusic"></span></div>
   <div class="row"><span>Interface sounds</span><span class="sw" id="swSfx"></span></div>
@@ -741,8 +825,8 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 
     <div class="reader" id="reader" style="display:none">
       <div id="tidyTop"></div>
-      <div class="part-eyebrow" id="partEyebrow"></div>
-      <h2 class="chap-title" id="chapTitle"></h2>
+      <div class="part-eyebrow fade-swap" id="partEyebrow"></div>
+      <h2 class="chap-title fade-swap" id="chapTitle"></h2>
       <div class="prose fade-swap" id="prose"></div>
       <div id="chapEnd"></div>
     </div>
@@ -840,6 +924,11 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 <input type="file" id="progFile" accept=".json,application/json" hidden />
 <input type="file" id="chapFiles" accept=".txt,.md,text/plain" multiple hidden />
 <input type="file" id="syncFile" accept=".txt,text/plain" hidden />
+<div class="trbar" id="trBar" role="dialog" aria-live="polite" aria-label="Translation">
+  <div class="tr-de" id="trDe"></div>
+  <div class="tr-en" id="trEn"></div>
+  <div class="tr-foot"><span class="tr-via" id="trVia"></span><button class="tr-x" id="trClose">Close</button></div>
+</div>
 <div class="sheet-scrim" id="sheetScrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true">
   <div class="sheet-head"><span id="sheetTitle"></span><button id="sheetClose">Close</button></div>
@@ -1905,7 +1994,7 @@ function enterBook(startIdx){
   $("#start").style.display="none"; $("#reader").style.display="block";
   $("#chapNav").style.display = state.book.chapters.length>1?"flex":"none";
   $("#covWrap").style.display="flex";
-  ["btnVoyage","btnLoad","btnRail"].forEach(id=>$("#"+id).style.display="");
+  ["btnVoyage","btnLoad","btnRail","btnTrans"].forEach(id=>$("#"+id).style.display="");
   $("#btnAudio").style.display = state.tracks.length? "" : "none";
   $("#btnLog").style.display="";
   _gramBuilt=false;
@@ -1923,6 +2012,9 @@ function partFor(idx){
   if(idx<5) return "Erster Teil"; if(idx<12) return "Zweiter Teil"; return "Dritter Teil";
 }
 let _fadeT=null;
+/* The heading used to snap while the text under it dissolved. A chapter is one
+   thing arriving, so it should arrive as one thing. */
+const _fadeEls=()=>[$("#partEyebrow"),$("#chapTitle"),$("#prose")];
 function renderChapter(idx,instant){
   /* Leaving a chapter: keep the place. The scroll listener only writes this
      after a pause, so paging away quickly used to lose it. */
@@ -1950,7 +2042,7 @@ function renderChapter(idx,instant){
       $("#covFill").style.width="0%"; $("#covNum").textContent="text away";
       $("#chapEnd").innerHTML=""; $("#tidyTop").innerHTML="";
       $("#readerWrap").scrollTop=0;
-      $("#prose").classList.remove("fade-out");
+      _fadeEls().forEach(el=>el&&el.classList.remove("fade-out"));
       saveManifestSoon();
       return;
     }
@@ -1983,10 +2075,13 @@ function renderChapter(idx,instant){
     renderTidyTop();
     renderChapterEnd(idx);
     $("#readerWrap").scrollTop=(_scrollPos&&_scrollPos[idx])||0;
-    $("#prose").classList.remove("fade-out");
+    _fadeEls().forEach(el=>el&&el.classList.remove("fade-out"));
   };
   if(instant){ build(); }
-  else{ $("#prose").classList.add("fade-out"); _fadeT=setTimeout(()=>{ _fadeT=null; build(); },300); }
+  else{
+    _fadeEls().forEach(el=>el&&el.classList.add("fade-out"));
+    _fadeT=setTimeout(()=>{ _fadeT=null; build(); },300);
+  }
 }
 function gap(s){ return esc(s).replace(/\n{2,}/g,"</p><p>").replace(/\n/g," "); }
 function cls(key){
@@ -2025,6 +2120,10 @@ $("#prose").addEventListener("click",e=>{
   if(state._sel && state._sel!==w) state._sel.classList.remove("sel");
   w.classList.add("sel"); state._sel=w;
   openWord(w.dataset.key, w);
+  /* With Translate on, a tap means "this sentence", not "this second of audio":
+     the word is still glossed in the Study panel, but the audio stays where it
+     is and the panel doesn't slide over the sentence you're trying to read. */
+  if(TR.on){ const r=sentenceRange(w); if(r){ trMark(r.a,r.b); trShow(r.text); } return; }
   if("s" in w.dataset && state.tracks.some(t=>state.audio[t])) playFrom(+w.dataset.t, +w.dataset.s);
   if(window.innerWidth<=900) openRail();
 });
@@ -2256,8 +2355,8 @@ audio.addEventListener("ended",()=>{
   }else{ $("#pp").textContent="▶"; }
 });
 
-$("#skBack").addEventListener("click",()=>{ if(audio.src){ audio.currentTime=Math.max(0,audio.currentTime-15); state.speakPtr=0; } });
-$("#skFwd").addEventListener("click",()=>{ if(audio.src){ audio.currentTime=Math.min(audio.duration||1e9,audio.currentTime+15); state.speakPtr=0; } });
+$("#skBack").addEventListener("click",()=>nudgeAudio(-1));
+$("#skFwd").addEventListener("click",()=>nudgeAudio(1));
 document.addEventListener("keydown",e=>{
   const typing=["TEXTAREA","INPUT","SELECT"].includes(document.activeElement.tagName);
   if(e.code==="Space" && !typing){
@@ -2271,8 +2370,8 @@ document.addEventListener("keydown",e=>{
   if(!typing && e.key==="m" && state.book) { $("#voyage").classList.contains("show")?closeVoyage():openVoyage(); }
   if(e.key==="ArrowRight" && e.altKey) $("#nextCh").click();
   if(e.key==="ArrowLeft" && e.altKey) $("#prevCh").click();
-  if(e.key==="ArrowLeft" && !e.altKey && !typing && audio.src){ audio.currentTime=Math.max(0,audio.currentTime-15); state.speakPtr=0; }
-  if(e.key==="ArrowRight" && !e.altKey && !typing && audio.src){ audio.currentTime=Math.min(audio.duration||1e9,audio.currentTime+15); state.speakPtr=0; }
+  if(e.key==="ArrowLeft" && !e.altKey && !typing) nudgeAudio(-1);
+  if(e.key==="ArrowRight" && !e.altKey && !typing) nudgeAudio(1);
 });
 
 /* A book that arrived as one enormous chapter is unreadable — slow to open, slow
@@ -2300,17 +2399,35 @@ function renderChapterEnd(idx){
 /* ============================================================================
    READING PREFERENCES — text size, spacing, dark mode, chapter tinting.
    ==========================================================================*/
-const prefs={size:20,lead:1.75,dark:false,tint:true,startMap:true,music:true,sfx:true};
+const prefs={size:20,lead:1.75,dark:false,tint:true,startMap:true,music:true,sfx:true,skip:15,trans:true,nmt:false};
 let _scrollPos={};
+/* How far −/+ moves the audio. A ladder rather than a free number: every rung
+   is a step you would actually want, and one tap is always one rung. */
+const SKIPS=[5,10,15,20,30,45,60,90];
+function skipSecs(){ const n=+prefs.skip; return SKIPS.includes(n)?n:15; }
+function applySkip(){
+  const n=skipSecs();
+  const b=$("#skBack"), f=$("#skFwd");
+  if(b){ b.textContent="−"+n; b.title="Back "+n+" seconds"; }
+  if(f){ f.textContent="+"+n; f.title="Forward "+n+" seconds"; }
+  const l=$("#skipLabel"); if(l) l.textContent=n+"s";
+}
+function nudgeAudio(dir){
+  if(!audio.src) return;
+  const n=skipSecs()*dir;
+  audio.currentTime=Math.max(0,Math.min(audio.duration||1e9,audio.currentTime+n));
+  state.speakPtr=0;
+}
 function applyPrefs(){
   const r=document.documentElement.style;
   r.setProperty("--read-size",prefs.size+"px");
   r.setProperty("--read-lead",String(prefs.lead));
   document.body.classList.toggle("dark",!!prefs.dark);
   if(prefs.tint && !prefs.dark && state.book) setTheme(state.chapterIdx); else clearTheme();
-  const SW={swDark:"dark",swTint:"tint",swMap:"startMap",swMusic:"music",swSfx:"sfx"};
+  const SW={swDark:"dark",swTint:"tint",swMap:"startMap",swMusic:"music",swSfx:"sfx",swTrans:"trans"};
   Object.keys(SW).forEach(id=>{ const el=$("#"+id); if(el) el.classList.toggle("on",!!prefs[SW[id]]); });
   const sl=$("#sizeLabel"); if(sl) sl.textContent=prefs.size+"px";
+  applySkip();
 }
 function savePrefs(){
   applyPrefs(); IDB.set("prefs",{...prefs}); LS.set("lesekern:prefs",{...prefs});
@@ -2331,6 +2448,10 @@ $("#leadDown").addEventListener("click",()=>{ prefs.lead=Math.max(1.3,+(prefs.le
 $("#swDark").addEventListener("click",()=>{ prefs.dark=!prefs.dark; savePrefs(); });
 $("#swTint").addEventListener("click",()=>{ prefs.tint=!prefs.tint; savePrefs(); });
 $("#swMap").addEventListener("click",()=>{ prefs.startMap=!prefs.startMap; savePrefs(); });
+$("#skipUp").addEventListener("click",()=>{ const i=SKIPS.indexOf(skipSecs()); prefs.skip=SKIPS[Math.min(SKIPS.length-1,i+1)]; savePrefs(); });
+$("#skipDown").addEventListener("click",()=>{ const i=SKIPS.indexOf(skipSecs()); prefs.skip=SKIPS[Math.max(0,i-1)]; savePrefs(); });
+$("#swTrans").addEventListener("click",()=>{ prefs.trans=!prefs.trans; savePrefs();
+  toast(prefs.trans?"Sentences will be translated online":"Translating offline, from the built-in dictionary"); });
 $("#swMusic").addEventListener("click",()=>{ prefs.music=!prefs.music; savePrefs(); musicSync(); });
 $("#swSfx").addEventListener("click",()=>{ prefs.sfx=!prefs.sfx; savePrefs(); if(prefs.sfx) sfx("tap"); });
 
@@ -2599,7 +2720,8 @@ function closeBook(){
   clearTimeout(_manT); _manT=null;          // don't let a pending write revive it
   $("#reader").style.display="none";
   $("#chapNav").style.display="none"; $("#covWrap").style.display="none";
-  ["btnVoyage","btnAudio","btnLoad","btnLog","btnRail"].forEach(id=>$("#"+id).style.display="none");
+  ["btnVoyage","btnAudio","btnLoad","btnLog","btnRail","btnTrans"].forEach(id=>$("#"+id).style.display="none");
+  trToggle(false);
   $("#dock").classList.remove("show");
   $("#audioRow").style.display="none";
   $("#jsonHint").textContent=""; $("#chapHint").textContent="";
@@ -2612,8 +2734,9 @@ function closeBook(){
    quest — lands in the world instead of stepping out of it. */
 function showLibrary(){
   renderShelf();
+  const wasUp=voyShown();                 // already in the world → dissolve; arriving → the overlay's own fade
   $("#voyage").classList.add("show");
-  renderHarbour();
+  if(wasUp) voySwap(renderHarbour,true); else renderHarbour();
 }
 $("#startBack").addEventListener("click",()=>{
   if(state.book){
@@ -3326,6 +3449,46 @@ function welcomeScene(){
 let _voyView="map";                       // harbour | map | isle
 function voyShown(){ return $("#voyage").classList.contains("show"); }
 
+/* ---------------------------------------------------------------------------
+   Moving between the harbour, the islands and one island used to be a cut:
+   one innerHTML swapped for another between two frames. voySwap dissolves it
+   instead — the old view settles out, the new one arrives, and `up` says which
+   way you are travelling so the motion agrees with it. Repaints (a word marked
+   known, XP awarded) still go straight through render*, with no animation:
+   nothing has moved, so nothing should appear to.
+   ------------------------------------------------------------------------- */
+const REDUCED = !!(window.matchMedia && matchMedia("(prefers-reduced-motion:reduce)").matches);
+let _vsT=null;
+function voySwap(fn,up){
+  const s=$("#voyScroll");
+  if(!s || REDUCED){ Promise.resolve(fn()).then(()=>{ if(s) s.scrollTop=0; }); return; }
+  clearTimeout(_vsT);
+  s.classList.remove("vs-in");
+  s.classList.add("vs-out"); s.classList.toggle("vs-up",!!up);
+  _vsT=setTimeout(async ()=>{
+    _vsT=null;
+    try{ await fn(); }catch(e){}
+    s.scrollTop=0;
+    s.classList.remove("vs-out");
+    s.classList.add("vs-in"); s.classList.toggle("vs-up",!!up);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      s.classList.remove("vs-in"); s.classList.remove("vs-up");
+    }));
+  },200);
+}
+/* Leaving the Archipel for the page. The overlay fades and lifts away on its
+   own; the reader underneath comes up to meet it rather than being simply
+   uncovered mid-fade. */
+function toReader(idx){
+  closeVoyage();
+  const r=$("#reader");
+  if(r && !REDUCED){
+    r.classList.add("rd-in");
+    requestAnimationFrame(()=>requestAnimationFrame(()=>r.classList.remove("rd-in")));
+  }
+  renderChapter(idx,true);
+}
+
 function harbourNote(){
   const bits=["Chapter files can also be dropped anywhere on this screen"];
   if(state.book){
@@ -3397,7 +3560,7 @@ async function renderHarbour(){
     </div></div>`;
   $("#voyMap").innerHTML=html;
 
-  const isles=$("#hbIsles"); if(isles) isles.addEventListener("click",()=>{ sfx("page"); renderMap(); });
+  const isles=$("#hbIsles"); if(isles) isles.addEventListener("click",()=>{ sfx("page"); voySwap(renderMap); });
   $("#hbChaps").addEventListener("click",()=>$("#chapFiles").click());
   $("#hbJson").addEventListener("click",()=>$("#jsonFile").click());
   const ha=$("#hbAudio"); if(ha) ha.addEventListener("click",()=>$("#audioFolder").click());
@@ -3433,8 +3596,8 @@ async function renderHarbour(){
 async function harbourOpen(id,straightToReading){
   sfx("page");
   if(!(state.book && bookId()===id)) await openBookById(id);
-  if(straightToReading){ closeVoyage(); renderChapter(state.chapterIdx,true); }
-  else renderMap();
+  if(straightToReading) toReader(state.chapterIdx);
+  else voySwap(renderMap);
 }
 function renderMap(){
   $("#voyIsle").style.display="none"; $("#voyMap").style.display="block"; _openIsle=null;
@@ -3492,8 +3655,8 @@ function renderIsland(idx){
     <div class="tiernote">Chapter stars <span class="isle-stars">${starRow(chapterStars(idx))}</span> — one for reaching the end, one at 60% of its words known, one at 90%.</div>
     <div class="tiernote">Your bond: ${TIERS[bondTier(bondXP())].name}</div>
     <button class="isle-cta" id="isleGo">Read chapter ${idx+1} →</button>`+GLOW_DEFS;
-  $("#backMap").addEventListener("click",renderMap);
-  $("#isleGo").addEventListener("click",()=>{ closeVoyage(); renderChapter(idx,true); });
+  $("#backMap").addEventListener("click",()=>{ sfx("page"); voySwap(renderMap,true); });
+  $("#isleGo").addEventListener("click",()=>toReader(idx));
 }
 function openVoyage(instant){
   const v=$("#voyage");
@@ -3530,7 +3693,8 @@ function gameTouch(){
 $("#btnVoyage").addEventListener("click",openVoyage);
 $("#voyClose").addEventListener("click",()=>{ closeVoyage(); if(!state.book) showLibrary(); });
 $("#voyLib").addEventListener("click",()=>{ sfx("page"); showLibrary(); });
-$("#voyMap").addEventListener("click",e=>{ const el=e.target.closest(".isle"); if(el&&!el.classList.contains("locked")) renderIsland(+el.dataset.idx); });
+$("#voyMap").addEventListener("click",e=>{ const el=e.target.closest(".isle");
+  if(el&&!el.classList.contains("locked")){ sfx("page"); voySwap(()=>renderIsland(+el.dataset.idx)); } });
 
 /* mark a chapter "read" when you reach the bottom of it, and remember where you were */
 let _scrollT=null, _readT=0;
@@ -4352,12 +4516,269 @@ setInterval(()=>{ if(state.book && _mirrorDue){ mirrorProgress(); saveManifest()
 window.addEventListener("pagehide",()=>{ if(state.book){ mirrorProgress(); saveManifest(); } });
 document.addEventListener("visibilitychange",()=>{ if(document.hidden && state.book){ mirrorProgress(); saveManifest(); } });
 
+
+/* ============================================================================
+   TRANSLATION — a sentence, in English, without giving the book away.
+
+   Four engines, tried in this order, and the first one that answers wins:
+
+     1. the browser's own on-device translator, where it exists (Chrome 138+);
+     2. a real neural model — Helsinki-NLP's OPUS-MT de→en, quantised to 8 bits
+        and run here in the page. About 40 MB, fetched once on request and then
+        held in the browser's cache. From then on it needs no connection and
+        nothing you read leaves the device. This is the accurate one;
+     3. a public web translator, only if you've left that switch on and only
+        while the model above isn't aboard yet;
+     4. the built-in glossary, word by word. Not a translation and it doesn't
+        pretend to be — a reading, for when there is nothing else.
+
+   Every answer is kept on the device, so a sentence is only ever worked out
+   once, however it was worked out.
+   ==========================================================================*/
+const TR={on:false,last:"",cache:{},bi:null,_t:null,_sel:null};
+const TR_CAP=1500;                        /* sentences remembered before the oldest go */
+
+function trSaveSoon(){
+  clearTimeout(TR._t);
+  TR._t=setTimeout(()=>{
+    const k=Object.keys(TR.cache);
+    if(k.length>TR_CAP) k.slice(0,k.length-TR_CAP).forEach(x=>delete TR.cache[x]);
+    IDB.set("trcache",TR.cache);
+  },900);
+}
+
+/* ---- which words make up the sentence you tapped ----
+   Deliberately *not* sentenceAround(): that one also breaks on » « and " so a
+   flashcard's context stops at the edge of quoted speech. A translator wants
+   the whole spoken line, so only a full stop, a question, an exclamation, an
+   ellipsis or a paragraph break ends it here. */
+function sentenceRange(el){
+  const ch=state.book&&state.book.chapters[state.chapterIdx];
+  if(!ch||!ch.text||!el||!el.dataset) return null;
+  const i=+el.dataset.i;
+  const w=(state._byI&&state._byI.get(i))||(ch.words||[]).find(x=>x.i===i);
+  if(!w) return null;
+  const t=ch.text, END=/[.!?…]/;
+  let a=w.a,b=w.b;
+  while(a>0 && !END.test(t[a-1]) && t[a-1]!=="\n") a--;
+  while(b<t.length && !END.test(t[b]) && t[b]!=="\n") b++;
+  while(b<t.length && END.test(t[b])) b++;                 // keep "…!" together
+  return {a,b,text:t.slice(a,b).trim()};
+}
+function trMark(a,b){
+  trUnmark();
+  const root=$("#prose"); if(!root) return;
+  root.querySelectorAll(".w").forEach(el=>{
+    const w=state._byI&&state._byI.get(+el.dataset.i);
+    if(w && w.a>=a && w.b<=b) el.classList.add("tsel");
+  });
+}
+function trUnmark(){ const r=$("#prose"); if(r) r.querySelectorAll(".w.tsel").forEach(e=>e.classList.remove("tsel")); }
+
+/* ---- engine 1: the browser's own ---- */
+async function trBuiltin(text){
+  try{
+    const A=self.Translator;
+    if(!A||!A.create) return null;
+    if(!TR.bi){
+      if(A.availability){
+        const av=await A.availability({sourceLanguage:"de",targetLanguage:"en"});
+        if(av==="unavailable") return null;
+      }
+      TR.bi=await A.create({sourceLanguage:"de",targetLanguage:"en"});
+    }
+    const out=await TR.bi.translate(text);
+    return out&&out.trim()? {t:out.trim(),via:"on this device"} : null;
+  }catch(e){ return null; }
+}
+
+/* ---- engine 2: the model that lives here ---- */
+const NMT={lib:null,pipe:null,state:"idle",pct:0,note:""};
+const NMT_LIB="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6";
+const NMT_ID="Xenova/opus-mt-de-en";
+async function nmtLoad(){
+  if(NMT.pipe) return NMT.pipe;
+  if(NMT.state==="loading") return null;
+  NMT.state="loading"; NMT.pct=0; NMT.note="reaching for it…"; trDlPaint();
+  try{
+    const T=NMT.lib||(NMT.lib=await import(/* webpackIgnore: true */ NMT_LIB));
+    T.env.allowLocalModels=false; T.env.useBrowserCache=true;
+    const seen={};
+    const opts={ progress_callback:p=>{
+        if(p&&p.status==="progress"&&p.total){ seen[p.file]=p.loaded/p.total;
+          const v=Object.values(seen);
+          NMT.pct=Math.round(v.reduce((x,y)=>x+y,0)/v.length*100);
+          NMT.note="fetching · "+NMT.pct+"%"; trDlPaint();
+        }
+        if(p&&p.status==="ready"){ NMT.note="warming up…"; trDlPaint(); }
+      } };
+    /* 8-bit weights: a quarter of the download and, on a phone, the difference
+       between a translation and a stall. Ask for them, but don't insist —
+       an older build of the library ignores the option rather than failing. */
+    try{ NMT.pipe=await T.pipeline("translation",NMT_ID,{...opts,dtype:"q8"}); }
+    catch(e){ NMT.pipe=await T.pipeline("translation",NMT_ID,opts); }
+    NMT.state="ready"; NMT.pct=100; NMT.note="";
+    if(!prefs.nmt){ prefs.nmt=true; savePrefs(); }
+    trDlPaint();
+    return NMT.pipe;
+  }catch(e){
+    NMT.state="failed";
+    NMT.note=(navigator.onLine===false)? "no connection — it needs fetching once" : "couldn't be fetched";
+    trDlPaint();
+    return null;
+  }
+}
+async function nmtRun(text){
+  const p=NMT.pipe||await nmtLoad(); if(!p) return null;
+  try{
+    const out=await p(text,{max_new_tokens:256});
+    const t=Array.isArray(out)? (out[0]&&out[0].translation_text) : (out&&out.translation_text);
+    return t&&t.trim()? {t:t.trim(),via:"on this device · OPUS-MT"} : null;
+  }catch(e){ return null; }
+}
+
+/* ---- engine 3: the open web, if you've allowed it ---- */
+async function trOnline(text){
+  const q=encodeURIComponent(text);
+  try{
+    const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=en&dt=t&q="+q);
+    if(r.ok){ const j=await r.json();
+      const out=((j&&j[0])||[]).map(p=>p&&p[0]||"").join("").trim();
+      if(out) return {t:out,via:"online"};
+    }
+  }catch(e){}
+  try{
+    const r=await fetch("https://api.mymemory.translated.net/get?langpair=de|en&q="+q);
+    if(r.ok){ const j=await r.json();
+      const out=j&&j.responseData&&j.responseData.translatedText;
+      if(out && !/^(MYMEMORY WARNING|QUERY LENGTH LIMIT)/i.test(out)) return {t:String(out).trim(),via:"online · MyMemory"};
+    }
+  }catch(e){}
+  return null;
+}
+
+/* ---- engine 4: the glossary, word by word ---- */
+function trRough(text){
+  const seen=new Set(), out=[];
+  (text.match(/[A-Za-zÄÖÜäöüßÀ-ÿ'’-]+/g)||[]).forEach(w=>{
+    const k=norm(w); if(!k||k.length<2||seen.has(k)) return; seen.add(k);
+    const g=glossFor(k); if(g) out.push(`<b>${esc(w)}</b> ${esc(g.g)}`);
+  });
+  return out;
+}
+
+async function trResolve(text){
+  let r=await trBuiltin(text); if(r) return r;
+  if(NMT.pipe||prefs.nmt){ r=await nmtRun(text); if(r) return r; }
+  if(prefs.trans){ r=await trOnline(text); if(r) return r; }
+  return null;                                   /* caller falls back to the glossary */
+}
+
+function trPaint(res){
+  const en=$("#trEn"), via=$("#trVia");
+  if(res){ en.className="tr-en"; en.textContent=res.t; via.textContent=res.via; return; }
+  const g=trRough($("#trDe").textContent||"");
+  en.className="tr-en tr-rough";
+  en.innerHTML = g.length ? g.join('<span class="sep">·</span> ')
+    : "No translator available, and none of these words are in the built-in dictionary.";
+  via.textContent = g.length ? "word by word · built-in dictionary" : "nothing to go on";
+}
+async function trShow(text){
+  text=(text||"").replace(/\s+/g," ").trim();
+  if(!text) return;
+  if(text.length>800) text=text.slice(0,800);
+  TR.last=text;
+  $("#trBar").classList.add("show");
+  $("#trDe").textContent=text;
+  const hit=TR.cache[text];
+  if(hit){ trPaint(hit); return; }
+  $("#trEn").className="tr-en";
+  $("#trEn").innerHTML='<span class="tr-wait">'+(NMT.state==="loading"?"fetching the translator · "+NMT.pct+"%":"translating…")+'</span>';
+  $("#trVia").textContent="";
+  const res=await trResolve(text);
+  if(TR.last!==text) return;                       // a later tap already won
+  if(res){ TR.cache[text]=res; trSaveSoon(); }
+  trPaint(res);
+}
+function trHide(){ $("#trBar").classList.remove("show"); TR.last=""; trUnmark(); }
+function trToggle(on){
+  const want = (on==null)? !TR.on : !!on;
+  if(want===TR.on && on!=null) return;
+  TR.on=want;
+  const b=$("#btnTrans");
+  if(b){ b.classList.toggle("on",TR.on); b.setAttribute("aria-pressed",TR.on?"true":"false"); }
+  if(!TR.on){ trHide(); return; }
+  sfx("tap");
+  toast("Translate is on — tap any sentence");
+  /* first use, and the good engine isn't here yet: start fetching it quietly */
+  if(prefs.nmt && !NMT.pipe && NMT.state==="idle") nmtLoad();
+}
+$("#btnTrans").addEventListener("click",()=>trToggle());
+$("#trClose").addEventListener("click",trHide);
+
+/* dragging a finger across the page works too, for half a line or three of them */
+document.addEventListener("selectionchange",()=>{
+  if(!TR.on) return;
+  clearTimeout(TR._sel);
+  TR._sel=setTimeout(()=>{
+    const s=document.getSelection(); if(!s||s.isCollapsed) return;
+    const n=s.anchorNode, el=n&&(n.nodeType===1?n:n.parentNode);
+    const prose=$("#prose");
+    if(!el||!prose||!prose.contains(el)) return;
+    const txt=s.toString().replace(/\s+/g," ").trim();
+    if(txt.length<3 || txt===TR.last) return;
+    trUnmark(); trShow(txt);
+  },520);
+});
+
+/* ---- the Settings row that fetches the model ---- */
+function trDlPaint(){
+  const btn=$("#trDl"), note=$("#trDlNote"), lab=$("#trDlLab");
+  if(!btn||!note) return;
+  if(NMT.state==="ready"){
+    btn.textContent="Aboard"; btn.disabled=true; btn.style.opacity=".6";
+    if(lab) lab.textContent="Offline translator";
+    note.textContent="Ready, and yours. Translation now happens here on the device — no connection needed and nothing sent anywhere.";
+  }else if(NMT.state==="loading"){
+    btn.textContent=NMT.pct?NMT.pct+"%":"…"; btn.disabled=true; btn.style.opacity=".6";
+    note.textContent="Fetching about 40 MB, once. You can keep reading while it comes — leave this open or don't, it carries on either way.";
+  }else if(NMT.state==="failed"){
+    btn.textContent="Try again"; btn.disabled=false; btn.style.opacity="";
+    note.textContent="That didn't arrive — "+NMT.note+". Until it does, sentences fall back to whatever else is switched on below.";
+  }else{
+    btn.textContent=prefs.nmt?"Reload it":"Fetch it"; btn.disabled=false; btn.style.opacity="";
+    note.textContent="A real German→English translation model, about 40 MB, fetched once and then kept on this device. After that it works with no connection at all, and not one sentence you read is ever sent anywhere.";
+  }
+}
+$("#trDl").addEventListener("click",()=>{
+  if(NMT.state==="loading") return;
+  if(NMT.state==="failed") NMT.state="idle";
+  nmtLoad().then(p=>{ if(p) toast("The translator is aboard — it works offline now"); });
+  trDlPaint();
+});
+
+/* ---- the panel has to clear the audio dock, whatever height that is today ---- */
+function syncDockH(){
+  const d=$("#dock"); if(!d) return;
+  const on=d.classList.contains("show");
+  document.body.classList.toggle("dock-on",on);
+  document.documentElement.style.setProperty("--dockh",(on?d.offsetHeight:0)+"px");
+}
+try{
+  new MutationObserver(syncDockH).observe($("#dock"),{attributes:true,attributeFilter:["class"]});
+  if(window.ResizeObserver) new ResizeObserver(syncDockH).observe($("#dock"));
+}catch(e){}
+window.addEventListener("resize",syncDockH);
+window.addEventListener("orientationchange",()=>setTimeout(syncDockH,250));
+syncDockH();
+
 (async function boot(){
   try{
     const okIDB=await IDB.ok();
     const lp=LS.get("lesekern:prefs",null); if(lp) Object.assign(prefs,lp);
     if(okIDB){ const p=await IDB.get("prefs"); if(p) Object.assign(prefs,p); }
-    applyPrefs();
+    if(okIDB){ const tc=await IDB.get("trcache"); if(tc) TR.cache=tc; }
+    applyPrefs(); trDlPaint();
     try{ localStorage.setItem("lesekern:boot",JSON.stringify({dark:!!prefs.dark})); }catch(e){}
     await renderShelf();
     const L=lib();
