@@ -55,8 +55,9 @@
     border-bottom:1px solid var(--line); transition:background-color .7s ease, border-color .7s ease;
     backdrop-filter:blur(6px); position:relative; z-index:20;
   }
-  .brand{font-weight:700; letter-spacing:.01em; font-size:17px;}
+  .brand{display:flex; align-items:center; gap:8px; font-weight:600; letter-spacing:.004em; font-size:17px;}
   .brand b{color:var(--accent); font-weight:700;}
+  .mk-lk{width:17px;height:17px;color:var(--accent);}
   .chapsel{display:flex; align-items:center; gap:8px; font-size:13px;}
   .chapsel select{
     font-family:var(--sans); font-size:13px; font-weight:500; padding:7px 10px; max-width:230px;
@@ -208,7 +209,9 @@
 
   @media(max-width:760px){
     header{flex-wrap:wrap;gap:8px 10px;padding-left:14px;padding-right:14px;}
-    .brand{font-size:15px;flex:0 0 auto;}
+    .brand{font-size:15px;flex:0 0 auto;gap:7px;}
+    .mk-lk{width:15px;height:15px;}
+    .mk-arch{width:22px;height:20px;}
     .top-actions{flex-wrap:nowrap;gap:6px;}
     .tbtn{padding:8px 10px;gap:0;}
     .tbtn .lbl{display:none;}
@@ -261,8 +264,20 @@
   .voyage.show{opacity:1;pointer-events:auto;}
   .voy-head{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line);
     background:color-mix(in srgb,var(--paper) 80%,#000 4%);backdrop-filter:blur(6px);z-index:3;}
-  .voy-title{font-family:var(--serif);font-size:20px;font-weight:500;}
-  .voy-title b{font-style:italic;color:var(--accent);font-weight:500;}
+  /* The wordmark. A drawn mark, a quiet eyebrow, and a waterline under the
+     name — enough to read as a mark of its own without turning into a crest. */
+  .voy-brand{display:flex;align-items:center;gap:11px;min-width:0;}
+  .mk{flex:0 0 auto;display:block;color:var(--accent);}
+  .mk-arch{width:25px;height:23px;}
+  .voy-title{font-family:var(--serif);font-size:20px;font-weight:500;line-height:1.06;
+    display:flex;align-items:baseline;gap:6px;}
+  .voy-title .the{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-mute);position:relative;top:-1px;}
+  .voy-title b{position:relative;font-style:italic;color:var(--accent);font-weight:500;letter-spacing:.004em;}
+  .voy-title b::after{content:"";position:absolute;left:1px;right:-1px;bottom:-3px;height:1.5px;border-radius:2px;
+    background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 60%,transparent),
+      color-mix(in srgb,var(--accent) 16%,transparent) 74%,transparent);}
+  #voyBook{margin-top:5px;letter-spacing:.055em;opacity:.9;}
   .voy-close{margin-left:auto;font-size:13px;font-weight:600;padding:8px 14px;border-radius:9px;background:var(--paper-2);border:1px solid var(--line);}
   .voy-close:hover{border-color:var(--accent);}
   .bond-mini{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);}
@@ -448,6 +463,40 @@
 .voy-shelf{margin-top:18px}
 .voy-shelf h4{margin:0 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.62;font-weight:600}
 .voy-shelf .bk{cursor:pointer}
+
+/* --- the harbour: books aboard + the way to bring one in, drawn inside the
+       Archipel so arriving never means leaving the world --- */
+.harbour{max-width:760px;margin:0 auto}
+.harb-h{margin:0 0 9px;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.62;
+  font-weight:600;font-family:var(--sans)}
+.harb-shelf{margin:2px 0 22px}
+.harb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:12px}
+.hb{position:relative;display:flex;gap:12px;align-items:flex-start;text-align:left;padding:14px 30px 14px 14px;
+  border-radius:14px;border:1px solid var(--line);background:var(--paper-2);cursor:pointer;width:100%;
+  transition:transform .25s,border-color .25s,box-shadow .25s}
+.hb:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 26px -18px var(--accent)}
+.hb.cur{border-color:var(--accent);box-shadow:0 6px 20px -14px var(--accent)}
+.hb .sp{width:34px;height:46px;border-radius:3px 6px 6px 3px;flex:0 0 auto;
+  background:linear-gradient(150deg,var(--accent),color-mix(in srgb,var(--accent) 45%,#000));
+  box-shadow:inset 3px 0 0 rgba(255,255,255,.25)}
+.hb-body{flex:1 1 auto;min-width:0}
+.hb .t{font-family:var(--serif);font-size:15.5px;line-height:1.25}
+.hb .m{font-family:var(--mono);font-size:10.5px;color:var(--ink-mute);margin-top:4px}
+.hb .m .gh{color:var(--accent);opacity:.8}
+.hb-go{margin-top:10px;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--accent);
+  padding:5px 10px;border-radius:9px;background:var(--paper);
+  border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);transition:all .2s}
+.hb-go:hover{background:var(--accent);color:var(--paper)}
+.hb-x{position:absolute;top:7px;right:7px;font-size:15px;line-height:1;color:var(--ink-mute);
+  padding:3px 6px;border-radius:6px;opacity:.45;transition:all .2s}
+.hb-x:hover{opacity:1;color:var(--die);background:color-mix(in srgb,var(--die) 12%,transparent)}
+.harb-add{border:1px dashed color-mix(in srgb,var(--accent) 42%,var(--line));border-radius:14px;padding:16px 16px 14px;
+  background:color-mix(in srgb,var(--accent) 4%,var(--paper))}
+.harb-add .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.harb-p{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--ink-mute);margin:0}
+.harb-note{font-family:var(--mono);font-size:10.5px;color:var(--ink-mute);margin-top:11px;line-height:1.5}
+.harb-paste{width:100%;margin-top:10px;min-height:110px;padding:11px;border-radius:11px;resize:vertical;
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:14px}
 body.dark .welcome-sea{border-color:rgba(255,255,255,.08)}
 .tbtn.icon{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;line-height:0}
 
@@ -588,7 +637,15 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   <div class="vmsg" id="veilMsg"></div>
 </div>
 <header>
-  <div class="brand">Lese<b>kern</b></div>
+  <div class="brand">
+    <svg class="mk mk-lk" viewBox="0 0 22 22" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 3.2c3.5 3 3.5 11.6 0 15.6-3.5-4-3.5-12.6 0-15.6Z"/>
+        <path d="M11 7.4v8.2"/>
+      </g>
+    </svg>
+    <span>Lese<b>kern</b></span>
+  </div>
   <div class="chapsel" id="chapNav" style="display:none">
     <button class="navbtn" id="prevCh" title="Previous chapter">‹</button>
     <select id="chapSelect"></select>
@@ -633,7 +690,11 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 
 <main>
   <div class="reader-wrap" id="readerWrap">
-    <div class="start" id="start">
+    <!-- The plain loading page is no longer a place you are ever sent: the
+         harbour inside the Archipel does this work in the world's own clothes.
+         The markup stays because its hints and its paste box are still written
+         to from elsewhere; nothing here is shown. -->
+    <div class="start" id="start" style="display:none">
       <button class="start-back" id="startBack">← <span id="startBackLbl">Archipel</span></button>
       <div class="kicker">Immersive German reader</div>
       <h1>Read, hear every word, and keep what you learn.</h1>
@@ -735,9 +796,20 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 
 <div class="voyage" id="voyage">
   <div class="voy-head">
-    <div>
-      <div class="voy-title">Der <b>Archipel</b></div>
-      <div class="voy-sub" id="voyBook"></div>
+    <div class="voy-brand">
+      <svg class="mk mk-arch" viewBox="0 0 24 22" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18.8" cy="5.4" r="2.4" opacity=".5"/>
+          <path d="M2.6 16.2q4.1-6.4 8.2 0"/>
+          <path d="M13.2 16.2q2.9-4.4 5.8 0"/>
+          <path d="M1.5 16.2h21" opacity=".42"/>
+          <path d="M4.2 19.6q2.3-1.4 4.6 0t4.6 0t4.6 0" opacity=".5"/>
+        </g>
+      </svg>
+      <div>
+        <div class="voy-title"><span class="the">Der</span> <b>Archipel</b></div>
+        <div class="voy-sub" id="voyBook"></div>
+      </div>
     </div>
     <div class="bond-mini" id="bondMini" title="How close your island friends feel to you"></div>
     <div class="voy-actions">
@@ -1791,7 +1863,7 @@ function buildTextBook(chapters,title){
 }
 function readAsOne(t){ buildTextBook([{title:bookTitleFrom(t).slice(0,70),text:t}], bookTitleFrom(t)); }
 function offerSplit(t){
-  const chs=splitChapters(t), box=$("#splitPrompt");
+  const chs=splitChapters(t), box=document.getElementById("hbSplit")||$("#splitPrompt");
   if(chs){
     box.style.display="block";
     box.innerHTML=`Found <b>${chs.length} chapters</b> in this text. Split them so you can navigate, track each one, and grow its island — or read it all as one page.
@@ -1810,7 +1882,10 @@ $("#txtFile").addEventListener("change",e=>{
   const f=e.target.files[0]; e.target.value=""; if(!f)return;
   if(wrongPicker(f)) return;
   const r=new FileReader();
-  r.onload=()=>{ const t=(r.result||"").trim(); if(!t){toast("That file is as empty as a shell");return;} $("#txtIn").value=t.slice(0,2000); offerSplit(t); };
+  r.onload=()=>{ const t=(r.result||"").trim(); if(!t){toast("That file is as empty as a shell");return;}
+    $("#txtIn").value=t.slice(0,2000);
+    const hp=document.getElementById("hbPaste"); if(hp) hp.value=t.slice(0,2000);
+    offerSplit(t); };
   r.onerror=()=>toast("I couldn't read that file");
   r.readAsText(f);
 });
@@ -1826,6 +1901,9 @@ function enterBook(startIdx){
   _gramBuilt=false;
   ensureGame();
   rebuildChapSelect();
+  /* if the Archipel is up, a book arriving means its islands are what you
+     wanted to see — not the harbour you asked for it from */
+  if(voyShown() && _voyView==="harbour"){ _voyView="map"; _openIsle=null; }
   renderChapter(Math.min(Math.max(0,startIdx||0), state.book.chapters.length-1), true);
   gameTouch(); renderShelf(); applyPrefs(); renderLogChip(); saveManifest();
 }
@@ -2518,13 +2596,14 @@ function closeBook(){
   closeRail(); closeVoyage();
   showLibrary();
 }
+/* "Bookshelf" no longer means a page outside the story: it raises the Archipel
+   and puts you in its harbour, with the reader left exactly as it was
+   underneath. Every old caller — the header button, closing a book, the
+   quest — lands in the world instead of stepping out of it. */
 function showLibrary(){
-  $("#reader").style.display="none"; $("#start").style.display="block";
-  $("#readerWrap").scrollTop=0; renderShelf();
-  /* the start screen is reachable from the Archipel and from an open book, so
-     the way out has to name whichever one you left */
-  const l=$("#startBackLbl");
-  if(l) l.textContent = state.book ? (state.book.title||"the book") : "Archipel";
+  renderShelf();
+  $("#voyage").classList.add("show");
+  renderHarbour();
 }
 $("#startBack").addEventListener("click",()=>{
   if(state.book){
@@ -3228,37 +3307,129 @@ function welcomeScene(){
   </svg>`;
 }
 
-function renderWelcome(){
-  const bm=$("#bondMini"); if(bm) bm.innerHTML="";
-  const vb=$("#voyBook"); if(vb) vb.textContent="nothing aboard yet";
-  /* With nothing aboard there is no bookshelf worth the name and nowhere to
-     read, so the two header actions stand down and one route out remains. */
-  const vc=$("#voyClose"); if(vc) vc.style.display="none";
-  const vl=$("#voyLib");   if(vl) vl.style.display="none";
-  let html=`<div class="map-top">
-      <button class="map-cta" id="wLoad">Bring a book aboard →</button>
-    </div>
-    <div class="welcome-sea">${welcomeScene()}</div>
-    <p class="map-intro">It's quiet out here right now. A few islands, a boat coming in, and not much else to be done about it.<br><br>That changes the moment you bring a book: <b>every chapter becomes an island of its own</b> — its own shore, its own hour of the day, and someone living there who is very glad of the company. Read the chapter, learn its words, and the island answers by coming into bloom.<br><span class="voy-sub">Five shores rise the moment a book comes aboard. The rest arrive as you read.</span></p>
-    <div id="voyShelf" class="voy-shelf"></div>`;
-  $("#voyMap").innerHTML=html;
-  $("#wLoad").addEventListener("click",()=>{ closeVoyage(); showLibrary(); });
-  fillVoyShelf();
+/* ============================================================================
+   THE HARBOUR — where you arrive, and where you come back to. Books already
+   aboard, and the way to bring another one in, both drawn inside the Archipel.
+   Opening a book from here lands on its islands, so the first thing you ever
+   see is the world rather than a file dialog wearing a page.
+   ==========================================================================*/
+let _voyView="map";                       // harbour | map | isle
+function voyShown(){ return $("#voyage").classList.contains("show"); }
+
+function harbourNote(){
+  const bits=["Chapter files can also be dropped anywhere on this screen"];
+  if(state.book){
+    const g=ghostCount(), n=state.book.chapters.length;
+    bits.push(state.book.title+" · "+n+" chapter"+(n===1?"":"s")+(g?" · "+g+" still awaiting text":""));
+  }
+  return bits.join(" · ");
 }
-async function fillVoyShelf(){
-  const el=$("#voyShelf"); if(!el) return;
+
+async function renderHarbour(){
+  _voyView="harbour"; _openIsle=null;
+  $("#voyIsle").style.display="none"; $("#voyMap").style.display="block";
+  const bm=$("#bondMini"); if(bm){ if(state.book) renderBondMini(); else bm.innerHTML=""; }
+
   let list=[]; try{ list=await shelfList(); }catch(e){}
-  if(!list.length) return;
-  el.innerHTML=`<h4>Already aboard</h4><div class="shelf-grid">`+
-    list.slice().sort((a,b)=>(b.at||0)-(a.at||0)).map(b=>
-    `<div class="bk" data-vopen="${esc(b.id)}"><div class="sp"></div>
-      <div><div class="t">${esc(b.title)}</div><div class="m">${b.chapters} chapters${b.tracks?" · "+b.tracks+" tracks":""}</div></div></div>`).join("")+`</div>`;
-  el.addEventListener("click",e=>{ const o=e.target.closest("[data-vopen]");
-    if(o){ sfx("page"); openBookById(o.dataset.vopen).then(()=>{ renderMap(); }); } });
+  list=list.slice().sort((a,b)=>(b.at||0)-(a.at||0));
+  const cur=state.book?bookId():"", L=lib();
+
+  /* the head reads as the harbour while you're standing in it */
+  const vb=$("#voyBook");
+  if(vb) vb.textContent = list.length
+    ? "the harbour · "+list.length+" book"+(list.length===1?"":"s")+" aboard"
+    : "nothing aboard yet";
+  const vc=$("#voyClose");
+  if(vc){ vc.style.display = state.book? "" : "none";
+          if(state.book) vc.textContent="Read · Kap. "+(state.chapterIdx+1)+" →"; }
+  const vl=$("#voyLib"); if(vl) vl.style.display="none";   // you are already here
+
+  let html=`<div class="harbour">`;
+  if(state.book)
+    html+=`<div class="map-top"><button class="map-cta ghost" id="hbIsles">‹ The islands of ${esc(state.book.title)}</button></div>`;
+
+  if(list.length){
+    html+=`<div class="harb-shelf"><div class="harb-h">Already aboard</div><div class="harb-grid">`+
+      list.map(b=>{
+        const rec=L.books[b.id]||{}, last=Math.min(rec.last||0,Math.max(0,(b.chapters||1)-1));
+        return `<div class="hb${b.id===cur?" cur":""}" data-hopen="${esc(b.id)}" title="Open its islands">
+          <div class="sp"></div>
+          <div class="hb-body">
+            <div class="t">${esc(b.title)}</div>
+            <div class="m">${b.chapters} island${b.chapters===1?"":"s"}${b.tracks?" · "+b.tracks+" tracks":""}${shelfGhostNote(b.id)}${b.id===cur?" · open":""}</div>
+            <button class="hb-go" data-hread="${esc(b.id)}">Read · Kap. ${last+1} →</button>
+          </div>
+          <button class="hb-x" data-hdel="${esc(b.id)}" title="Take it off this device">×</button>
+        </div>`;
+      }).join("")+`</div>
+      <div class="harb-note">Tap a book for its islands — one for every chapter — or go straight back to the page you left.</div></div>`;
+  }else{
+    html+=`<div class="welcome-sea">${welcomeScene()}</div>
+      <p class="map-intro">It's quiet out here right now. A few islands, a boat coming in, and not much else to be done about it.<br><br>That changes the moment you bring a book: <b>every chapter becomes an island of its own</b> — its own shore, its own hour of the day, and someone living there who is very glad of the company. Read the chapter, learn its words, and the island answers by coming into bloom.<br><span class="voy-sub">Five shores rise the moment a book comes aboard. The rest arrive as you read.</span></p>`;
+  }
+
+  const have=(state.tracks||[]).filter(t=>state.audio[t]).length;
+  html+=`<div class="harb-add">
+      <div class="harb-h">Bring a book aboard</div>
+      <p class="harb-p">Chapter <b>.txt</b> files make one island each. A read-along <b>.json</b> carries the audiobook's timings, so every word lights up exactly as you hear it. Nothing you open leaves this device.</p>
+      <div class="row">
+        <button class="map-cta" id="hbChaps">Open chapter files…</button>
+        <button class="map-cta ghost" id="hbJson">Open read-along .json</button>
+        ${(state.tracks&&state.tracks.length)?`<button class="map-cta ghost" id="hbAudio">${have?"Add more tracks…":"Add audiobook files…"}</button>`:""}
+        <button class="map-cta ghost" id="hbPasteBtn">Paste a passage</button>
+      </div>
+      <div id="hbPasteWrap" style="display:none">
+        <textarea id="hbPaste" class="harb-paste" placeholder="Es war einmal…"></textarea>
+        <div class="row"><button class="map-cta" id="hbRead">Read this</button><button class="map-cta ghost" id="hbTxt">Open a .txt instead</button></div>
+      </div>
+      <div id="hbSplit" class="split-prompt" style="display:none"></div>
+      <div class="harb-note">${esc(harbourNote())}</div>
+    </div></div>`;
+  $("#voyMap").innerHTML=html;
+
+  const isles=$("#hbIsles"); if(isles) isles.addEventListener("click",()=>{ sfx("page"); renderMap(); });
+  $("#hbChaps").addEventListener("click",()=>$("#chapFiles").click());
+  $("#hbJson").addEventListener("click",()=>$("#jsonFile").click());
+  const ha=$("#hbAudio"); if(ha) ha.addEventListener("click",()=>$("#audioFolder").click());
+  $("#hbTxt").addEventListener("click",()=>$("#txtFile").click());
+  $("#hbPasteBtn").addEventListener("click",()=>{
+    const w=$("#hbPasteWrap"), on=w.style.display==="none";
+    w.style.display=on?"block":"none"; if(on) $("#hbPaste").focus();
+  });
+  $("#hbRead").addEventListener("click",()=>{
+    const t=$("#hbPaste").value.trim();
+    if(!t){ toast("Paste something first, or open a .txt"); return; }
+    offerSplit(t);
+  });
+
+  const grid=$("#voyMap").querySelector(".harb-grid");
+  if(grid) grid.addEventListener("click",async e=>{
+    const del=e.target.closest("[data-hdel]");
+    if(del){
+      const id=del.dataset.hdel;
+      if(!confirm("Take this book (and its audio) off this device? Your word list stays.")) return;
+      if(state.book && bookId()===id) closeBook();
+      const dropped=await forgetBook(id);
+      renderShelf(); renderHarbour();
+      toast(dropped? "Off the shelf · "+dropped+" track"+(dropped===1?"":"s")+" released" : "Off the shelf");
+      return;
+    }
+    const rd=e.target.closest("[data-hread]"); if(rd){ await harbourOpen(rd.dataset.hread,true); return; }
+    const op=e.target.closest("[data-hopen]"); if(op) await harbourOpen(op.dataset.hopen,false);
+  });
+}
+/* Two ways off a book's card: into its islands, or straight back onto the page
+   you were last on. Both go through the same door. */
+async function harbourOpen(id,straightToReading){
+  sfx("page");
+  if(!(state.book && bookId()===id)) await openBookById(id);
+  if(straightToReading){ closeVoyage(); renderChapter(state.chapterIdx,true); }
+  else renderMap();
 }
 function renderMap(){
   $("#voyIsle").style.display="none"; $("#voyMap").style.display="block"; _openIsle=null;
-  if(!state.book){ renderWelcome(); return; }
+  if(!state.book){ renderHarbour(); return; }
+  _voyView="map";
   renderBondMini();
   const chs=state.book.chapters, open=islesOpen();
   /* bloom is a walk over the chapter's word list; work it out once per island
@@ -3289,7 +3460,7 @@ function renderMap(){
   const nt=$("#noTidy"); if(nt) nt.addEventListener("click",dismissTidy);
 }
 function renderIsland(idx){
-  _openIsle=idx; $("#voyMap").style.display="none"; $("#voyIsle").style.display="block";
+  _openIsle=idx; _voyView="isle"; $("#voyMap").style.display="none"; $("#voyIsle").style.display="block";
   renderBondMini();
   const c=state.book.chapters[idx], b=islandBloom(idx), name=companionName(idx), K=isleKind(idx);
   const read=(state.game.read&&state.game.read[idx])?"yes":"not yet";
@@ -3333,7 +3504,8 @@ function repaintVoyage(){
   _voyT=setTimeout(()=>{
     _voyT=null;
     if(!$("#voyage").classList.contains("show")) return;
-    if(_openIsle!=null) renderIsland(_openIsle); else renderMap();
+    if(_voyView==="harbour") renderHarbour();
+    else if(_openIsle!=null) renderIsland(_openIsle); else renderMap();
   },0);
 }
 function gameTouch(){
@@ -3347,7 +3519,7 @@ function gameTouch(){
 }
 $("#btnVoyage").addEventListener("click",openVoyage);
 $("#voyClose").addEventListener("click",()=>{ closeVoyage(); if(!state.book) showLibrary(); });
-$("#voyLib").addEventListener("click",()=>{ closeVoyage(); showLibrary(); });
+$("#voyLib").addEventListener("click",()=>{ sfx("page"); showLibrary(); });
 $("#voyMap").addEventListener("click",e=>{ const el=e.target.closest(".isle"); if(el&&!el.classList.contains("locked")) renderIsland(+el.dataset.idx); });
 
 /* mark a chapter "read" when you reach the bottom of it, and remember where you were */
@@ -3812,7 +3984,7 @@ function nextAction(){
   if(d) return {t:"Review "+d+" due card"+(d===1?"":"s"),s:"Nothing else pays back as fast.",go:()=>{ closeVoyage(); openRail(); switchTab("review"); }};
   if(!state.book) return {t:"Bring a book aboard",s:"Chapter files, or a read-along .json.",go:showLibrary};
   const g=ghostCount();
-  if(g===state.book.chapters.length) return {t:"Add your chapter files",s:"Your progress is here; only the text is missing.",go:()=>{ closeVoyage(); $("#chapFiles").click(); }};
+  if(g===state.book.chapters.length) return {t:"Add your chapter files",s:"Your progress is here; only the text is missing.",go:()=>{ $("#chapFiles").click(); }};
   const i=state.chapterIdx, ch=state.book.chapters[i];
   if(ch&&ch.ghost){ const j=state.book.chapters.findIndex(c=>!c.ghost);
     if(j>=0) return {t:"Read chapter "+(j+1),s:"This one's text isn't on the device.",go:()=>{ closeVoyage(); renderChapter(j,true); }}; }
@@ -4147,12 +4319,14 @@ $("#pickChaps").addEventListener("click",()=>$("#chapFiles").click());
 $("#chapFiles").addEventListener("change",async e=>{
   const f=[...e.target.files]; e.target.value="";
   if(f.length) await loadChapterFiles(f);
+  if(state.book && voyShown() && _voyView==="harbour") renderMap();
 });
 /* dropping the folder of chapter files onto the start screen works too */
 ["dragover","drop"].forEach(ev=>document.addEventListener(ev,e=>{ e.preventDefault(); }));
 document.addEventListener("drop",async e=>{
   const f=[...(e.dataTransfer&&e.dataTransfer.files||[])].filter(x=>/\.(txt|md)$/i.test(x.name));
   if(f.length) await loadChapterFiles(f);
+  if(state.book && voyShown() && _voyView==="harbour") renderMap();
 });
 $("#btnLog").addEventListener("click",()=>{ if(state.book) openVoyage(); else showLibrary(); });
 $("#btnSync").addEventListener("click",()=>{ $("#menu").classList.remove("show"); showSyncSheet(); });
@@ -4178,14 +4352,16 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden && state.b
     await renderShelf();
     const L=lib();
     const id=(okIDB? await IDB.get("lastBook") : null) || L.lastBook || "";
-    if(!id){ if(prefs.startMap) openVoyage(true); return; }
+    /* Nothing to resume: the harbour is the first thing you see, not a page of
+       file buttons. openVoyage falls through to it whenever no book is open. */
+    if(!id){ openVoyage(true); return; }
     const rec=L.books[id];
     let book=okIDB? await IDB.get("book:"+id) : null;
     /* The text may be gone — cleared, or never storable here in the first
        place. The shelf record isn't: rebuild the book from it and let the
        chapters be ghosts until their files come back. */
     if((!book||!book.chapters) && rec) book=ghostBook(rec);
-    if(!book||!book.chapters){ if(prefs.startMap) openVoyage(true); return; }
+    if(!book||!book.chapters){ openVoyage(true); return; }
     state.book=book; state.tracks=book.tracks||[]; state.chapterIdx=0;
     const prog=await loadProgressFor(id);
     state.vocab=prog.vocab; state.cards=prog.cards; state.game=normGame(prog.game); ensureGame();
@@ -4210,7 +4386,7 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden && state.b
       ? "Welcome back — Kapitel "+((last||0)+1)+", and "+gh+" chapter"+(gh===1?"":"s")+" still to hand back"
       : "Welcome back to "+book.title+(have?" — the audio is ready":"");
     maybeOfferTidy();
-  }catch(e){ if(prefs.startMap && !state.book) openVoyage(true); }
+  }catch(e){ if(!state.book) openVoyage(true); }
   finally{ settle(); }
 })();
 </script>
