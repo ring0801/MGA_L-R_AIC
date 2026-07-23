@@ -31,6 +31,9 @@
 <style>
   :root{
     --paper:#e9e6df; --paper-2:#f2efe9; --ink:#26221e; --ink-mute:#8a8178;
+    /* Two muted steps between --ink and --ink-mute. Eighteen rules in this file
+       ask for these; without them every "quiet" line rendered at full strength. */
+    --ink-2:#4a443d; --ink-3:#8a8178;
     --accent:#7a6a52; --accent-soft:#e4d9c4; --line:#d8d2c6; --rail:#211d19;
     --der:#2f6fa7; --die:#b85377; --das:#3f8f79;
     --serif:"Newsreader",Georgia,serif; --sans:"Space Grotesk",system-ui,sans-serif; --mono:"Spline Sans Mono",monospace;
@@ -325,12 +328,21 @@
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
   .sway{transform-origin:bottom center;animation:sway 5s ease-in-out infinite;}
   .bob{animation:bob 4s ease-in-out infinite;}
+  /* A map of 21 islands used to run ~300 infinite animations at once — every
+     tree, keeper, star and windmill on every thumbnail, all compositing
+     forever. At 150px wide none of it is visible anyway, so the motion lives
+     only on the big island you actually opened. */
+  .isle-grid .sway,.isle-grid .bob,.isle-grid .spin,
+  .isle-grid .twk,.isle-grid .drift,.isle-grid .w-cloud{animation:none;}
+  /* islands below the fold cost nothing until they're scrolled to */
+  .isle{content-visibility:auto;contain-intrinsic-size:auto 210px;}
   @media(max-width:900px){ .isle-grid{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));} }
 
   /* ============ reading preferences ============ */
   :root{ --read-size:20px; --read-lead:1.75; }
   .prose{font-size:var(--read-size); line-height:var(--read-lead);}
   body.dark{--paper:#191b1f;--paper-2:#212429;--ink:#e9e4dc;--ink-mute:#9a948b;
+    --ink-2:#c4beb4;--ink-3:#9a948b;
     --line:#33373d;--accent:#c9a978;--accent-soft:#4a412f;--rail:#0f1113;}
   body.dark .w.speaking{background:var(--accent-soft);}
   body.dark .isle.locked{filter:grayscale(.6) brightness(.8);}
@@ -473,10 +485,90 @@ html[data-boot-dark] .veil .vmsg{color:#9a948b;}
    Identical values to body.dark, so when the real preference lands a moment
    later it changes nothing and no colour transition is triggered. */
 html[data-boot-dark] body{--paper:#191b1f;--paper-2:#212429;--ink:#e9e4dc;--ink-mute:#9a948b;
+  --ink-2:#c4beb4;--ink-3:#9a948b;
   --line:#33373d;--accent:#c9a978;--accent-soft:#4a412f;--rail:#0f1113;}
 /* while booting, everything takes its position instantly — the veil is over it
    anyway, and a transition that starts under the veil finishes in plain sight */
 html.booting *,html.booting *::before,html.booting *::after{transition:none !important;}
+  /* ---------- chapter files card ---------- */
+  .one-off{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;}
+  .one-off summary{cursor:pointer;font-size:12.5px;color:var(--ink-3);list-style:none;}
+  .one-off summary::-webkit-details-marker{display:none;}
+  .one-off summary:before{content:"＋ ";opacity:.6;}
+  .one-off[open] summary:before{content:"− ";}
+  .one-off[open] summary{margin-bottom:10px;}
+
+  /* ---------- a chapter whose text isn't on the device ---------- */
+  .ghost-ch{max-width:34em;margin:8vh auto;text-align:center;color:var(--ink-2);}
+  .ghost-ch .ghost-mark{font-size:38px;color:var(--accent);opacity:.5;line-height:1;}
+  .ghost-ch h3{font-family:var(--serif);font-size:22px;font-weight:500;margin:14px 0 8px;color:var(--ink);}
+  .ghost-ch p{font-size:14.5px;line-height:1.7;margin:0 0 18px;}
+  .ghost-ch .ghost-note{margin-top:12px;font-size:12px;color:var(--ink-3);}
+
+  /* ---------- Logbuch ---------- */
+  .log{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;margin:0 0 18px;}
+  .log-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;}
+  .log-rank{font-family:var(--serif);font-size:20px;color:var(--ink);}
+  .log-rank .log-en{font-family:inherit;font-size:12px;color:var(--ink-3);font-style:italic;margin-left:6px;}
+  .log-xp{font-size:12px;color:var(--ink-3);margin-top:2px;}
+  .log-streak{text-align:right;line-height:1.15;flex:0 0 auto;}
+  .log-streak b{display:block;font-size:24px;font-family:var(--serif);color:var(--accent);}
+  .log-streak span{font-size:11px;color:var(--ink-3);}
+  .log-streak i{display:block;font-size:10.5px;color:var(--ink-3);opacity:.75;font-style:normal;}
+  .log-bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin:12px 0 10px;}
+  .log-bar span{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .6s ease;}
+  .log-week{display:flex;align-items:center;gap:5px;}
+  .log-week .dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex:0 0 auto;}
+  .log-week .dot.on{background:var(--accent);}
+  .log-week .dot.now{box-shadow:0 0 0 2px var(--paper-2),0 0 0 3px var(--accent);}
+  .log-week-l{margin-left:8px;font-size:11px;color:var(--ink-3);}
+  .next-act{display:flex;align-items:center;gap:10px;margin:14px 0 4px;padding:11px 13px;border-radius:10px;
+    background:var(--paper-2);border:1px solid var(--line);cursor:pointer;transition:border-color .2s,transform .12s;}
+  .next-act:hover{border-color:var(--accent);}
+  .next-act:active{transform:scale(.99);}
+  .next-act .na-t{font-weight:600;font-size:13.5px;color:var(--ink);}
+  .next-act .na-s{font-size:11.5px;color:var(--ink-3);margin-top:1px;}
+  .next-act .na-go{margin-left:auto;color:var(--accent);font-size:16px;flex:0 0 auto;}
+  .log-quests h4{margin:16px 0 8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;}
+  .quest{margin-bottom:11px;}
+  .quest.done .q-lab{text-decoration:line-through;opacity:.55;}
+  .q-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+  .q-lab{font-size:13px;color:var(--ink);}
+  .q-n{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:0 0 auto;}
+  .q-bar{height:4px;border-radius:3px;background:var(--line);overflow:hidden;margin:5px 0 3px;}
+  .q-bar span{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .5s ease;}
+  .quest.done .q-bar span{opacity:.5;}
+  .q-why{font-size:11px;color:var(--ink-3);opacity:.85;}
+  .q-foot{margin-top:10px;font-size:11px;color:var(--ink-3);opacity:.8;}
+
+  /* ---------- sheet (sync, and anything else that needs a page) ---------- */
+  .sheet-scrim{position:fixed;inset:0;background:rgba(20,18,15,.34);opacity:0;pointer-events:none;
+    transition:opacity .25s ease;z-index:60;}
+  .sheet-scrim.show{opacity:1;pointer-events:auto;}
+  .sheet{position:fixed;z-index:61;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);
+    width:min(96vw,620px);max-height:86vh;background:var(--paper);border:1px solid var(--line);
+    border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.22);display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;}
+  .sheet.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
+    border-bottom:1px solid var(--line);font-family:var(--serif);font-size:17px;}
+  .sheet-head button{font-size:12.5px;color:var(--ink-3);background:none;border:0;cursor:pointer;}
+  .sheet-body{padding:16px;overflow:auto;}
+  .sheet-p{font-size:13px;line-height:1.65;color:var(--ink-2);margin:0 0 12px;}
+  .sheet-h{margin:0 0 8px;font-size:15px;font-family:var(--serif);color:var(--ink);font-weight:500;}
+  .sheet-hr{border:0;border-top:1px solid var(--line);margin:20px 0 16px;}
+  .sheet-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;}
+  .sheet-note{font-size:11.5px;color:var(--ink-3);}
+  .sync-box{width:100%;height:110px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;
+    line-height:1.45;word-break:break-all;padding:10px;border:1px solid var(--line);border-radius:10px;
+    background:var(--paper-2);color:var(--ink-2);resize:vertical;}
+  .sync-wait{padding:24px 0;text-align:center;color:var(--ink-3);font-size:13px;}
+  .sync-bad{color:#a4442f;font-size:13px;}
+
+  /* ---------- ghost markers on the shelf and map ---------- */
+  .bk .m .gh{color:var(--accent);opacity:.8;}
+  .isle.ghosted .isle-bloom:after{content:" · text away";opacity:.7;}
+  .isle-stars{font-size:11px;letter-spacing:.06em;color:var(--accent);}
 </style>
 </head>
 <body>
@@ -510,6 +602,7 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
     <button class="tbtn" id="btnVoyage" style="display:none" title="Archipel" aria-label="Archipel"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15.2q2-1.2 4 0t4 0 4 0 4 0"/><path d="M4.6 12.4q2.2-4.6 5.4-4.6t5.4 4.6z"/><path d="M10 7.8V3.4M10 3.4l3 1.3-3 1.4"/></g></svg><span class="lbl">Archipel</span></button>
     <button class="tbtn" id="btnAudio" style="display:none" title="Audiobook" aria-label="Audiobook"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12.4V10a6.4 6.4 0 0 1 12.8 0v2.4"/><rect x="2.2" y="11.6" width="3.6" height="5.2" rx="1.6"/><rect x="14.2" y="11.6" width="3.6" height="5.2" rx="1.6"/></g></svg><span class="lbl" id="audioLbl">Audiobook</span></button>
     <button class="tbtn" id="btnLoad" style="display:none" title="Bookshelf" aria-label="Bookshelf"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.2" width="3.4" height="13.6" rx="1"/><rect x="8" y="3.2" width="3.4" height="13.6" rx="1"/><path d="M13.4 5.1l3.2.9-2.6 10.4-3.2-.9z"/></g></svg><span class="lbl">Bookshelf</span></button>
+    <button class="tbtn" id="btnLog" style="display:none" title="Logbuch" aria-label="Logbuch"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3.4h9.2a2 2 0 0 1 2 2v11.2H6a2 2 0 0 1-2-2z"/><path d="M7 7h6M7 10h6M7 13h3.6"/></g></svg><span class="lbl" id="logLbl">Logbuch</span></button>
     <button class="tbtn" id="btnMenu" title="Settings" aria-label="Settings"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><circle cx="10" cy="10" r="2.7"/><path d="M10 2.6l1.3 1.9 2.3-.4.5 2.3 2 1.2-1 2.1 1 2.1-2 1.2-.5 2.3-2.3-.4L10 17.4l-1.3-1.9-2.3.4-.5-2.3-2-1.2 1-2.1-1-2.1 2-1.2.5-2.3 2.3.4z"/></g></svg><span class="lbl">Settings</span></button>
     <button class="tbtn solid rail-toggle" id="btnRail" style="display:none" title="Study" aria-label="Study"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.4 2.8h9.2v14.4L10 13.4l-4.6 3.8z"/></g></svg><span class="lbl">Study</span></button>
   </div>
@@ -532,6 +625,9 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
     <button class="mini-btn" id="btnImport">Restore a backup…</button>
   </div>
   <div class="hint">A backup holds your words, cards and islands — not books or audio. Those live in the <b>Bookshelf</b> and under <b>Audiobook</b>.</div>
+  <h4>Carry it elsewhere</h4>
+  <div class="menu-btns"><button class="mini-btn" id="btnSync">Sync code…</button></div>
+  <div class="hint">One block of text holds your whole ledger. Applying a code <b>merges</b> it with what's already here, so an older code can only fill gaps — it can never undo newer work.</div>
   <div class="hint" style="margin-top:8px">All of this lives on your device and nowhere else.</div>
 </div>
 
@@ -555,14 +651,19 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
           </div>
         </div>
         <div class="load-card">
-          <h3>Read a book or chapter</h3>
-          <p>Paste the whole book or one chapter, or open a <b>.txt</b>. Lesekern finds the chapters for you. No audio in this mode.</p>
-          <textarea id="txtIn" placeholder="Es war einmal…"></textarea>
-          <div class="filerow" style="display:flex;gap:8px;align-items:center;">
-            <button class="btn ghost" id="pickTxt">Open .txt</button>
-            <button class="btn ghost" id="loadText">Read this</button>
-          </div>
-          <div id="splitPrompt" class="split-prompt" style="display:none"></div>
+          <h3>Chapter by chapter</h3>
+          <p>Open all your chapter <b>.txt</b> files at once — one island per chapter, and only the chapter you're reading is ever on the page. Add more later and they slot into place. You can drop the files anywhere on this screen.</p>
+          <button class="btn" id="pickChaps">Open chapter files…</button>
+          <div class="filehint" id="chapHint"></div>
+          <details class="one-off">
+            <summary>or paste a single passage</summary>
+            <textarea id="txtIn" placeholder="Es war einmal…"></textarea>
+            <div class="filerow" style="display:flex;gap:8px;align-items:center;">
+              <button class="btn ghost" id="pickTxt">Open .txt</button>
+              <button class="btn ghost" id="loadText">Read this</button>
+            </div>
+            <div id="splitPrompt" class="split-prompt" style="display:none"></div>
+          </details>
         </div>
       </div>
     </div>
@@ -655,6 +756,13 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 <input type="file" id="audioFolder" accept=".m4a,.m4b,.mp3,.aac,.wav,.ogg,.flac,audio/*" multiple hidden />
 <input type="file" id="txtFile" accept=".txt,text/plain" hidden />
 <input type="file" id="progFile" accept=".json,application/json" hidden />
+<input type="file" id="chapFiles" accept=".txt,.md,text/plain" multiple hidden />
+<input type="file" id="syncFile" accept=".txt,text/plain" hidden />
+<div class="sheet-scrim" id="sheetScrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet-head"><span id="sheetTitle"></span><button id="sheetClose">Close</button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>/* Lesekern built-in language data — bundled, offline, editable.
@@ -1384,8 +1492,23 @@ window.LK_DATA=(function(){
 </script>
 <script>
 const $=s=>document.querySelector(s);
-const norm=w=>w.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
-const esc=s=>(s||"").replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+/* Unicode normalisation is by far the most expensive thing in the reader, and
+   the same few thousand words are put through it over and over: once to build
+   the page, once to count them, once per coverage check, once per island.
+   A book has far fewer distinct words than word occurrences, so remember the
+   answers. The cap keeps this from growing without bound across many books. */
+const _NORM=new Map();
+const _normRaw=w=>w.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
+function norm(w){
+  if(typeof w!=="string") return "";
+  let v=_NORM.get(w);
+  if(v===undefined){ v=_normRaw(w); if(_NORM.size>80000) _NORM.clear(); _NORM.set(w,v); }
+  return v;
+}
+/* quotes too: chapter titles and file names come from the reader's own files
+   and end up inside title="…" and data-…="…" attributes */
+const _ESC={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
+const esc=s=>(s==null?"":String(s)).replace(/[&<>"']/g,m=>_ESC[m]);
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1700);}
 function fmt(s){if(isNaN(s)||s==null)return"0:00";const m=Math.floor(s/60),x=Math.floor(s%60);return m+":"+String(x).padStart(2,"0");}
 
@@ -1454,20 +1577,27 @@ const IDB=(()=>{
     del:k=>tx("kv","readwrite",s=>{s.delete(k);}),
     getAudio:k=>tx("audio","readonly",(s,rq)=>rq(s.get(k))),
     putAudio:(k,v)=>tx("audio","readwrite",s=>{s.put(v,k);}),
+    delAudio:k=>tx("audio","readwrite",s=>{s.delete(k);}),
     audioKeys:()=>tx("audio","readonly",(s,rq)=>rq(s.getAllKeys())),
     ok:async()=>!!(await dbp()),
   };
 })();
 function bookId(){ return (state.book&&state.book.title||"book").replace(/[^\w-]+/g,"_"); }
-let _saveT=null, _lastProg="";
+/* An idle app used to stringify the whole ledger every five seconds and write
+   a copy of it to localStorage — synchronously — every twenty, whether or not
+   a single thing had changed. Nothing happens now unless something did. */
+let _saveT=null, _lastProg="", _dirty=false, _mirrorDue=false;
 function saveProgress(){
-  if(!state.book) return;
+  if(!state.book || !_dirty) return;
+  _dirty=false;
   const blob=JSON.stringify({vocab:state.vocab,cards:state.cards,game:state.game});
   if(blob===_lastProg) return; _lastProg=blob;
   IDB.set("progress:"+bookId(),{vocab:state.vocab,cards:state.cards,game:state.game});
+  mirrorProgress(); saveManifestSoon();
 }
-function markDirty(){ clearTimeout(_saveT); _saveT=setTimeout(saveProgress,600); }
+function markDirty(){ _dirty=true; _mirrorDue=true; clearTimeout(_saveT); _saveT=setTimeout(saveProgress,600); }
 async function persistBook(){
+  saveManifest();                       // the shelf record survives even without a database
   if(!(await IDB.ok())) return;
   try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch{}
   await IDB.set("book:"+bookId(), state.book);
@@ -1566,15 +1696,34 @@ $("#jsonFile").addEventListener("change",async e=>{
   setVeil("Setting out "+d.chapters.length+" chapter"+(d.chapters.length===1?"":"s")+" · "+words.toLocaleString()+" words");
   await nextPaint();
   try{
-    state.book=d; state.tracks=d.tracks||[]; state.chapterIdx=0; state.audio={}; _lastProg="";
+    /* Opening a read-along used to leave whatever was in memory in place, so a
+       second book inherited the first book's words and cards — and then saved
+       them under its own name. Flush what's open, then fetch this book's own
+       ledger, exactly as the bookshelf does. */
+    saveProgress();
+    Object.values(state.audio).forEach(u=>{ try{URL.revokeObjectURL(u);}catch(err){} });
+    state.book=d; state.tracks=d.tracks||[]; state.chapterIdx=0; state.audio={};
+    _lastProg=""; _dirty=false; _tidyOffer=null; resetKeyCache();
+    const id=bookId();
+    const prog=await loadProgressFor(id);
+    state.vocab=prog.vocab; state.cards=prog.cards; state.game=normGame(prog.game); ensureGame();
+    _scrollPos=(await IDB.get("scroll:"+id))||{};
+    /* tracks stored under this book on an earlier visit come back by themselves */
+    const keys=(await IDB.audioKeys())||[], pre=id+"::", stored=[];
+    for(const k of keys){ if(typeof k==="string" && k.startsWith(pre)){ const blob=await IDB.getAudio(k); if(blob) stored.push({name:k.slice(pre.length),url:URL.createObjectURL(blob)}); } }
+    if(stored.length) adoptAudio(stored);
     $("#jsonHint").textContent="Loaded: "+d.title+" · "+d.chapters.length+" chapters · "+(state.tracks.length||0)+" tracks";
     if(state.tracks.length){ $("#audioRow").style.display="flex"; updateAudioStatus(); }
     enterBook();
+    updateBadges();
+    const have=state.tracks.filter(t=>state.audio[t]).length;
+    if(have) $("#dock").classList.add("show");
     setVeil("Stowing it below deck…");
     await nextPaint();
     await persistBook();
     hideVeil();
-    if(state.tracks.length) toast("Aboard and ready — bring the audio whenever you like");
+    if(state.tracks.length) toast(have? "Aboard — "+have+"/"+state.tracks.length+" tracks were still below deck"
+                                      : "Aboard and ready — bring the audio whenever you like");
   }catch(err){ hideVeil(); toast("Something went wrong opening that book"); }
 });
 $("#audioFolder").addEventListener("change",async e=>{
@@ -1657,8 +1806,12 @@ $("#loadText").addEventListener("click",()=>{
 });
 $("#pickTxt").addEventListener("click",()=>$("#txtFile").click());
 $("#txtFile").addEventListener("change",e=>{
-  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  /* clearing the input first, or choosing the same file twice fires nothing */
+  const f=e.target.files[0]; e.target.value=""; if(!f)return;
+  if(wrongPicker(f)) return;
+  const r=new FileReader();
   r.onload=()=>{ const t=(r.result||"").trim(); if(!t){toast("That file is as empty as a shell");return;} $("#txtIn").value=t.slice(0,2000); offerSplit(t); };
+  r.onerror=()=>toast("I couldn't read that file");
   r.readAsText(f);
 });
 
@@ -1669,18 +1822,27 @@ function enterBook(startIdx){
   $("#covWrap").style.display="flex";
   ["btnVoyage","btnLoad","btnRail"].forEach(id=>$("#"+id).style.display="");
   $("#btnAudio").style.display = state.tracks.length? "" : "none";
+  $("#btnLog").style.display="";
   _gramBuilt=false;
-  const sel=$("#chapSelect"); sel.innerHTML="";
-  state.book.chapters.forEach((c,i)=>{const o=document.createElement("option");o.value=i;o.textContent=(i+1)+". "+c.title;sel.appendChild(o);});
+  ensureGame();
+  rebuildChapSelect();
   renderChapter(Math.min(Math.max(0,startIdx||0), state.book.chapters.length-1), true);
-  gameTouch(); renderShelf(); applyPrefs();
+  gameTouch(); renderShelf(); applyPrefs(); renderLogChip(); saveManifest();
 }
 
 function partFor(idx){
   if(state.book.chapters.length!==21) return "";
   if(idx<5) return "Erster Teil"; if(idx<12) return "Zweiter Teil"; return "Dritter Teil";
 }
+let _fadeT=null;
 function renderChapter(idx,instant){
+  /* Leaving a chapter: keep the place. The scroll listener only writes this
+     after a pause, so paging away quickly used to lose it. */
+  if(state.book && state.chapterIdx!==idx){
+    const rw=$("#readerWrap");
+    if(rw && rw.scrollTop>0) _scrollPos[state.chapterIdx]=rw.scrollTop;
+  }
+  clearTimeout(_fadeT); _fadeT=null;
   state.chapterIdx=idx;
   $("#chapSelect").value=idx;
   $("#prevCh").disabled=idx===0; $("#nextCh").disabled=idx===state.book.chapters.length-1;
@@ -1690,28 +1852,45 @@ function renderChapter(idx,instant){
     if(state.book) IDB.set("chapter:"+bookId(),idx);
     $("#partEyebrow").textContent=partFor(idx);
     $("#chapTitle").textContent=ch.title;
-    const text=ch.text; let html="<p>", cur=0;
+    /* A chapter we remember but whose text isn't on this device: the island,
+       the words and the cards are all still yours — only the pages are away. */
+    if(ch.ghost || !ch.text){
+      $("#prose").innerHTML=ghostProse(ch,idx);
+      const ga=$("#ghostAdd"); if(ga) ga.addEventListener("click",()=>$("#chapFiles").click());
+      state.speakEls=[]; state.speakPtr=0; state._spoken=null; state._sel=null;
+      state._counts=new Map(); state._byI=new Map();
+      $("#covFill").style.width="0%"; $("#covNum").textContent="text away";
+      $("#chapEnd").innerHTML=""; $("#tidyTop").innerHTML="";
+      $("#readerWrap").scrollTop=0;
+      $("#prose").classList.remove("fade-out");
+      saveManifestSoon();
+      return;
+    }
+    /* One pass over the chapter does everything: the page itself, how often
+       each word occurs, the lookup from index to record, and the set of
+       distinct keys the coverage bar and the island both want. Four separate
+       walks used to normalise every word all over again each time. */
+    const text=ch.text, out=[]; let cur=0;
     const ws=ch.words.slice().sort((x,y)=>x.a-y.a);
-    ws.forEach(w=>{
-      html+=gap(text.slice(cur,w.a));
+    const counts=new Map(), byI=new Map();
+    out.push("<p>");
+    for(const w of ws){
+      out.push(gap(text.slice(cur,w.a)));
       const raw=text.slice(w.a,w.b), key=norm(raw);
       const timed=("s" in w)?` data-s="${w.s}" data-e="${w.e}" data-t="${w.t}"`:"";
-      html+=`<span class="${cls(key)}" data-key="${key}" data-i="${w.i}"${timed}>${esc(raw)}</span>`;
+      out.push(`<span class="${cls(key)}" data-key="${key}" data-i="${w.i}"${timed}>${esc(raw)}</span>`);
       cur=w.b;
-    });
-    html+=gap(text.slice(cur))+"</p>";
-    $("#prose").innerHTML=html;
+      byI.set(w.i,w);
+      counts.set(key,(counts.get(key)||0)+1);
+    }
+    out.push(gap(text.slice(cur)),"</p>");
+    $("#prose").innerHTML=out.join("");
     state.speakEls=[...$("#prose").querySelectorAll(".w[data-s]")].map(el=>({el,t:+el.dataset.t,s:+el.dataset.s,e:+el.dataset.e}));
     state.speakPtr=0; state._spoken=null; state._sel=null;
-    /* Two lookups used to run on every single tap: counting how often a word
-       occurs (a query across every span on the page) and finding its record
-       (a linear scan of the chapter). Both are built once, here, instead. */
-    state._counts=new Map(); state._byI=new Map();
-    ws.forEach(w=>{
-      state._byI.set(w.i,w);
-      const k=norm(text.slice(w.a,w.b));
-      state._counts.set(k,(state._counts.get(k)||0)+1);
-    });
+    state._counts=counts; state._byI=byI;
+    /* the island's key set is exactly these keys — hand it over rather than
+       letting chapterKeys() walk the chapter a fifth time */
+    if(!_keyCache[idx]){ const s=new Set(counts.keys()); s.delete(""); _keyCache[idx]=s; }
     updateCoverage();
     renderTidyTop();
     renderChapterEnd(idx);
@@ -1719,7 +1898,7 @@ function renderChapter(idx,instant){
     $("#prose").classList.remove("fade-out");
   };
   if(instant){ build(); }
-  else{ $("#prose").classList.add("fade-out"); setTimeout(build,300); }
+  else{ $("#prose").classList.add("fade-out"); _fadeT=setTimeout(()=>{ _fadeT=null; build(); },300); }
 }
 function gap(s){ return esc(s).replace(/\n{2,}/g,"</p><p>").replace(/\n/g," "); }
 function cls(key){
@@ -1730,7 +1909,8 @@ function cls(key){
   return c;
 }
 function repaintKey(key){
-  document.querySelectorAll('.w[data-key="'+CSS.escape(key)+'"]').forEach(el=>{
+  const root=$("#prose"); if(!root) return;
+  root.querySelectorAll('.w[data-key="'+CSS.escape(key)+'"]').forEach(el=>{
     const sp=el.classList.contains("speaking"), se=el.classList.contains("sel");
     el.className=cls(key)+(se?" sel":"")+(sp?" speaking":"");
   });
@@ -1740,10 +1920,14 @@ $("#chapSelect").addEventListener("change",e=>renderChapter(+e.target.value));
 $("#prevCh").addEventListener("click",()=>{ if(state.chapterIdx>0) renderChapter(state.chapterIdx-1); });
 $("#nextCh").addEventListener("click",()=>{ if(state.chapterIdx<state.book.chapters.length-1) renderChapter(state.chapterIdx+1); });
 
+/* Marking one word "known" used to re-normalise every word in the chapter to
+   redraw this bar — seven thousand of them, on every tap. The distinct keys
+   are already known; only the count of them changes. */
 function updateCoverage(){
-  const ch=state.book.chapters[state.chapterIdx]; if(!ch)return;
-  const uniq=new Set(ch.words.map(w=>norm(ch.text.slice(w.a,w.b))));
-  let known=0; uniq.forEach(k=>{ if(state.vocab[k]&&state.vocab[k].status==="known")known++; });
+  const ch=state.book&&state.book.chapters[state.chapterIdx];
+  if(!ch||!ch.words||!ch.words.length)return;
+  const uniq=chapterKeys(state.chapterIdx); if(!uniq)return;
+  let known=0; uniq.forEach(k=>{ const v=state.vocab[k]; if(v&&v.status==="known")known++; });
   const pct=uniq.size?Math.round(known/uniq.size*100):0;
   $("#covFill").style.width=pct+"%"; $("#covNum").textContent=known+"/"+uniq.size+" · "+pct+"%";
 }
@@ -1795,23 +1979,26 @@ function openWord(key,el){
   switchTab("word");
 }
 document.querySelectorAll("#statusSeg button").forEach(b=>b.addEventListener("click",()=>{
-  const v=state.vocab[state.activeKey]; if(!v)return; v.status=b.dataset.s;
+  const v=state.vocab[state.activeKey]; if(!v)return;
+  const was=v.status; v.status=b.dataset.s; v.t=Date.now();   // stamped, so a merge knows which edit is newer
+  if(was!=="known" && v.status==="known"){ award(XPV.known,"known"); questTick("known",1); }
   document.querySelectorAll("#statusSeg button").forEach(x=>x.classList.toggle("on",x===b));
   repaintKey(state.activeKey); updateCoverage(); markDirty(); gameTouch();
 }));
 document.querySelectorAll("#genderSeg button").forEach(b=>b.addEventListener("click",()=>{
-  const v=state.vocab[state.activeKey]; if(!v)return; v.gender=b.dataset.g;
+  const v=state.vocab[state.activeKey]; if(!v)return; v.gender=b.dataset.g; v.t=Date.now();
   document.querySelectorAll("#genderSeg button").forEach(x=>x.classList.toggle("on",x===b));
   repaintKey(state.activeKey); markDirty();
 }));
-$("#wdMeaning").addEventListener("input",e=>{ const v=state.vocab[state.activeKey]; if(v){v.meaning=e.target.value; markDirty();} });
+$("#wdMeaning").addEventListener("input",e=>{ const v=state.vocab[state.activeKey]; if(v){v.meaning=e.target.value; v.t=Date.now(); markDirty();} });
 $("#mineBtn").addEventListener("click",()=>{
   if(!state.activeKey)return; const v=state.vocab[state.activeKey];
   const gg=glossFor(state.activeKey);
   const back=$("#wdMeaning").value.trim() || (gg?gg.g:"");
   if(v){ if(!v.meaning) v.meaning=back; if(!v.gender && gg && gg.d) v.gender=gg.d; }
-  state.cards.push({id:"c"+Date.now()+Math.random().toString(36).slice(2,6),front:state.activeKey,back,ctx:state.activeCtx,ease:2.5,interval:0,due:Date.now(),reps:0});
-  if(v&&v.status==="new")v.status="learning";
+  state.cards.push({id:"c"+Date.now()+Math.random().toString(36).slice(2,6),front:state.activeKey,back,ctx:state.activeCtx,ease:2.5,interval:0,due:Date.now(),reps:0,seen:0});
+  if(v&&v.status==="new"){v.status="learning"; v.t=Date.now();}
+  award(XPV.mine,"mine"); questTick("mine",1);
   repaintKey(state.activeKey); updateCoverage(); updateBadges(); markDirty(); gameTouch(); sfx("add"); toast("Into the deck it goes");
 });
 
@@ -1822,6 +2009,7 @@ function grade(c,q){
     if(q===1){c.ease=Math.max(1.3,c.ease-0.15);c.interval=Math.max(1,Math.round(c.interval*0.6));}
     if(q===3){c.ease+=0.15;c.interval=Math.round(c.interval*1.3);}}
   c.due=Date.now()+(c.interval?c.interval*DAY:60000);
+  c.seen=Date.now();                    // last time this card was actually answered
 }
 const due=()=>state.cards.filter(c=>c.due<=Date.now());
 function updateBadges(){ $("#deckBadge").textContent=state.cards.length; $("#dueBadge").textContent=due().length; }
@@ -1846,7 +2034,15 @@ function renderReview(){
 }
 $("#reviewArea").addEventListener("click",e=>{
   if(e.target.id==="showBtn"){revealed=true;renderReview();return;}
-  const q=e.target.dataset.q; if(q!==undefined&&curCard){grade(curCard,+q);curCard=null;revealed=false;renderReview();markDirty();state.game.reviews=(state.game.reviews||0)+1;gameTouch();}
+  const q=e.target.dataset.q;
+  if(q!==undefined&&curCard){
+    const late=Date.now()-curCard.due;
+    const ontime=late>=0 && late<2*DAY;          // caught on the day it came due
+    grade(curCard,+q); curCard=null; revealed=false; renderReview(); markDirty();
+    state.game.reviews=(state.game.reviews||0)+1;
+    award(XPV.review+(ontime?XPV.ontime:0),"review"); questTick("review",1);
+    gameTouch();
+  }
 });
 function switchTab(n){
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===n));
@@ -1886,7 +2082,15 @@ $("#progFile").addEventListener("change",e=>{
   const f=e.target.files[0]; e.target.value=""; if(!f)return;
   if(wrongPicker(f)) return;
   const r=new FileReader();
-  r.onload=()=>{ try{const d=JSON.parse(r.result); state.vocab=d.vocab||{}; state.cards=d.cards||[]; state.game=Object.assign({reviews:0,read:{},names:{},tier:0},d.game||{}); if(state.book)renderChapter(state.chapterIdx,true); updateBadges(); gameTouch(); markDirty(); toast("Everything is back where you left it"); }catch{toast("I couldn't make sense of that file");} };
+  r.onload=()=>{ try{
+    const d=JSON.parse(r.result);
+    const tgt={vocab:state.vocab,cards:state.cards,game:state.game};
+    const res=mergeInto(tgt,{vocab:d.vocab||{},cards:d.cards||[],game:normGame(d.game)});
+    state.vocab=tgt.vocab; state.cards=tgt.cards; state.game=tgt.game; ensureGame();
+    if(state.book)renderChapter(state.chapterIdx,true);
+    updateBadges(); gameTouch(); markDirty(); mirrorProgress();
+    toast("Merged in · +"+res.words+" words · +"+res.cards+" cards");
+  }catch(err){toast("I couldn't make sense of that file");} };
   r.readAsText(f);
 });
 
@@ -1907,13 +2111,13 @@ function playFrom(track,seconds){
   }
   /* iOS only grants playback to a play() called straight from the tap, so it
      goes first; the seek and the rate follow once metadata has arrived. */
-  const settle=()=>{
+  const cue=()=>{                       // named apart from the global settle()
     audio.playbackRate=+$("#rate").value;
     const want=seconds||0;
     try{ if(Math.abs(audio.currentTime-want)>0.25) audio.currentTime=want; }catch(e){}
     state.speakPtr=0;
   };
-  if(audio.readyState>=1) settle(); else audio.addEventListener("loadedmetadata",settle,{once:true});
+  if(audio.readyState>=1) cue(); else audio.addEventListener("loadedmetadata",cue,{once:true});
   const pr=audio.play();
   if(pr&&pr.catch) pr.catch(()=>{ $("#pp").textContent="▶"; toast("Tap ▶ to continue"); });
 }
@@ -1923,11 +2127,17 @@ $("#pp").addEventListener("click",()=>{
 });
 audio.addEventListener("play",()=>{ $("#pp").textContent="❚❚"; setDuck(true); });
 audio.addEventListener("pause",()=>{ $("#pp").textContent="▶"; setDuck(false); });
+const _tLabel=$("#tLabel"); let _tShown="", _scrubbing=false;
 audio.addEventListener("timeupdate",()=>{
-  $("#tLabel").textContent=fmt(audio.currentTime)+" / "+fmt(audio.duration);
-  scrub.value=audio.duration?audio.currentTime/audio.duration*1000:0;
+  const s=fmt(audio.currentTime)+" / "+fmt(audio.duration);
+  if(s!==_tShown){ _tShown=s; _tLabel.textContent=s; }   // it only changes once a second
+  /* while a finger is on the scrubber, leave it alone: seeking is not
+     instant, so writing the old position back made the thumb jump */
+  if(!_scrubbing) scrub.value=audio.duration?audio.currentTime/audio.duration*1000:0;
   highlightSpoken();
 });
+["pointerdown","touchstart"].forEach(ev=>scrub.addEventListener(ev,()=>{_scrubbing=true;},{passive:true}));
+["pointerup","touchend","touchcancel","blur","change"].forEach(ev=>scrub.addEventListener(ev,()=>{_scrubbing=false;}));
 scrub.addEventListener("input",()=>{ if(audio.duration){audio.currentTime=scrub.value/1000*audio.duration; state.speakPtr=0;} });
 $("#rate").addEventListener("change",e=>audio.playbackRate=+e.target.value);
 $("#followBtn").addEventListener("click",()=>{ state.follow=!state.follow; $("#followBtn").classList.toggle("on",state.follow); });
@@ -1974,7 +2184,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="ArrowRight" && e.altKey) $("#nextCh").click();
   if(e.key==="ArrowLeft" && e.altKey) $("#prevCh").click();
   if(e.key==="ArrowLeft" && !e.altKey && !typing && audio.src){ audio.currentTime=Math.max(0,audio.currentTime-15); state.speakPtr=0; }
-  if(e.key==="ArrowRight" && !e.altKey && !typing && audio.src){ audio.currentTime=audio.currentTime+15; state.speakPtr=0; }
+  if(e.key==="ArrowRight" && !e.altKey && !typing && audio.src){ audio.currentTime=Math.min(audio.duration||1e9,audio.currentTime+15); state.speakPtr=0; }
 });
 
 /* A book that arrived as one enormous chapter is unreadable — slow to open, slow
@@ -2015,7 +2225,7 @@ function applyPrefs(){
   const sl=$("#sizeLabel"); if(sl) sl.textContent=prefs.size+"px";
 }
 function savePrefs(){
-  applyPrefs(); IDB.set("prefs",{...prefs});
+  applyPrefs(); IDB.set("prefs",{...prefs}); LS.set("lesekern:prefs",{...prefs});
   try{ localStorage.setItem("lesekern:boot",JSON.stringify({dark:!!prefs.dark})); }catch(e){}
   const m=document.querySelector('meta[name="theme-color"]');
   if(m) m.setAttribute("content", prefs.dark?"#191b1f":"#e9e6df");
@@ -2224,42 +2434,89 @@ async function renderShelf(){
   el.innerHTML=`<h3>Your books</h3><div class="shelf-grid">`+
     list.slice().sort((a,b)=>(b.at||0)-(a.at||0)).map(b=>
     `<div class="bk${b.id===cur?" cur":""}" data-open="${esc(b.id)}"><div class="sp"></div>
-       <div><div class="t">${esc(b.title)}</div><div class="m">${b.chapters} chapters${b.tracks?" · "+b.tracks+" tracks":""}${b.id===cur?" · open":""}</div></div>
+       <div><div class="t">${esc(b.title)}</div><div class="m">${b.chapters} chapters${b.tracks?" · "+b.tracks+" tracks":""}${b.id===cur?" · open":""}${shelfGhostNote(b.id)}</div></div>
        <button class="bk-x" data-del="${esc(b.id)}" title="Remove from this device">×</button></div>`).join("")+`</div>`;
+}
+/* Taking a book off the shelf promised to take its audio with it, but the
+   tracks stayed in the database for good — on an 87-track audiobook that is a
+   great deal of storage quietly held by a book you thought you had removed.
+   The word list, the cards and the islands are untouched, as promised. */
+async function forgetBook(id){
+  const list=(await shelfList()).filter(b=>b&&b.id!==id);
+  await IDB.set("books",list);
+  await IDB.del("book:"+id);
+  await IDB.del("chapter:"+id);
+  await IDB.del("scroll:"+id);
+  if((await IDB.get("lastBook"))===id) await IDB.del("lastBook");
+  const keys=(await IDB.audioKeys())||[], pre=id+"::";
+  let dropped=0;
+  for(const k of keys) if(typeof k==="string" && k.startsWith(pre)){ await IDB.delAudio(k); dropped++; }
+  /* the shelf record in localStorage goes too, or the book comes back as a
+     ghost the next time the app looks for what it used to have */
+  const l=lib(); if(l.books[id]){ delete l.books[id]; if(l.lastBook===id) l.lastBook=""; libSave(l); }
+  return dropped;
 }
 $("#shelf").addEventListener("click",async e=>{
   const del=e.target.closest("[data-del]");
   if(del){ const id=del.dataset.del;
     if(!confirm("Remove this book (and its audio) from this device? Your word list stays.")) return;
-    const list=(await shelfList()).filter(b=>b&&b.id!==id);
-    await IDB.set("books",list); await IDB.del("book:"+id);
-    if((await IDB.get("lastBook"))===id) await IDB.del("lastBook");
-    renderShelf(); toast("Off the shelf"); return; }
+    /* if it's the book on screen, put it down first — otherwise the next save
+       would write its shelf record straight back */
+    if(state.book && bookId()===id) closeBook();
+    const dropped=await forgetBook(id);
+    renderShelf();
+    toast(dropped? "Off the shelf · "+dropped+" track"+(dropped===1?"":"s")+" released" : "Off the shelf");
+    return; }
   const op=e.target.closest("[data-open]"); if(op) openBookById(op.dataset.open);
 });
 async function openBookById(id){
   if(state.book && bookId()===id){ $("#start").style.display="none"; $("#reader").style.display="block"; return; }
   showVeil("Fetching it up from below deck…"); await nextPaint();
-  const book=await IDB.get("book:"+id);
+  const rec=lib().books[id];
+  let book=await IDB.get("book:"+id);
+  if((!book||!book.chapters) && rec) book=ghostBook(rec);   // remembered, if not held
   if(!book||!book.chapters){ hideVeil(); toast("That book has drifted off this device"); return; }
   saveProgress();
   Object.values(state.audio).forEach(u=>{ try{URL.revokeObjectURL(u);}catch{} });
   state.book=book; state.tracks=book.tracks||[]; state.audio={}; state.chapterIdx=0; _tidyOffer=null;
-  const prog=await IDB.get("progress:"+id)||{};
-  state.vocab=prog.vocab||{}; state.cards=prog.cards||[];
-  state.game=Object.assign({reviews:0,read:{},names:{},tier:0},prog.game||{});
+  const prog=await loadProgressFor(id);
+  state.vocab=prog.vocab; state.cards=prog.cards; state.game=normGame(prog.game); ensureGame();
   _scrollPos=await IDB.get("scroll:"+id)||{}; _lastProg="";
   await IDB.set("lastBook",id);
   const keys=await IDB.audioKeys()||[], pre=id+"::";
   const stored=[];
   for(const k of keys){ if(typeof k==="string"&&k.startsWith(pre)){ const blob=await IDB.getAudio(k); if(blob) stored.push({name:k.slice(pre.length),url:URL.createObjectURL(blob)}); } }
   if(stored.length) adoptAudio(stored);
-  const last=await IDB.get("chapter:"+id);
+  let last=await IDB.get("chapter:"+id);
+  if(last==null && rec) last=rec.last||0;
   enterBook(last!=null?Math.min(last,book.chapters.length-1):0);
   updateBadges(); updateAudioStatus(); renderShelf();
   if(state.tracks.filter(t=>state.audio[t]).length) $("#dock").classList.add("show");
   if(prefs.startMap) openVoyage();
   hideVeil();
+  const gh=ghostCount();
+  if(gh) toast(gh+" of "+book.chapters.length+" chapters are waiting for their file"+(gh===1?"":"s"));
+}
+/* Putting the open book down — the mirror image of enterBook(). Progress is
+   flushed first, so the word list survives even though the text does not. */
+function closeBook(){
+  saveProgress();
+  try{ audio.pause(); }catch(e){}
+  audio.removeAttribute("src"); delete audio.dataset.track;
+  Object.values(state.audio).forEach(u=>{ try{URL.revokeObjectURL(u);}catch(e){} });
+  state.book=null; state.tracks=[]; state.audio={}; state.chapterIdx=0;
+  state.speakEls=[]; state.speakPtr=0; state._spoken=null; state._sel=null;
+  state._counts=new Map(); state._byI=new Map();
+  resetKeyCache(); _scrollPos={}; _lastProg=""; _dirty=false; _tidyOffer=null; _openIsle=null;
+  clearTimeout(_manT); _manT=null;          // don't let a pending write revive it
+  $("#reader").style.display="none";
+  $("#chapNav").style.display="none"; $("#covWrap").style.display="none";
+  ["btnVoyage","btnAudio","btnLoad","btnLog","btnRail"].forEach(id=>$("#"+id).style.display="none");
+  $("#dock").classList.remove("show");
+  $("#audioRow").style.display="none";
+  $("#jsonHint").textContent=""; $("#chapHint").textContent="";
+  closeRail(); closeVoyage();
+  showLibrary();
 }
 function showLibrary(){
   $("#reader").style.display="none"; $("#start").style.display="block";
@@ -2469,11 +2726,15 @@ function companionName(idx){
   return state.game.names[idx];
 }
 function countStatus(st){ let n=0; for(const k in state.vocab) if(state.vocab[k]&&state.vocab[k].status===st) n++; return n; }
-function bondXP(){
+/* The old score was a sum over your word list, which meant it could quietly go
+   backwards when you demoted a word. It is now only the *seed* for the ledger
+   in the Logbuch, so nobody who has been reading loses what they had. */
+function derivedXP(){
   const known=countStatus("known"), learning=countStatus("learning");
   const reviews=state.game.reviews||0, read=Object.keys(state.game.read||{}).length;
   return known*4 + learning + state.cards.length*3 + reviews*2 + read*25;
 }
+function bondXP(){ return totalXP(); }
 const TIERS=[
   {min:0,name:"a stranger on the shore"},{min:60,name:"a new acquaintance"},
   {min:170,name:"a friend"},{min:360,name:"a close friend"},
@@ -2512,7 +2773,8 @@ function markRead(idx){
   if(!state.game.read) state.game.read={};
   if(!state.game.read[idx]){
     const before=islesOpen();
-    state.game.read[idx]=1; gameTouch();
+    state.game.read[idx]=Date.now(); gameTouch();
+    award(XPV.chapter,"chapter"); questTick("chapter",1);
     const after=islesOpen();
     sfx(after>before?"open":"page");
     toast(after>before ? "„"+companionName(idx)+"“ · a new shore has come into view"
@@ -2999,23 +3261,27 @@ function renderMap(){
   if(!state.book){ renderWelcome(); return; }
   renderBondMini();
   const chs=state.book.chapters, open=islesOpen();
-  const bloomed=chs.reduce((n,c,i)=>n+(isUnlocked(i)&&islandBloom(i)>=90?1:0),0);
-  let html=`${tidyBanner()}
+  /* bloom is a walk over the chapter's word list; work it out once per island
+     and hand the same number to the count, the caption and the drawing */
+  const blooms=chs.map((c,i)=>i<open?islandBloom(i):0);
+  const bloomed=blooms.reduce((n,b)=>n+(b>=90?1:0),0);
+  let html=`<div id="logHost"></div>${tidyBanner()}
     <p class="map-intro">One island for every chapter of <b>${esc(state.book.title)}</b> — each with its own shore, its own weather, and its own keeper watching the water for you. Read, learn the words, and the island answers by blooming.<br><span class="voy-sub">${open} of ${chs.length} shores within reach · ${bloomed} in full bloom</span></p>
     <div class="isle-grid">`;
   chs.forEach((c,i)=>{
-    const unlocked=isUnlocked(i), b=unlocked?islandBloom(i):0, K=isleKind(i);
+    const unlocked=i<open, b=blooms[i], K=isleKind(i);
     const heart = bondTier(bondXP())>=2 && b>=45 ? MARK_HEART : (b>=45?MARK_BLOOM:"");
-    html+=`<div class="isle${unlocked?"":" locked"}" data-idx="${i}" ${unlocked?`title="${esc(K.label)}"`:""}>
+    html+=`<div class="isle${unlocked?"":" locked"}${c.ghost?" ghosted":""}" data-idx="${i}" ${unlocked?`title="${esc(K.label)}"`:""}>
       <div class="isle-heart">${heart}</div>
       ${unlocked?islandSVG(i,b,{showGirl:true}):`<svg viewBox="0 0 240 170"><rect width="240" height="170" fill="#e9edf0"/><ellipse cx="120" cy="140" rx="94" ry="18" fill="#c8cdd2" opacity=".6"/><ellipse cx="120" cy="136" rx="82" ry="14" fill="#d3d8dc"/><g opacity=".38" fill="none" stroke="#6b7480" stroke-width="2.2"><path d="M113 92v-5a7 7 0 0 1 14 0v5"/><rect x="108" y="92" width="24" height="19" rx="3.5" fill="#6b7480" stroke="none" opacity=".55"/></g></svg>`}
       <div class="isle-cap"><div class="isle-n">Insel ${i+1}</div><div class="isle-name">${esc((c.title||"").split(" — ")[0])}</div>
-      ${unlocked?`<div class="isle-kind">${esc(K.label)}</div><div class="isle-bloom">${b}% in bloom</div>`
+      ${unlocked?`<div class="isle-kind">${esc(K.label)}</div><div class="isle-stars">${starRow(chapterStars(i))}</div><div class="isle-bloom">${b}% in bloom</div>`
                 :`<div class="isle-bloom">still out past the fog</div>`}</div>
     </div>`;
   });
   html+="</div>"+GLOW_DEFS;
   $("#voyMap").innerHTML=html;
+  paintLog();
   const vc=$("#voyClose");
   if(vc){ vc.style.display=""; vc.textContent="Read · Kap. "+(state.chapterIdx+1)+" →"; }
   const vl=$("#voyLib"); if(vl) vl.style.display="";
@@ -3042,6 +3308,7 @@ function renderIsland(idx){
     </div>
     <div class="bloom-bar"><div class="bloom-fill" style="width:${b}%"></div></div>
     <div class="bloom-cap">Every known word and finished read lifts this shore. ${b>=90?"It's in full bloom — danke!":"Keep going and watch it change."}</div>
+    <div class="tiernote">Chapter stars <span class="isle-stars">${starRow(chapterStars(idx))}</span> — one for reaching the end, one at 60% of its words known, one at 90%.</div>
     <div class="tiernote">Your bond: ${TIERS[bondTier(bondXP())].name}</div>
     <button class="isle-cta" id="isleGo">Read chapter ${idx+1} →</button>`+GLOW_DEFS;
   $("#backMap").addEventListener("click",renderMap);
@@ -3056,13 +3323,26 @@ function openVoyage(instant){
   v.classList.add("show"); renderMap();
 }
 function closeVoyage(){ $("#voyage").classList.remove("show"); }
+/* Redrawing the Archipel means building twenty-odd island scenes. Several
+   changes often land together — a card mined marks a word, ticks a quest and
+   awards XP — so gather them into one repaint instead of three. */
+let _voyT=null;
+function repaintVoyage(){
+  if(!$("#voyage").classList.contains("show")) return;
+  if(_voyT) return;
+  _voyT=setTimeout(()=>{
+    _voyT=null;
+    if(!$("#voyage").classList.contains("show")) return;
+    if(_openIsle!=null) renderIsland(_openIsle); else renderMap();
+  },0);
+}
 function gameTouch(){
   if(!state.book) return;
   const xp=bondXP(), t=bondTier(xp);
   if((state.game.tier||0)<t){ state.game.tier=t; toast("The islands feel a little more like home — now "+TIERS[t].name); }
   else state.game.tier=Math.max(state.game.tier||0,t);
   renderBondMini();
-  if($("#voyage").classList.contains("show")){ if(_openIsle!=null) renderIsland(_openIsle); else renderMap(); }
+  repaintVoyage();
   markDirty();
 }
 $("#btnVoyage").addEventListener("click",openVoyage);
@@ -3071,12 +3351,17 @@ $("#voyLib").addEventListener("click",()=>{ closeVoyage(); showLibrary(); });
 $("#voyMap").addEventListener("click",e=>{ const el=e.target.closest(".isle"); if(el&&!el.classList.contains("locked")) renderIsland(+el.dataset.idx); });
 
 /* mark a chapter "read" when you reach the bottom of it, and remember where you were */
-let _scrollT=null;
-$("#readerWrap").addEventListener("scroll",()=>{
-  if(!state.book) return; const w=$("#readerWrap");
+let _scrollT=null, _readT=0;
+const _readerWrap=$("#readerWrap");
+_readerWrap.addEventListener("scroll",()=>{
+  if(!state.book) return; const w=_readerWrap;
   if(w.scrollTop+w.clientHeight >= w.scrollHeight-40) markRead(state.chapterIdx);
+  /* Counting words read walks the day ledger, and a scroll fires sixty times
+     a second. Four times a second is plenty for a progress figure. */
+  const now=Date.now();
+  if(now-_readT>250){ _readT=now; trackReading(w); }
   clearTimeout(_scrollT);
-  _scrollT=setTimeout(()=>{ _scrollPos[state.chapterIdx]=w.scrollTop; IDB.set("scroll:"+bookId(),_scrollPos); },400);
+  _scrollT=setTimeout(()=>{ trackReading(w); _scrollPos[state.chapterIdx]=w.scrollTop; IDB.set("scroll:"+bookId(),_scrollPos); },400);
 },{passive:true});
 
 /* ---------- resume last session from the device ---------- */
@@ -3110,9 +3395,13 @@ function hideVeil(){
   const v=veilEl(); if(!v){ _veilUp=false; return; }
   _veilUp=false;
   if(document.hidden){ v.remove(); flushWelcome(); return; }   // no point animating
+  /* Both timers check that the veil is still meant to be down: opening a file
+     right as the last one finished used to tear away a veil that had just
+     been raised again for it. */
   setTimeout(()=>{
+    if(_veilUp) return;
     v.classList.add("gone");
-    setTimeout(()=>{ const x=veilEl(); if(x) x.remove(); flushWelcome(); },340);
+    setTimeout(()=>{ if(_veilUp) return; const x=veilEl(); if(x) x.remove(); flushWelcome(); },340);
   },20);
 }
 function flushWelcome(){ if(_welcome){ const m=_welcome; _welcome=""; toast(m); } }
@@ -3141,31 +3430,785 @@ function readText(f){
     r.onload=()=>res(r.result); r.onerror=()=>rej(r.error); r.readAsText(f); });
 }
 
+/* ============================================================================
+   PART II — chapter files · a library that remembers · the Logbuch · sync codes
+   Everything below is additive. If any of it fails, the reader still reads.
+   ==========================================================================*/
+
+/* ------------------------------ localStorage ------------------------------
+   IndexedDB holds the heavy things (book text, audio). localStorage holds a
+   small, stubborn copy of *what you had and where you were*, because that is
+   the part that must survive a browser clearing its databases, a private
+   window, or a file:// page that never got a proper database at all. */
+const LS={
+  get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const LIB_KEY="lesekern:lib";
+const PROG_KEY=id=>"lesekern:prog:"+id;
+
+function dayKey(t){ const d=t?new Date(t):new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function dayShift(k,n){ const p=k.split("-").map(Number); const d=new Date(p[0],p[1]-1,p[2]); d.setDate(d.getDate()+n); return dayKey(d.getTime()); }
+
+/* ============================ 1 · THE LIBRARY ==============================
+   A book is remembered as a *shelf record*: its title, its chapter list, and
+   where you left off. The text itself is a separate, replaceable thing. Load
+   the files and the chapters fill in; clear your browser and the record stays,
+   with each chapter now a ghost that names the file it needs back. */
+
+function lib(){ const l=LS.get(LIB_KEY,null); return (l&&l.books)?l:{books:{},lastBook:""}; }
+function libSave(l){ LS.set(LIB_KEY,l); }
+
+function chapSig(text){
+  const t=(text||"").replace(/\s+/g," ").trim();
+  return t.length+":"+norm(t.slice(0,90));
+}
+function saveManifest(){
+  if(!state.book) return;
+  const l=lib(), id=bookId();
+  l.books[id]={
+    id, title:state.book.title||"Book", at:Date.now(),
+    last:state.chapterIdx||0,
+    tracks:(state.tracks||[]).length,
+    chapters:(state.book.chapters||[]).map(c=>({
+      t:c.title||"", s:c.src||"", p:c.part||"",
+      w:(c.words&&c.words.length)||0, g:c.ghost?1:0, k:c.sig||""
+    }))
+  };
+  l.lastBook=id; libSave(l);
+}
+let _manT=null;
+function saveManifestSoon(){ clearTimeout(_manT); _manT=setTimeout(saveManifest,500); }
+
+/* a book rebuilt from the manifest alone — every chapter a ghost */
+function ghostBook(rec){
+  return {
+    title:rec.title||"Book", tracks:[], ghost:true, hadTracks:rec.tracks||0,
+    chapters:(rec.chapters||[]).map(c=>({
+      title:c.t||"Chapter", part:c.p||"", src:c.s||"", sig:c.k||"",
+      text:"", words:[], ghost:true, hadWords:c.w||0
+    }))
+  };
+}
+function ghostCount(){ return state.book? state.book.chapters.filter(c=>c.ghost).length : 0; }
+
+/* ---- progress kept in both places, so neither one losing it loses it ---- */
+function progressBlob(){ return {at:Date.now(),vocab:state.vocab,cards:state.cards,game:state.game}; }
+let _lsWarned=false;
+function mirrorProgress(){
+  if(!state.book) return;
+  _mirrorDue=false;
+  if(!LS.set(PROG_KEY(bookId()),progressBlob()) && !_lsWarned){
+    _lsWarned=true;
+    toast("This browser won't let me keep a spare copy — use a sync code now and then");
+  }
+}
+
+/* ============================ 2 · CHAPTER FILES ============================
+   One .txt per chapter. Order comes from the number in the filename; a
+   Vorwort sorts to the front and a Nachwort to the back whatever it is
+   called. The heading inside the file becomes the chapter's name. */
+
+function chapOrder(name){
+  const b=stripExt(name).toLowerCase();
+  if(/vorwort|prolog|vorbemerkung|einleitung/.test(b)) return -1e6;
+  if(/nachwort|epilog|nachbemerkung|anhang|afterword/.test(b)) return 1e6;
+  const m=b.match(/\d+/g);
+  return m? parseInt(m[m.length-1],10) : 0;
+}
+const HEAD_WORDS=/(kapitel|nachwort|vorwort|prolog|epilog|nachbemerkung|chapter)/i;
+const PART_RE=/^(erster|zweiter|dritter|vierter|f(ü|ue)nfter|sechster|siebter|achter)\s+teil\b/i;
+
+function parseChapterFile(name,raw){
+  const lines=String(raw||"").replace(/\r\n/g,"\n").split("\n");
+  let part="", headAt=-1, head="";
+  const look=Math.min(lines.length,80);
+  for(let i=0;i<look;i++){
+    const s=lines[i].trim().replace(/^#+\s*/,"");
+    if(!s) continue;
+    if(PART_RE.test(s)){ part=s; continue; }
+    if(s.length<=70 && HEAD_WORDS.test(s)){ headAt=i; head=s; break; }
+  }
+  let title, bodyAt;
+  if(headAt>=0){
+    bodyAt=headAt+1;
+    /* the line straight after a chapter heading is usually the chapter's own
+       title — short, and with no sentence-ending punctuation */
+    const nx=(lines[headAt+1]||"").trim();
+    if(nx && nx.length<=120 && !/[.!?…»«"]$/.test(nx) && !/^\s*[»«"]/.test(nx)){
+      title=head+" — "+nx; bodyAt=headAt+2;
+    } else title=head;
+  }else{
+    title=stripExt(name).replace(/[_-]+/g," ").replace(/\s+/g," ").trim()
+          .replace(/\b\w/g,ch=>ch.toUpperCase()) || "Chapter";
+    bodyAt=0;
+  }
+  const text=lines.slice(bodyAt).join("\n").replace(/^\n+/,"").replace(/\n+$/,"");
+  return {title:title.slice(0,120), part, text, src:baseName(name), sig:chapSig(text), ghost:false};
+}
+
+function commonTitle(names){
+  const stems=names.map(n=>stripExt(n).toLowerCase().replace(/\d+/g,"").replace(/(kapitel|chapter|nachwort|vorwort|epilog|prolog)/g,"").replace(/[_\-\s]+/g," ").trim());
+  let pre=stems[0]||"";
+  for(const s of stems){ let i=0; while(i<pre.length&&i<s.length&&pre[i]===s[i])i++; pre=pre.slice(0,i); }
+  pre=pre.replace(/[\s_-]+$/,"").trim();
+  return pre? pre.replace(/\b\w/g,c=>c.toUpperCase()) : "Reading";
+}
+
+/* Fit incoming chapters onto the ones we already know about: same filename,
+   then same text fingerprint, then same title. Anything left over is new. */
+function fitChapters(incoming){
+  const chs=state.book.chapters;
+  const bySrc={},bySig={},byTitle={};
+  chs.forEach((c,i)=>{ if(c.src)bySrc[c.src]=i; if(c.sig)bySig[c.sig]=i; if(c.title)byTitle[c.title]=i; });
+  let filled=0,fresh=0,replaced=0,kept=0;
+  const extras=[];
+  for(const inc of incoming){
+    let at=bySrc[inc.src];
+    if(at===undefined) at=bySig[inc.sig];
+    if(at===undefined) at=byTitle[inc.title];
+    if(at===undefined){ extras.push(inc); fresh++; continue; }
+    const old=chs[at];
+    const timed=!old.ghost && old.words && old.words.length && ("s" in old.words[0]);
+    if(timed){ kept++; continue; }        // plain text would throw the timings away
+    if(old.ghost) filled++; else replaced++;
+    inc.words=tokenize(inc.text);
+    chs[at]=Object.assign({},old,inc,{ghost:false});
+  }
+  if(extras.length){
+    extras.forEach(c=>{ c.words=tokenize(c.text); chs.push(c); });
+  }
+  return {filled,fresh,replaced,kept};
+}
+
+async function loadChapterFiles(files){
+  const list=[...files].filter(f=>/\.(txt|md)$/i.test(f.name)||f.type.startsWith("text"));
+  if(!list.length){ toast("Those don't look like chapter .txt files"); return; }
+  list.sort((a,b)=>{ const d=chapOrder(a.name)-chapOrder(b.name); return d||natCmp(a.name,b.name); });
+  showVeil("Reading "+list.length+" chapter file"+(list.length===1?"":"s"));
+  await nextPaint();
+  const parsed=[];
+  for(const f of list){
+    let raw=""; try{ raw=await readText(f); }catch(e){ continue; }
+    if(!raw.trim()) continue;
+    parsed.push(parseChapterFile(f.name,raw));
+  }
+  if(!parsed.length){ hideVeil(); toast("Every one of those files was empty"); return; }
+
+  const title=commonTitle(list.map(f=>f.name));
+  const wantId=title.replace(/[^\w-]+/g,"_");
+  const known=lib().books[wantId];
+
+  /* Already reading this book (or we remember it) → slot the chapters in and
+     keep every word you have learned. Otherwise start a new shelf record. */
+  if(state.book && bookId()===wantId){
+    const r=fitChapters(parsed);
+    resetKeyCache(); rebuildChapSelect();
+    await persistBook();
+    renderChapter(Math.min(state.chapterIdx,state.book.chapters.length-1),true);
+    hideVeil();
+    toast(r.kept? r.kept+" chapter"+(r.kept===1?"":"s")+" left alone — their audio timings are still good"
+        : r.filled? r.filled+" chapter"+(r.filled===1?"":"s")+" back on the shelf"
+                  : "Chapters updated — nothing you learned was touched");
+    return;
+  }
+  if(known){
+    saveProgress();
+    let base=await IDB.get("book:"+wantId);          // real text first, ghosts only if it's gone
+    if(!base||!base.chapters) base=ghostBook(known);
+    state.book=base; state.tracks=base.tracks||[]; state.audio={};
+    const r=fitChapters(parsed);
+    const prog=await loadProgressFor(wantId);
+    state.vocab=prog.vocab; state.cards=prog.cards; state.game=normGame(prog.game); ensureGame();
+    _scrollPos=(await IDB.get("scroll:"+wantId))||{}; _lastProg="";
+    resetKeyCache();
+    await persistBook();
+    enterBook(Math.min(known.last||0,state.book.chapters.length-1));
+    updateBadges(); hideVeil();
+    setChapHint();
+    toast("Welcome back to "+state.book.title+" — "+r.filled+" chapter"+(r.filled===1?"":"s")+" restored");
+    return;
+  }
+  parsed.forEach(c=>{ c.words=tokenize(c.text); });
+  state.book={title,tracks:[],chapters:parsed};
+  state.tracks=[]; state.chapterIdx=0; state.audio={}; _lastProg="";
+  state.vocab={}; state.cards=[]; state.game=normGame(null); ensureGame();
+  $("#audioRow").style.display="none";
+  await persistBook();
+  enterBook(0); updateBadges(); hideVeil(); setChapHint();
+  toast(parsed.length+" chapters aboard · "+title);
+}
+function setChapHint(){
+  const el=$("#chapHint"); if(!el||!state.book) return;
+  const n=state.book.chapters.length, g=ghostCount();
+  el.textContent=state.book.title+" · "+n+" chapter"+(n===1?"":"s")+(g?" · "+g+" still awaiting text":" · all here");
+}
+function rebuildChapSelect(){
+  const sel=$("#chapSelect"); if(!sel) return;
+  sel.innerHTML="";
+  state.book.chapters.forEach((c,i)=>{
+    const o=document.createElement("option"); o.value=i;
+    o.textContent=(i+1)+". "+(c.ghost?"◇ ":"")+c.title; sel.appendChild(o);
+  });
+  sel.value=state.chapterIdx;
+  $("#chapNav").style.display=state.book.chapters.length>1?"flex":"none";
+}
+
+/* what a ghost chapter shows instead of text */
+function ghostProse(ch,idx){
+  const audio=state.book&&state.book.hadTracks;
+  const file=ch.src? "<b>"+esc(ch.src)+"</b>" : "its text file";
+  const how=audio
+    ? `This book came with audio, so the file to open is its <b>read-along .json</b> — that's the one carrying the word timings. ${ch.src?"The chapter files ("+esc(ch.src)+" and its siblings) will bring the words back too, but the audio would no longer follow along.":""}`
+    : `Open ${file} again and this chapter comes straight back, exactly where you left it.`;
+  return `<div class="ghost-ch">
+    <div class="ghost-mark">◇</div>
+    <h3>This chapter is remembered, not held.</h3>
+    <p>Lesekern keeps your words, your cards and your islands — but not the book's text.
+       ${how}</p>
+    <button class="btn" id="ghostAdd">${audio?"Add chapter files anyway…":"Add chapter files…"}</button>
+    <div class="ghost-note">${ch.hadWords? esc(ch.hadWords.toLocaleString())+" words last time · ":""}Insel ${idx+1} keeps its bloom either way.</div>
+  </div>`;
+}
+
+async function loadProgressFor(id){
+  const a=(await IDB.get("progress:"+id))||null;
+  const b=LS.get(PROG_KEY(id),null);
+  if(a&&b){ const m={vocab:a.vocab||{},cards:a.cards||[],game:normGame(a.game)};
+    mergeInto(m,{vocab:b.vocab||{},cards:b.cards||[],game:normGame(b.game)}); return m; }
+  const one=a||b;
+  return {vocab:(one&&one.vocab)||{},cards:(one&&one.cards)||[],game:normGame(one&&one.game)};
+}
+
+/* ============================== 3 · LOGBUCH ===============================
+   The old bond grew out of a sum over your word list, which meant it could
+   quietly go backwards. This is a ledger instead: XP is earned on the day it
+   is earned and written down under that date. Nothing you have already done
+   can be taken away — and two devices can be merged by taking the better of
+   each day, which is what makes the sync codes safe. */
+
+const LEVELS=[
+  {min:0,    de:"Landratte",        en:"landlubber"},
+  {min:120,  de:"Schiffsjunge",     en:"ship's boy"},
+  {min:320,  de:"Matrose",          en:"deckhand"},
+  {min:650,  de:"Vollmatrose",      en:"able seaman"},
+  {min:1100, de:"Steuermann",       en:"helmsman"},
+  {min:1750, de:"Navigator",        en:"navigator"},
+  {min:2600, de:"Kapitän",          en:"captain"},
+  {min:3800, de:"Inselvogt",        en:"harbourmaster"},
+  {min:5400, de:"Sternenleser",     en:"star-reader"},
+  {min:7500, de:"Meister der Zeit", en:"master of hours"}
+];
+const XPV={known:5,mine:3,review:2,ontime:3,chapter:30,quest:25,day:8,read:2};
+
+function normGame(g){
+  return Object.assign({reviews:0,read:{},names:{},tier:0,
+    days:{},seed:0,rank:0,today:null,quests:null,frac:null,racc:0},g||{});
+}
+/* ensureGame() is asked for the ledger constantly — by the day's tasks, by the
+   quest counter, by every award. It used to hand back a brand-new object each
+   time, so a reader scrolling a page allocated hundreds of them and every held
+   reference went quietly stale. Normalise once and keep the same object. */
+function ensureGame(){
+  let g=state.game;
+  if(!g || !g._n){
+    g=state.game=normGame(g);
+    try{ Object.defineProperty(g,"_n",{value:1,enumerable:false,configurable:true,writable:true}); }
+    catch(e){ g._n=1; }                       // enumerable fallback; harmless
+  }
+  if(!g.days) g.days={};
+  if(!g.read) g.read={};
+  if(!g.names) g.names={};
+  /* one-off: carry the old derived score over so nobody starts from zero */
+  if(!g.seed && !Object.keys(g.days).length){ g.seed=derivedXP(); }
+  g.rank=Math.max(g.rank||0,rankOf(totalXP()));
+  return g;
+}
+function totalXP(){ const g=state.game||{}; let s=g.seed||0;
+  for(const k in (g.days||{})) s+=g.days[k]||0; return Math.round(s); }
+function rankOf(xp){ let i=0; for(let j=0;j<LEVELS.length;j++) if(xp>=LEVELS[j].min)i=j; return i; }
+function rankNext(i){ return LEVELS[i+1]?LEVELS[i+1].min:LEVELS[i].min; }
+
+function streakDays(g){ g=g||state.game||{}; const d=g.days||{};
+  let k=dayKey(); if(!d[k]) k=dayShift(k,-1); if(!d[k]) return 0;
+  let n=0; while(d[k]){ n++; k=dayShift(k,-1); } return n; }
+function bestStreak(g){ g=g||state.game||{}; const keys=Object.keys(g.days||{}).sort();
+  let best=0,run=0,prev=null;
+  for(const k of keys){ run=(prev && dayShift(prev,1)===k)?run+1:1; prev=k; if(run>best)best=run; }
+  return best; }
+
+function award(n,why){
+  if(!n||!state.game) return;
+  const g=ensureGame(), d=dayKey();
+  const first=!g.days[d];
+  g.days[d]=(g.days[d]||0)+n;
+  if(first){ g.days[d]+=XPV.day; const s=streakDays(g);
+    toast(s>1? "Day "+s+" in a row · +"+XPV.day+" XP for showing up" : "A new run begins · +"+XPV.day+" XP"); }
+  const r=rankOf(totalXP());
+  if(r>(g.rank||0)){ g.rank=r; sfx("open"); toast("Rank up — "+LEVELS[r].de+" · "+LEVELS[r].en); }
+  markDirty(); saveManifestSoon(); renderLogChip();
+  if($("#voyage").classList.contains("show") && _openIsle==null) paintLog();
+}
+
+/* --- the day's three tasks: small, concrete, and pointed at what helps --- */
+const QPOOL=[
+  {id:"rev",key:"review", n:()=>Math.min(15,Math.max(5,due().length||5)), lab:n=>"Review "+n+" card"+(n===1?"":"s"),
+   why:"Due cards are the cheapest German you will ever learn."},
+  {id:"kno",key:"known",  n:()=>6,   lab:n=>"Mark "+n+" words as known",
+   why:"Every word you retire makes the next page lighter."},
+  {id:"min",key:"mine",   n:()=>3,   lab:n=>"Mine "+n+" new cards",
+   why:"Words caught in a sentence stick better than words from a list."},
+  {id:"cha",key:"chapter",n:()=>1,   lab:()=>"Reach the end of a chapter",
+   why:"Finishing is what turns reading into reading German."},
+  {id:"red",key:"read",   n:()=>400, lab:n=>"Read "+n+" words",
+   why:"Volume does the quiet work that drilling cannot."}
+];
+function today(){ const g=ensureGame(), d=dayKey();
+  if(!g.today||g.today.d!==d) g.today={d,review:0,known:0,mine:0,chapter:0,read:0};
+  return g.today; }
+function quests(){
+  const g=ensureGame(), d=dayKey();
+  if(!g.quests||g.quests.d!==d){
+    let h=7; for(const c of d) h=(h*31+c.charCodeAt(0))>>>0;
+    const pool=QPOOL.slice(), pick=[];
+    while(pick.length<3&&pool.length){ const q=pool.splice(h%pool.length,1)[0]; pick.push(q); h=(h/3|0)+11; }
+    g.quests={d,list:pick.map(q=>({id:q.id,key:q.key,n:q.n(),done:0}))};
+  }
+  return g.quests;
+}
+function readFracs(){
+  const g=ensureGame(), d=dayKey();
+  if(!g.frac || g.frac.d!==d) g.frac={d:d};
+  return g.frac;
+}
+function questMeta(id){ return QPOOL.find(q=>q.id===id)||QPOOL[0]; }
+function questTick(key,amount){
+  const t=today(); t[key]=(t[key]||0)+(amount||1);
+  const qs=quests(); let any=false;
+  qs.list.forEach(it=>{
+    if(it.key===key && !it.done && t[key]>=it.n){
+      it.done=1; any=true;
+      const m=questMeta(it.id);
+      toast("Tagewerk · "+m.lab(it.n)+" ✓ +"+XPV.quest+" XP");
+      award(XPV.quest,"quest");
+    }
+  });
+  if(!any){ markDirty(); if($("#voyage").classList.contains("show") && _openIsle==null) paintLog(); }
+}
+
+/* chapter stars — a plain, readable statement of how done a chapter is */
+function chapterStars(i){
+  const cov=coverageFraction(i), read=(state.game.read&&state.game.read[i])?1:0;
+  let s=0; if(read) s=1; if(read&&cov>=0.6) s=2; if(read&&cov>=0.9) s=3;
+  return s;
+}
+function starRow(n){ return "★★★".slice(0,n)+"☆☆☆".slice(0,3-n); }
+
+/* the single most useful thing you could do right now */
+function nextAction(){
+  const d=due().length;
+  if(d) return {t:"Review "+d+" due card"+(d===1?"":"s"),s:"Nothing else pays back as fast.",go:()=>{ closeVoyage(); openRail(); switchTab("review"); }};
+  if(!state.book) return {t:"Bring a book aboard",s:"Chapter files, or a read-along .json.",go:showLibrary};
+  const g=ghostCount();
+  if(g===state.book.chapters.length) return {t:"Add your chapter files",s:"Your progress is here; only the text is missing.",go:()=>{ closeVoyage(); $("#chapFiles").click(); }};
+  const i=state.chapterIdx, ch=state.book.chapters[i];
+  if(ch&&ch.ghost){ const j=state.book.chapters.findIndex(c=>!c.ghost);
+    if(j>=0) return {t:"Read chapter "+(j+1),s:"This one's text isn't on the device.",go:()=>{ closeVoyage(); renderChapter(j,true); }}; }
+  if(!(state.game.read&&state.game.read[i])) return {t:"Finish chapter "+(i+1),s:"You're partway through — reaching the end lights the next island.",go:()=>{ closeVoyage(); }};
+  const cov=Math.round(coverageFraction(i)*100);
+  if(cov<90) return {t:"Learn a few words in chapter "+(i+1),s:cov+"% known — tap the ones that stop you.",go:()=>{ closeVoyage(); }};
+  const nxt=Math.min(i+1,state.book.chapters.length-1);
+  return {t:"On to chapter "+(nxt+1),s:"This shore is in bloom.",go:()=>{ closeVoyage(); renderChapter(nxt,true); }};
+}
+
+function renderLogChip(){
+  const el=$("#logLbl"); if(!el) return;
+  const s=streakDays(), r=rankOf(totalXP());
+  el.textContent=s? "Tag "+s : LEVELS[r].de;
+  const b=$("#btnLog"); if(b) b.title="Logbuch · "+LEVELS[r].de+" · "+totalXP()+" XP";
+}
+function logHTML(){
+  const g=ensureGame(), xp=totalXP(), r=rankOf(xp), base=LEVELS[r].min, nxt=rankNext(r);
+  const frac=nxt>base?Math.min(1,(xp-base)/(nxt-base)):1;
+  const s=streakDays(), best=Math.max(bestStreak(),s);
+  const t=today(), qs=quests();
+  const na=nextAction();
+  const week=[];
+  for(let i=6;i>=0;i--){ const k=dayShift(dayKey(),-i);
+    week.push(`<span class="dot${g.days[k]?" on":""}${i===0?" now":""}" title="${k}${g.days[k]?" · "+g.days[k]+" XP":""}"></span>`); }
+  const quest=qs.list.map(it=>{
+    const m=questMeta(it.id), have=Math.min(it.n,t[it.key]||0);
+    return `<div class="quest${it.done?" done":""}">
+      <div class="q-top"><span class="q-lab">${esc(m.lab(it.n))}</span><span class="q-n">${it.done?"✓":have+"/"+it.n}</span></div>
+      <div class="q-bar"><span style="width:${Math.round(have/it.n*100)}%"></span></div>
+      <div class="q-why">${esc(m.why)}</div></div>`;
+  }).join("");
+  const chapLine=state.book? (()=>{
+    const n=state.book.chapters.length;
+    let stars=0; for(let i=0;i<n;i++) stars+=chapterStars(i);
+    return `<span>${stars}/${n*3} chapter stars</span>`;
+  })() : "";
+  return `<div class="log">
+    <div class="log-head">
+      <div>
+        <div class="log-rank">${esc(LEVELS[r].de)} <span class="log-en">${esc(LEVELS[r].en)}</span></div>
+        <div class="log-xp">${xp.toLocaleString()} XP${nxt>base?` · ${(nxt-xp).toLocaleString()} to ${esc(LEVELS[r+1].de)}`:" · the last rank"}</div>
+      </div>
+      <div class="log-streak"><b>${s}</b><span>day${s===1?"":"s"} running</span><i>best ${best}</i></div>
+    </div>
+    <div class="log-bar"><span style="width:${Math.round(frac*100)}%"></span></div>
+    <div class="log-week">${week.join("")}<span class="log-week-l">last seven days${chapLine?" · "+chapLine:""}</span></div>
+    <div class="next-act" id="nextAct"><div class="na-t">${esc(na.t)}</div><div class="na-s">${esc(na.s)}</div><span class="na-go">→</span></div>
+    <div class="log-quests"><h4>Tagewerk · today's three</h4>${quest}
+      <div class="q-foot">Finish one and it's ${XPV.quest} XP. They change at midnight; nothing is lost if you skip a day except the run.</div></div>
+  </div>`;
+}
+function paintLog(){
+  const host=$("#logHost"); if(!host) return;
+  host.innerHTML=logHTML();
+  const na=$("#nextAct"); if(na) na.addEventListener("click",()=>{ sfx("page"); nextAction().go(); });
+}
+
+/* ============================== 4 · SYNC CODES ============================
+   A code is your whole ledger, deflated and written in base64. Applying one
+   merges: newer edits win per word, cards keep whichever side reviewed them
+   last, and XP is taken day by day. Applying an old code can therefore only
+   ever fill gaps — it can never roll you back. */
+
+const B64="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function b64enc(bytes){ let o="",i=0;
+  for(;i+2<bytes.length;i+=3){ const n=(bytes[i]<<16)|(bytes[i+1]<<8)|bytes[i+2];
+    o+=B64[n>>18&63]+B64[n>>12&63]+B64[n>>6&63]+B64[n&63]; }
+  const r=bytes.length-i;
+  if(r===1){ const n=bytes[i]<<16; o+=B64[n>>18&63]+B64[n>>12&63]; }
+  else if(r===2){ const n=(bytes[i]<<16)|(bytes[i+1]<<8); o+=B64[n>>18&63]+B64[n>>12&63]+B64[n>>6&63]; }
+  return o; }
+function b64dec(s){ const m={}; for(let i=0;i<64;i++)m[B64[i]]=i;
+  s=s.replace(/[^A-Za-z0-9\-_]/g,"");
+  const out=new Uint8Array(Math.floor(s.length*3/4)); let p=0,n=0,bits=0;
+  for(const c of s){ const v=m[c]; if(v===undefined) continue;
+    n=(n<<6)|v; bits+=6; if(bits>=8){ bits-=8; out[p++]=(n>>bits)&255; } }
+  return out.slice(0,p); }
+
+async function squeeze(str){
+  const bytes=new TextEncoder().encode(str);
+  if(typeof CompressionStream==="function"){
+    for(const fmt of ["deflate-raw","deflate"]){
+      try{
+        const cs=new CompressionStream(fmt);
+        const buf=await new Response(new Blob([bytes]).stream().pipeThrough(cs)).arrayBuffer();
+        return (fmt==="deflate-raw"?"R":"Z")+"."+b64enc(new Uint8Array(buf));
+      }catch(e){}
+    }
+  }
+  return "P."+b64enc(bytes);
+}
+async function unsqueeze(body){
+  const dot=body.indexOf("."), tag=body.slice(0,dot), b64=body.slice(dot+1);
+  const bytes=b64dec(b64);
+  if(tag==="P") return new TextDecoder().decode(bytes);
+  const fmt=tag==="R"?"deflate-raw":"deflate";
+  const ds=new DecompressionStream(fmt);
+  const buf=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
+  return new TextDecoder().decode(buf);
+}
+
+const ST=["new","learning","known"];
+function packVocab(v){
+  const o={};
+  for(const k in (v||{})){ const e=v[k]; if(!e) continue;
+    const st=ST.indexOf(e.status||"new");
+    if(st<=0 && !e.meaning && !e.gender) continue;      // nothing worth carrying
+    o[k]=[st<0?0:st, e.gender||"", (e.meaning||"").slice(0,90), e.t||0];
+  }
+  return o;
+}
+function unpackVocab(o){
+  const v={};
+  for(const k in (o||{})){ const a=o[k]||[];
+    v[k]={status:ST[a[0]]||"new",gender:a[1]||"",meaning:a[2]||"",t:a[3]||0}; }
+  return v;
+}
+function packCards(cs){
+  return (cs||[]).map(c=>[c.id,c.front,(c.back||"").slice(0,90),(c.ctx||"").slice(0,140),
+    +(c.ease||2.5).toFixed(2),c.interval||0,c.due||0,c.reps||0,c.seen||0]);
+}
+function unpackCards(a){
+  return (a||[]).map(c=>({id:c[0],front:c[1],back:c[2],ctx:c[3],ease:c[4],interval:c[5],due:c[6],reps:c[7],seen:c[8]}));
+}
+
+/* --- the merge. Never destructive; an older code simply adds nothing. --- */
+function mergeVocab(local,remote){
+  let added=0,updated=0;
+  for(const k in remote){
+    const r=remote[k], l=local[k];
+    if(!l){ local[k]=r; added++; continue; }
+    const lt=l.t||0, rt=r.t||0;
+    if(rt>lt){ local[k]={status:r.status,gender:r.gender||l.gender,meaning:r.meaning||l.meaning,t:rt}; updated++; }
+    else{                                    // older or equal: fill blanks only
+      if(!l.meaning&&r.meaning){ l.meaning=r.meaning; updated++; }
+      if(!l.gender&&r.gender){ l.gender=r.gender; updated++; }
+    }
+  }
+  return {added,updated};
+}
+function mergeCards(local,remote){
+  const by={}; local.forEach((c,i)=>by[c.id]=i);
+  let added=0,updated=0;
+  for(const r of remote){
+    const i=by[r.id];
+    if(i===undefined){ local.push(r); added++; continue; }
+    const l=local[i];
+    const ls=l.seen||0, rs=r.seen||0;
+    if(rs>ls || (rs===ls && (r.reps||0)>(l.reps||0))){ local[i]=Object.assign({},l,r); updated++; }
+    else if(!l.back&&r.back){ l.back=r.back; updated++; }
+  }
+  return {added,updated};
+}
+function mergeGame(local,remote){
+  const g=normGame(local), r=normGame(remote);
+  g.seed=Math.max(g.seed||0,r.seed||0);
+  g.days=g.days||{};
+  let xpGain=0;
+  for(const k in (r.days||{})){
+    const have=g.days[k]||0, want=r.days[k]||0;
+    if(want>have){ xpGain+=want-have; g.days[k]=want; }
+  }
+  for(const k in (r.read||{})){
+    if(!g.read[k]) g.read[k]=r.read[k];
+    else if(typeof r.read[k]==="number" && typeof g.read[k]==="number") g.read[k]=Math.min(g.read[k],r.read[k]);
+  }
+  for(const k in (r.names||{})) if(!g.names[k]) g.names[k]=r.names[k];
+  g.reviews=Math.max(g.reviews||0,r.reviews||0);
+  g.tier=Math.max(g.tier||0,r.tier||0);
+  g.rank=Math.max(g.rank||0,r.rank||0);
+  if(r.today && (!g.today || r.today.d>g.today.d)) g.today=r.today;
+  else if(r.today && g.today && r.today.d===g.today.d){
+    ["review","known","mine","chapter","read"].forEach(k=>g.today[k]=Math.max(g.today[k]||0,r.today[k]||0));
+  }
+  if(r.frac && (!g.frac || r.frac.d>g.frac.d)) g.frac=r.frac;
+  else if(r.frac && g.frac && r.frac.d===g.frac.d){
+    for(const k in r.frac) if(k!=="d") g.frac[k]=Math.max(g.frac[k]||0,r.frac[k]||0);
+  }
+  if(r.quests && (!g.quests || r.quests.d>g.quests.d)) g.quests=r.quests;
+  else if(r.quests && g.quests && r.quests.d===g.quests.d){
+    g.quests.list.forEach(it=>{ const o=r.quests.list.find(x=>x.id===it.id); if(o&&o.done) it.done=1; });
+  }
+  return {game:g,xpGain};
+}
+/* merge a whole {vocab,cards,game} into another, in place */
+function mergeInto(target,src){
+  const v=mergeVocab(target.vocab,src.vocab||{});
+  const c=mergeCards(target.cards,src.cards||[]);
+  const m=mergeGame(target.game,src.game);
+  target.game=m.game;
+  return {words:v.added,touched:v.updated,cards:c.added,cardsUp:c.updated,xp:m.xpGain};
+}
+
+async function allBookIds(){
+  const ids=new Set(Object.keys(lib().books));
+  try{ (await shelfList()).forEach(b=>b&&b.id&&ids.add(b.id)); }catch(e){}
+  if(state.book) ids.add(bookId());
+  return [...ids];
+}
+async function buildSync(){
+  const l=lib(), books={};
+  for(const id of await allBookIds()){
+    let prog;
+    if(state.book&&bookId()===id) prog={vocab:state.vocab,cards:state.cards,game:state.game};
+    else prog=await loadProgressFor(id);
+    const rec=l.books[id]||{};
+    books[id]={
+      t:rec.title||id.replace(/_/g," "),
+      l:rec.last||0,
+      c:(rec.chapters||[]).map(c=>[c.t||"",c.s||"",c.p||""]),
+      v:packVocab(prog.vocab), k:packCards(prog.cards), g:prog.game||{}
+    };
+  }
+  return {v:2,at:Date.now(),books};
+}
+async function makeCode(){
+  const p=await buildSync();
+  return "LK2."+(await squeeze(JSON.stringify(p)));
+}
+async function readCode(code){
+  const s=String(code||"").trim().replace(/\s+/g,"");
+  if(!/^LK2\./i.test(s)) throw new Error("not a Lesekern code");
+  return JSON.parse(await unsqueeze(s.slice(4)));
+}
+async function applySync(p){
+  if(!p||!p.books) throw new Error("empty code");
+  const l=lib(); let sum={words:0,cards:0,xp:0,books:0,chapters:0};
+  for(const id in p.books){
+    const B=p.books[id];
+    const incoming={vocab:unpackVocab(B.v),cards:unpackCards(B.k),game:normGame(B.g)};
+    const live=state.book&&bookId()===id;
+    const target=live? {vocab:state.vocab,cards:state.cards,game:state.game}
+                     : await loadProgressFor(id);
+    const r=mergeInto(target,incoming);
+    sum.words+=r.words; sum.cards+=r.cards; sum.xp+=r.xp; sum.books++;
+    if(live){ state.vocab=target.vocab; state.cards=target.cards; state.game=target.game; ensureGame(); }
+    else{ await IDB.set("progress:"+id,{vocab:target.vocab,cards:target.cards,game:target.game});
+          LS.set(PROG_KEY(id),{at:Date.now(),...target}); }
+    /* remember the shelf too, so a fresh device knows which books existed */
+    const rec=l.books[id]||{id,title:B.t,chapters:[],at:0};
+    rec.title=rec.title||B.t;
+    if((B.c||[]).length>(rec.chapters||[]).length){
+      rec.chapters=(B.c||[]).map(a=>({t:a[0],s:a[1],p:a[2],w:0,g:1,k:""}));
+      sum.chapters+=rec.chapters.length;
+    }
+    if(!rec.last) rec.last=B.l||0;
+    rec.at=Math.max(rec.at||0,p.at||Date.now());
+    l.books[id]=rec;
+  }
+  libSave(l);
+  if(state.book){ markDirty(); saveProgress(); mirrorProgress(); renderChapter(state.chapterIdx,true);
+                  updateBadges(); gameTouch(); }
+  renderShelf(); renderLogChip();
+  return sum;
+}
+
+/* ------------------------------- the sheet ------------------------------- */
+function openSheet(title,html){
+  $("#sheetTitle").textContent=title;
+  $("#sheetBody").innerHTML=html;
+  $("#sheet").classList.add("show"); $("#sheetScrim").classList.add("show");
+}
+function closeSheet(){ $("#sheet").classList.remove("show"); $("#sheetScrim").classList.remove("show"); }
+
+async function showSyncSheet(){
+  openSheet("Sync code","<div class='sync-wait'>Packing your ledger…</div>");
+  let code="";
+  try{ code=await makeCode(); }
+  catch(e){ $("#sheetBody").innerHTML="<p class='sync-bad'>I couldn't build a code on this browser.</p>"; return; }
+  const kb=(code.length/1024).toFixed(1);
+  $("#sheetBody").innerHTML=`
+    <p class="sheet-p">This is everything you have learned — words, cards, islands, XP and the list of books you were reading — in one block of text. Mail it to yourself, keep it in a note, carry it anywhere.</p>
+    <textarea class="sync-box" id="syncOut" readonly spellcheck="false">${esc(code)}</textarea>
+    <div class="sheet-row"><button class="btn" id="syncCopy">Copy code</button><button class="btn ghost" id="syncSave">Save as file</button><span class="sheet-note">${kb} KB${code.length>40000?" — large; the file is easier to move than the text":""}</span></div>
+    <hr class="sheet-hr"/>
+    <h4 class="sheet-h">Apply a code</h4>
+    <p class="sheet-p">Paste a code from another device. It <b>merges</b> — the newer of the two wins for each word, cards keep whichever side reviewed them last, and each day's XP is taken at its highest. An old code can only ever fill gaps.</p>
+    <textarea class="sync-box" id="syncIn" placeholder="LK2.R…" spellcheck="false"></textarea>
+    <div class="sheet-row"><button class="btn" id="syncApply">Merge this code</button><button class="btn ghost" id="syncOpen">Open a code file…</button></div>
+    <div id="syncMsg" class="sheet-note"></div>`;
+  $("#syncCopy").addEventListener("click",async()=>{
+    const ta=$("#syncOut");
+    try{ await navigator.clipboard.writeText(ta.value); toast("Code copied"); }
+    catch(e){ ta.select(); document.execCommand&&document.execCommand("copy"); toast("Code selected — copy it"); }
+  });
+  $("#syncSave").addEventListener("click",()=>{
+    const b=new Blob([code],{type:"text/plain"}); const a=document.createElement("a");
+    a.href=URL.createObjectURL(b); a.download="lesekern-sync-"+dayKey()+".txt"; a.click();
+  });
+  $("#syncOpen").addEventListener("click",()=>$("#syncFile").click());
+  $("#syncApply").addEventListener("click",()=>mergeCodeText($("#syncIn").value));
+}
+async function mergeCodeText(txt){
+  const msg=$("#syncMsg");
+  if(!txt||!txt.trim()){ if(msg)msg.textContent="Paste a code first."; return; }
+  try{
+    const p=await readCode(txt);
+    const when=p.at?new Date(p.at).toLocaleString():"unknown date";
+    const r=await applySync(p);
+    if(msg) msg.innerHTML=`Merged a code from <b>${esc(when)}</b> · +${r.words} words · +${r.cards} cards · +${r.xp} XP · ${r.books} book${r.books===1?"":"s"} known.`;
+    sfx("open"); toast("Merged — nothing was overwritten");
+  }catch(e){
+    if(msg) msg.textContent="That doesn't read as a Lesekern code.";
+  }
+}
+
+/* ----------------------------- wiring it up ----------------------------- */
+function shelfGhostNote(id){
+  const r=lib().books[id]; if(!r||!r.chapters) return "";
+  const g=r.chapters.filter(c=>c.g).length;
+  return g? ` · <span class="gh">${g} awaiting text</span>` : "";
+}
+function trackReading(w){
+  const ch=state.book&&state.book.chapters[state.chapterIdx];
+  if(!ch||!ch.words||!ch.words.length) return;
+  const F=readFracs(), k="c"+state.chapterIdx;
+  const frac=Math.min(1,(w.scrollTop+w.clientHeight)/Math.max(1,w.scrollHeight));
+  const prev=F[k]||0;
+  if(frac>prev+0.02){
+    const words=Math.round((frac-prev)*ch.words.length);
+    F[k]=frac;                       // kept with the ledger, so a reload can't recount it
+    if(words>0){
+      questTick("read",words);
+      const g=state.game; g.racc=(g.racc||0)+words;
+      while(g.racc>=150){ g.racc-=150; award(XPV.read,"read"); }
+    }
+    markDirty();
+  }
+}
+$("#pickChaps").addEventListener("click",()=>$("#chapFiles").click());
+$("#chapFiles").addEventListener("change",async e=>{
+  const f=[...e.target.files]; e.target.value="";
+  if(f.length) await loadChapterFiles(f);
+});
+/* dropping the folder of chapter files onto the start screen works too */
+["dragover","drop"].forEach(ev=>document.addEventListener(ev,e=>{ e.preventDefault(); }));
+document.addEventListener("drop",async e=>{
+  const f=[...(e.dataTransfer&&e.dataTransfer.files||[])].filter(x=>/\.(txt|md)$/i.test(x.name));
+  if(f.length) await loadChapterFiles(f);
+});
+$("#btnLog").addEventListener("click",()=>{ if(state.book) openVoyage(); else showLibrary(); });
+$("#btnSync").addEventListener("click",()=>{ $("#menu").classList.remove("show"); showSyncSheet(); });
+$("#sheetClose").addEventListener("click",closeSheet);
+$("#sheetScrim").addEventListener("click",closeSheet);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+$("#syncFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; e.target.value=""; if(!f) return;
+  try{ await mergeCodeText(await readText(f)); }catch(err){ toast("I couldn't read that file"); }
+});
+/* the spare copy and the shelf record, kept warm */
+setInterval(()=>{ if(state.book && _mirrorDue){ mirrorProgress(); saveManifest(); } }, 20000);
+window.addEventListener("pagehide",()=>{ if(state.book){ mirrorProgress(); saveManifest(); } });
+document.addEventListener("visibilitychange",()=>{ if(document.hidden && state.book){ mirrorProgress(); saveManifest(); } });
+
 (async function boot(){
   try{
-    if(!(await IDB.ok())){ applyPrefs(); renderShelf(); if(prefs.startMap) openVoyage(true); return; }   // no storage → empty archipelago
-    const p=await IDB.get("prefs"); if(p) Object.assign(prefs,p);
+    const okIDB=await IDB.ok();
+    const lp=LS.get("lesekern:prefs",null); if(lp) Object.assign(prefs,lp);
+    if(okIDB){ const p=await IDB.get("prefs"); if(p) Object.assign(prefs,p); }
     applyPrefs();
     try{ localStorage.setItem("lesekern:boot",JSON.stringify({dark:!!prefs.dark})); }catch(e){}
     await renderShelf();
-    const id=await IDB.get("lastBook"); if(!id){ if(prefs.startMap) openVoyage(true); return; }
-    const book=await IDB.get("book:"+id); if(!book||!book.chapters){ if(prefs.startMap) openVoyage(true); return; }
+    const L=lib();
+    const id=(okIDB? await IDB.get("lastBook") : null) || L.lastBook || "";
+    if(!id){ if(prefs.startMap) openVoyage(true); return; }
+    const rec=L.books[id];
+    let book=okIDB? await IDB.get("book:"+id) : null;
+    /* The text may be gone — cleared, or never storable here in the first
+       place. The shelf record isn't: rebuild the book from it and let the
+       chapters be ghosts until their files come back. */
+    if((!book||!book.chapters) && rec) book=ghostBook(rec);
+    if(!book||!book.chapters){ if(prefs.startMap) openVoyage(true); return; }
     state.book=book; state.tracks=book.tracks||[]; state.chapterIdx=0;
-    const prog=await IDB.get("progress:"+id)||{}; state.vocab=prog.vocab||{}; state.cards=prog.cards||[];
-    state.game=Object.assign({reviews:0,read:{},names:{},tier:0},prog.game||{});
-    _scrollPos=await IDB.get("scroll:"+id)||{};
+    const prog=await loadProgressFor(id);
+    state.vocab=prog.vocab; state.cards=prog.cards; state.game=normGame(prog.game); ensureGame();
+    _scrollPos=(okIDB? await IDB.get("scroll:"+id) : null)||{};
     _lastProg=JSON.stringify({vocab:state.vocab,cards:state.cards,game:state.game});
-    // rebuild audio from stored blobs
-    const keys=await IDB.audioKeys()||[]; const pre=id+"::"; const stored=[];
-    for(const k of keys){ if(typeof k==="string" && k.startsWith(pre)){ const blob=await IDB.getAudio(k); if(blob) stored.push({name:k.slice(pre.length),url:URL.createObjectURL(blob)}); } }
-    if(stored.length) adoptAudio(stored);
-    $("#jsonHint").textContent=book.title+" · resumed";
-    const last=await IDB.get("chapter:"+id);
-    enterBook(last!=null?Math.min(last,book.chapters.length-1):0); updateBadges();
+    if(okIDB){                                   // rebuild audio from stored blobs
+      const keys=await IDB.audioKeys()||[]; const pre=id+"::"; const stored=[];
+      for(const k of keys){ if(typeof k==="string" && k.startsWith(pre)){ const blob=await IDB.getAudio(k); if(blob) stored.push({name:k.slice(pre.length),url:URL.createObjectURL(blob)}); } }
+      if(stored.length) adoptAudio(stored);
+    }
+    const gh=ghostCount();
+    $("#jsonHint").textContent=book.title+(gh?" · waiting for its chapter files":" · resumed");
+    let last=null;
+    if(okIDB){ const v=await IDB.get("chapter:"+id); if(v!=null) last=v; }
+    if(last==null && rec) last=rec.last||0;
+    enterBook(Math.min(last||0, book.chapters.length-1));
+    updateBadges();
     const have=state.tracks.filter(t=>state.audio[t]).length;
     if(have){ $("#dock").classList.add("show"); updateAudioStatus(); }
     if(prefs.startMap) openVoyage(true);
-    _welcome="Welcome back to "+book.title+(have?" — the audio is ready":"");
+    _welcome = gh
+      ? "Welcome back — Kapitel "+((last||0)+1)+", and "+gh+" chapter"+(gh===1?"":"s")+" still to hand back"
+      : "Welcome back to "+book.title+(have?" — the audio is ready":"");
     maybeOfferTidy();
   }catch(e){ if(prefs.startMap && !state.book) openVoyage(true); }
   finally{ settle(); }
