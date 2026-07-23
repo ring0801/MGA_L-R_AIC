@@ -155,6 +155,9 @@
   .follow.on{background:var(--accent);border-color:var(--accent);}
 
   .start{max-width:620px;margin:7vh auto;}
+  .start-back{font-size:13px;font-weight:600;color:var(--accent);padding:8px 12px 8px 0;
+    margin-bottom:6px;display:inline-flex;align-items:center;gap:6px;}
+  .start-back:hover{filter:brightness(.85);}
   .start .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
   .start h1{font-family:var(--serif);font-weight:500;font-size:38px;line-height:1.08;margin:0 0 10px;letter-spacing:-.015em;}
   .start p{font-family:var(--serif);font-size:17px;line-height:1.55;color:color-mix(in srgb,var(--ink) 78%,transparent);}
@@ -504,6 +507,7 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 <main>
   <div class="reader-wrap" id="readerWrap">
     <div class="start" id="start">
+      <button class="start-back" id="startBack">← <span id="startBackLbl">Archipel</span></button>
       <div class="kicker">Immersive German reader</div>
       <h1>Read, hear every word, and keep what you learn.</h1>
       <p>Bring a book and its audiobook together and every word lights up exactly as you hear it spoken. Or just paste a chapter and read it the quiet way. Nothing you load ever leaves this device.</p>
@@ -2199,7 +2203,17 @@ async function openBookById(id){
 function showLibrary(){
   $("#reader").style.display="none"; $("#start").style.display="block";
   $("#readerWrap").scrollTop=0; renderShelf();
+  /* the start screen is reachable from the Archipel and from an open book, so
+     the way out has to name whichever one you left */
+  const l=$("#startBackLbl");
+  if(l) l.textContent = state.book ? (state.book.title||"the book") : "Archipel";
 }
+$("#startBack").addEventListener("click",()=>{
+  if(state.book){
+    $("#start").style.display="none"; $("#reader").style.display="block";
+    $("#readerWrap").scrollTop=(_scrollPos&&_scrollPos[state.chapterIdx])||0;
+  } else openVoyage();
+});
 
 /* ============================================================================
    TIDY UP — an e-book text usually carries publisher pages at the front and
@@ -2894,17 +2908,18 @@ function welcomeScene(){
 function renderWelcome(){
   const bm=$("#bondMini"); if(bm) bm.innerHTML="";
   const vb=$("#voyBook"); if(vb) vb.textContent="nothing aboard yet";
+  /* With nothing aboard there is no bookshelf worth the name and nowhere to
+     read, so the two header actions stand down and one route out remains. */
+  const vc=$("#voyClose"); if(vc) vc.style.display="none";
+  const vl=$("#voyLib");   if(vl) vl.style.display="none";
   let html=`<div class="map-top">
-      <button class="map-cta" id="wLoad">Bring a read-along aboard</button>
-      <button class="map-cta ghost" id="wText">Open a .txt, or paste</button>
+      <button class="map-cta" id="wLoad">Bring a book aboard →</button>
     </div>
     <div class="welcome-sea">${welcomeScene()}</div>
     <p class="map-intro">It's quiet out here right now. A few islands, a boat coming in, and not much else to be done about it.<br><br>That changes the moment you bring a book: <b>every chapter becomes an island of its own</b> — its own shore, its own hour of the day, and someone living there who is very glad of the company. Read the chapter, learn its words, and the island answers by coming into bloom.<br><span class="voy-sub">Five shores rise the moment a book comes aboard. The rest arrive as you read.</span></p>
     <div id="voyShelf" class="voy-shelf"></div>`;
   $("#voyMap").innerHTML=html;
-  const vc=$("#voyClose"); if(vc) vc.textContent="Bring a book →";
-  $("#wLoad").addEventListener("click",()=>{ closeVoyage(); showLibrary(); const b=$("#pickJson"); if(b) b.focus(); });
-  $("#wText").addEventListener("click",()=>{ closeVoyage(); showLibrary(); const t=$("#txtIn"); if(t) t.focus(); });
+  $("#wLoad").addEventListener("click",()=>{ closeVoyage(); showLibrary(); });
   fillVoyShelf();
 }
 async function fillVoyShelf(){
@@ -2924,10 +2939,7 @@ function renderMap(){
   renderBondMini();
   const chs=state.book.chapters, open=islesOpen();
   const bloomed=chs.reduce((n,c,i)=>n+(isUnlocked(i)&&islandBloom(i)>=90?1:0),0);
-  let html=`<div class="map-top">
-      <button class="map-cta" id="mapRead">Continue reading · ${esc(chs[state.chapterIdx]?("Ch "+(state.chapterIdx+1)):"start")} →</button>
-      <button class="map-cta ghost" id="mapLib">Bookshelf</button>
-    </div>${tidyBanner()}
+  let html=`${tidyBanner()}
     <p class="map-intro">One island for every chapter of <b>${esc(state.book.title)}</b> — each with its own shore, its own weather, and its own keeper watching the water for you. Read, learn the words, and the island answers by blooming.<br><span class="voy-sub">${open} of ${chs.length} shores within reach · ${bloomed} in full bloom</span></p>
     <div class="isle-grid">`;
   chs.forEach((c,i)=>{
@@ -2943,9 +2955,9 @@ function renderMap(){
   });
   html+="</div>"+GLOW_DEFS;
   $("#voyMap").innerHTML=html;
-  const vc=$("#voyClose"); if(vc) vc.textContent="Read →";
-  $("#mapRead").addEventListener("click",()=>{ closeVoyage(); });
-  $("#mapLib").addEventListener("click",()=>{ closeVoyage(); showLibrary(); });
+  const vc=$("#voyClose");
+  if(vc){ vc.style.display=""; vc.textContent="Read · Kap. "+(state.chapterIdx+1)+" →"; }
+  const vl=$("#voyLib"); if(vl) vl.style.display="";
   const dt=$("#doTidy"); if(dt) dt.addEventListener("click",applyTidy);
   const nt=$("#noTidy"); if(nt) nt.addEventListener("click",dismissTidy);
 }
