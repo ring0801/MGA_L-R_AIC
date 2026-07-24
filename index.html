@@ -67,7 +67,7 @@
   }
   .brand{display:flex; align-items:center; gap:8px; font-weight:600; letter-spacing:.004em; font-size:17px;}
   .brand b{color:var(--accent); font-weight:700;}
-  .mk-lk{width:17px;height:17px;color:var(--accent);}
+  .mk-lk{width:19px;height:19px;color:var(--accent);}
   .chapsel{display:flex; align-items:center; gap:8px; font-size:13px;}
   .chapsel select{
     font-family:var(--sans); font-size:13px; font-weight:500; padding:7px 10px; max-width:230px;
@@ -81,9 +81,12 @@
   .cov-track{width:120px;height:6px;background:color-mix(in srgb,var(--ink) 12%, transparent);border-radius:4px;overflow:hidden;}
   .cov-fill{height:100%;width:0;background:var(--accent);border-radius:4px;transition:width .5s ease, background-color .7s ease;}
   .cov-num{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);white-space:nowrap;}
-  /* Translate sits by itself on the left, next to the wordmark — a mode you
-     turn on, kept clear of the row of places you can go. */
-  .left-actions{display:flex;align-items:center;}
+  /* Translate leads the action row but is not one of it: the others take you
+     somewhere, this one changes what a tap on the text *means*. A little air
+     and a hairline keep the difference visible. */
+  #btnTrans{margin-right:10px;position:relative;}
+  #btnTrans::after{content:"";position:absolute;right:-10px;top:50%;width:1px;height:19px;
+    margin-top:-9.5px;background:var(--line);transition:background-color .7s ease;}
   .top-actions{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap;}
   .tbtn{font-size:12.5px;font-weight:500;padding:7px 12px;border-radius:8px;background:var(--paper-2);border:1px solid var(--line);transition:all .3s;
     display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
@@ -222,7 +225,7 @@
   @media(max-width:760px){
     header{flex-wrap:wrap;gap:8px 10px;padding-left:14px;padding-right:14px;max-width:100%;}
     .brand{font-size:15px;flex:0 1 auto;gap:7px;min-width:0;}
-    .mk-lk{width:15px;height:15px;}
+    .mk-lk{width:17px;height:17px;}
     .mk-arch{width:22px;height:20px;}
     /* Five actions fit one line on most phones, but not all. They used to be
        told never to wrap, so instead they ran off the right-hand edge and took
@@ -753,7 +756,8 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   .tr-x:hover{border-color:var(--accent);}
   .tbtn.on{background:var(--der);color:#fff;border-color:var(--der);font-weight:600;}
   /* icons plus a wordmark is a lot for a 390px screen — the wordmark yields first */
-  @media(max-width:430px){ .brand span{display:none;} .top-actions{gap:5px;} .tbtn{padding:8px;} }
+  @media(max-width:430px){ .brand span{display:none;} .top-actions{gap:5px;} .tbtn{padding:8px;}
+    #btnTrans{margin-right:7px;} #btnTrans::after{right:-7px;} }
 
   /* ============================================================================
      THE REST OF THE POPS — anywhere the app swapped display:none for
@@ -942,18 +946,19 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 </div>
 <header>
   <div class="brand">
-    <svg class="mk mk-lk" viewBox="0 0 22 22" aria-hidden="true">
-      <g fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 3.2c3.5 3 3.5 11.6 0 15.6-3.5-4-3.5-12.6 0-15.6Z"/>
-        <path d="M11 7.4v8.2"/>
+    <!-- Two waves and a sun — the same mark as the favicon and the homescreen
+         icon, so the app looks like itself wherever you meet it. The old leaf
+         was a pointed oval with a line down it, which at 17px could have been
+         anything at all. -->
+    <svg class="mk mk-lk" viewBox="0 0 64 64" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.2 42.1H54.8" stroke-width="4" opacity=".5"/>
+        <path d="M13.1 41.5Q23.8 24.8 34.4 41.5" stroke-width="5.4"/>
+        <path d="M37.6 41.5Q45 30.7 52.5 41.5" stroke-width="5.4"/>
       </g>
+      <circle cx="49" cy="18.7" r="4.6" fill="currentColor"/>
     </svg>
     <span>Lese<b>kern</b></span>
-  </div>
-  <!-- Translate stands apart from the rest: it changes what a tap on the text
-       *means*, so it doesn't belong in the row of places you can go. -->
-  <div class="left-actions">
-    <button class="tbtn" id="btnTrans" style="display:none" title="Translate a sentence" aria-label="Translate" aria-pressed="false"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 5.2h6.8"/><path d="M5.8 3.3v1.9"/><path d="M7.7 5.2c0 3.3-2.1 6-5.3 7.2"/><path d="M4 8.8c.9 2 2.6 3.4 4.8 4"/><path d="M10.4 17.1 13.6 8.6l3.2 8.5"/><path d="M11.5 14.3h4.2"/></g></svg><span class="lbl">Translate</span></button>
   </div>
   <div class="chapsel" id="chapNav" style="display:none">
     <button class="navbtn" id="prevCh" title="Previous chapter">‹</button>
@@ -965,6 +970,7 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
     <div class="cov-num" id="covNum">0%</div>
   </div>
   <div class="top-actions">
+    <button class="tbtn" id="btnTrans" style="display:none" title="Translate a sentence" aria-label="Translate" aria-pressed="false"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 5.2h6.8"/><path d="M5.8 3.3v1.9"/><path d="M7.7 5.2c0 3.3-2.1 6-5.3 7.2"/><path d="M4 8.8c.9 2 2.6 3.4 4.8 4"/><path d="M10.4 17.1 13.6 8.6l3.2 8.5"/><path d="M11.5 14.3h4.2"/></g></svg><span class="lbl">Translate</span></button>
     <button class="tbtn" id="btnVoyage" style="display:none" title="This chapter's island" aria-label="This chapter's island"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15.2q2-1.2 4 0t4 0 4 0 4 0"/><path d="M4.6 12.4q2.2-4.6 5.4-4.6t5.4 4.6z"/><path d="M10 7.8V3.4M10 3.4l3 1.3-3 1.4"/></g></svg><span class="lbl">Insel</span></button>
     <button class="tbtn" id="btnMap" style="display:none" title="Archipel" aria-label="Archipel"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 5.2 7.2 3.4v11.4L2.6 16.6z"/><path d="M7.2 3.4l5.6 1.9v11.3L7.2 14.8"/><path d="M12.8 5.3 17.4 3.4v11.4l-4.6 1.8"/></g></svg><span class="lbl">Archipel</span></button>
     <button class="tbtn" id="btnAudio" style="display:none" title="Audiobook" aria-label="Audiobook"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12.4V10a6.4 6.4 0 0 1 12.8 0v2.4"/><rect x="2.2" y="11.6" width="3.6" height="5.2" rx="1.6"/><rect x="14.2" y="11.6" width="3.6" height="5.2" rx="1.6"/></g></svg><span class="lbl" id="audioLbl">Audiobook</span></button>
