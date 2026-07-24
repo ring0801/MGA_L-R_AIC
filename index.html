@@ -432,6 +432,12 @@
   .menu::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 22%,transparent);border-radius:4px;}
   .menu::-webkit-scrollbar-track{background:transparent;}
   .menu h4{font-size:12px;margin:0 0 9px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);}
+  /* A heading used to sit flush against the small print of the section above
+     it, so one group ran straight into the next. Every heading but the first
+     now opens with a hairline and room to breathe. */
+  .menu h4:not(:first-child){margin-top:17px;padding-top:14px;border-top:1px solid var(--line);}
+  .menu h4.danger{color:var(--die);}                 /* the one that destroys work */
+  .menu .hint:last-child{margin-bottom:2px;}
   .menu .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px;font-size:13px;}
   .menu .stepper{display:flex;gap:5px;}
   .menu .stepper button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:14px;font-weight:600;}
@@ -821,9 +827,6 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   <div class="hint" id="trDlNote">A real German→English translation model, about 40 MB, fetched once and then kept on this device. After that it works with no connection at all, and not one sentence you read is ever sent anywhere.</div>
   <div class="row" style="margin-top:12px"><span>Use an online translator</span><span class="sw" id="swTrans"></span></div>
   <div class="hint">A fallback for before the model is aboard. It sends the tapped sentence to a public translation service. Every answer is kept here, so the same sentence never travels twice.</div>
-  <h4>Progress</h4>
-  <div class="menu-btns"><button class="mini-btn warn" id="rsBook">Reset book…</button></div>
-  <div class="hint" style="margin:8px 0 0">Clears everything you have learned in this book. The text and the audio stay exactly where they are. To reset a single chapter, open its island — the reset is at the foot of that page, where there is no doubt which chapter is meant.</div>
   <h4>Sound</h4>
   <div class="row"><span>Background piano</span><span class="sw" id="swMusic"></span></div>
   <div class="row"><span>Interface sounds</span><span class="sw" id="swSfx"></span></div>
@@ -840,6 +843,9 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   <div class="menu-btns"><button class="mini-btn" id="btnSync">Sync code…</button></div>
   <div class="hint">One block of text holds your whole ledger. Applying a code <b>merges</b> it with what's already here, so an older code can only fill gaps — it can never undo newer work.</div>
   <div class="hint" style="margin-top:8px">All of this lives on your device and nowhere else.</div>
+  <h4 class="danger">Reset</h4>
+  <div class="menu-btns"><button class="mini-btn warn" id="rsBook">Reset book…</button></div>
+  <div class="hint">Clears everything you have learned in this book. The text and the audio stay exactly where they are. To reset a single chapter, open its island — the reset is at the foot of that page, where there is no doubt which chapter is meant.</div>
 </div>
 
 <main>
