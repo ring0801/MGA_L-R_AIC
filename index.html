@@ -189,7 +189,7 @@
   .start textarea{width:100%;min-height:90px;resize:vertical;padding:11px;border:1px solid var(--line);border-radius:9px;font-family:var(--serif);font-size:15px;background:var(--paper);color:var(--ink);margin-bottom:10px;}
   .filehint{font-size:11.5px;color:var(--ink-mute);margin-top:9px;min-height:14px;}
 
-  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s;z-index:60;}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s;z-index:95;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .rail-toggle{display:none;}
 
@@ -275,6 +275,27 @@
   .status-dot{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);}
   .status-dot b{color:var(--accent);}
   .mini-btn{font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;background:var(--paper);border:1px solid var(--accent);color:var(--accent);}
+  /* Anything that destroys work wears the same colour, everywhere, so it is
+     never mistaken for an ordinary action. */
+  .mini-btn.warn{border-color:var(--die);color:var(--die);}
+  .mini-btn.warn:hover{background:color-mix(in srgb,var(--die) 10%,var(--paper));}
+  .isle-reset{display:block;margin:14px auto 0;font-size:12px;color:var(--ink-3);padding:7px 12px;
+    border-radius:8px;border:1px solid transparent;}
+  .isle-reset:hover{color:var(--die);border-color:color-mix(in srgb,var(--die) 40%,transparent);}
+  .rs-list{font-size:13.5px;line-height:1.65;margin:12px 0 0;padding-left:18px;}
+  .rs-list li{margin-bottom:5px;}
+  .rs-keep{font-size:12.5px;line-height:1.6;color:var(--ink-2);background:var(--paper);
+    border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:9px 11px;margin-top:14px;}
+  .rs-final{font-family:var(--serif);font-size:15px;line-height:1.55;background:color-mix(in srgb,var(--die) 9%,var(--paper));
+    border:1px solid color-mix(in srgb,var(--die) 35%,var(--line));border-radius:10px;padding:12px 13px;margin-top:4px;}
+  .rs-row{display:flex;gap:9px;margin-top:16px;}
+  .rs-row button{flex:1;font-size:13px;font-weight:600;padding:11px 10px;border-radius:9px;
+    background:var(--paper);border:1px solid var(--line);color:var(--ink-2);}
+  .rs-row button.go{background:var(--die);border-color:var(--die);color:#fff;}
+  .rs-row button.go[disabled]{opacity:.4;}
+  .rs-type{width:100%;font-size:16px;font-family:var(--mono);padding:10px 11px;margin-top:12px;
+    border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);}
   .mini-btn:hover{background:var(--accent-soft);}
 
   /* ---- split-chapters prompt ---- */
@@ -649,9 +670,9 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
 
   /* ---------- sheet (sync, and anything else that needs a page) ---------- */
   .sheet-scrim{position:fixed;inset:0;background:rgba(20,18,15,.34);opacity:0;pointer-events:none;
-    transition:opacity .25s ease;z-index:60;}
+    transition:opacity .25s ease;z-index:90;}   /* above the Archipel overlay (80) */
   .sheet-scrim.show{opacity:1;pointer-events:auto;}
-  .sheet{position:fixed;z-index:61;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);
+  .sheet{position:fixed;z-index:91;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);
     width:min(96vw,620px);max-height:86vh;background:var(--paper);border:1px solid var(--line);
     border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.22);display:flex;flex-direction:column;
     opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;}
@@ -800,6 +821,9 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   <div class="hint" id="trDlNote">A real German→English translation model, about 40 MB, fetched once and then kept on this device. After that it works with no connection at all, and not one sentence you read is ever sent anywhere.</div>
   <div class="row" style="margin-top:12px"><span>Use an online translator</span><span class="sw" id="swTrans"></span></div>
   <div class="hint">A fallback for before the model is aboard. It sends the tapped sentence to a public translation service. Every answer is kept here, so the same sentence never travels twice.</div>
+  <h4>Progress</h4>
+  <div class="menu-btns"><button class="mini-btn warn" id="rsBook">Reset book…</button></div>
+  <div class="hint" style="margin:8px 0 0">Clears everything you have learned in this book. The text and the audio stay exactly where they are. To reset a single chapter, open its island — the reset is at the foot of that page, where there is no doubt which chapter is meant.</div>
   <h4>Sound</h4>
   <div class="row"><span>Background piano</span><span class="sw" id="swMusic"></span></div>
   <div class="row"><span>Interface sounds</span><span class="sw" id="swSfx"></span></div>
@@ -3555,7 +3579,7 @@ async function renderHarbour(){
 
   let html=`<div class="harbour">`;
   if(state.book)
-    html+=`<div class="map-top"><button class="map-cta ghost" id="hbIsles">‹ The islands of ${esc(state.book.title)}</button></div>`;
+    html+=`<div class="map-top"><button class="map-cta ghost" id="hbIsles">The islands of ${esc(state.book.title)} ›</button></div>`;
 
   if(list.length){
     html+=`<div class="harb-shelf"><div class="harb-h">Already aboard</div><div class="harb-grid">`+
@@ -3690,9 +3714,11 @@ function renderIsland(idx){
     <div class="bloom-cap">Every known word and finished read lifts this shore. ${b>=90?"It's in full bloom — danke!":"Keep going and watch it change."}</div>
     <div class="tiernote">Chapter stars <span class="isle-stars">${starRow(chapterStars(idx))}</span> — one for reaching the end, one at 60% of its words known, one at 90%.</div>
     <div class="tiernote">Your bond: ${TIERS[bondTier(bondXP())].name}</div>
-    <button class="isle-cta" id="isleGo">Read chapter ${idx+1} →</button>`+GLOW_DEFS;
+    <button class="isle-cta" id="isleGo">Read chapter ${idx+1} →</button>
+    <button class="isle-reset" id="isleReset">Reset this island…</button>`+GLOW_DEFS;
   $("#backMap").addEventListener("click",()=>{ sfx("page"); voySwap(renderMap,true); });
   $("#isleGo").addEventListener("click",()=>toReader(idx));
+  $("#isleReset").addEventListener("click",()=>askResetChapter(idx));
 }
 function openVoyage(instant){
   const v=$("#voyage");
@@ -4807,6 +4833,174 @@ try{
 window.addEventListener("resize",syncDockH);
 window.addEventListener("orientationchange",()=>setTimeout(syncDockH,250));
 syncDockH();
+
+
+/* ============================================================================
+   RESETTING PROGRESS
+
+   Two things make this delicate. The first is that it cannot be undone, so
+   nothing here happens on one tap: every route runs through two separate
+   sheets, the second of which shows the real cost in numbers and keeps its
+   button disabled for a moment so a double-tap cannot carry you through it.
+   Erasing a whole book asks you to type its name as well.
+
+   The second is subtler. Vocabulary is keyed by word, not by chapter — knowing
+   "Schildkröte" is knowing it everywhere. So resetting one chapter can only
+   honestly forget the words that occur in *that chapter and nowhere else* in
+   the book. The sheet says so plainly rather than quietly doing less than it
+   promised.
+   ==========================================================================*/
+
+/* keys that live in this chapter and in no other */
+function exclusiveKeys(idx){
+  const mine=chapterKeys(idx);
+  if(!mine||!mine.size) return new Set();
+  const out=new Set(mine);
+  for(let i=0;i<state.book.chapters.length;i++){
+    if(i===idx) continue;
+    const other=chapterKeys(i); if(!other) continue;
+    other.forEach(k=>out.delete(k));
+  }
+  return out;
+}
+function chapterCost(idx){
+  const ex=exclusiveKeys(idx);
+  let words=0; ex.forEach(k=>{ const v=state.vocab[k]; if(v&&(v.status==="known"||v.status==="learning")) words++; });
+  const cards=state.cards.filter(c=>ex.has(c.front)).length;
+  const shared=(chapterKeys(idx)||new Set()).size-ex.size;
+  return {ex,words,cards,shared,read:!!(state.game.read&&state.game.read[idx]),stars:chapterStars(idx)};
+}
+function bookCost(){
+  let known=0,learning=0;
+  Object.keys(state.vocab).forEach(k=>{ const v=state.vocab[k];
+    if(v&&v.status==="known")known++; else if(v&&v.status==="learning")learning++; });
+  const read=Object.keys(state.game.read||{}).filter(k=>state.game.read[k]).length;
+  return {known,learning,read,cards:state.cards.length,xp:bondXP(),tier:TIERS[bondTier(bondXP())].name};
+}
+const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+
+/* ---- step one: what this would cost, and what it would not touch ---- */
+function askResetChapter(idx){
+  if(!state.book) return;
+  const c=chapterCost(idx), ch=state.book.chapters[idx];
+  const lost=[];
+  if(c.read) lost.push("its <b>read to the end</b> mark");
+  if(c.stars) lost.push("its <b>"+plural(c.stars,"star")+"</b>");
+  if(c.words) lost.push("<b>"+plural(c.words,"word")+"</b> you have met only here");
+  if(c.cards) lost.push("<b>"+plural(c.cards,"card")+"</b> made from those words");
+  lost.push("how far down the page you had read");
+  openSheet("Reset Insel "+(idx+1)+"?",
+    `<div style="font-size:14px;line-height:1.6">This would take back your progress through
+      <b>${esc(ch.title||("chapter "+(idx+1)))}</b> and let its island go back to bare rock.</div>
+     <ul class="rs-list">${lost.map(l=>"<li>"+l+"</li>").join("")}</ul>
+     <div class="rs-keep">The chapter's text and audio stay exactly as they are — only what you
+       have <i>learned</i> from it is cleared.${c.shared?` And ${plural(c.shared,"word")} from this
+       chapter also appear elsewhere in the book, so they stay known: a word is known everywhere
+       or nowhere.`:""}</div>
+     <div class="rs-row"><button id="rsNo">Keep it</button><button id="rsYes">Continue\u2026</button></div>`);
+  $("#rsNo").addEventListener("click",closeSheet);
+  $("#rsYes").addEventListener("click",()=>confirmResetChapter(idx));
+}
+
+/* ---- step two: the last word, and a button that will not be rushed ---- */
+function confirmResetChapter(idx){
+  const c=chapterCost(idx), ch=state.book.chapters[idx];
+  openSheet("Are you sure?",
+    `<div class="rs-final">You are about to erase your progress through
+       <b>${esc(ch.title||("chapter "+(idx+1)))}</b>. This cannot be undone — there is no way back to it
+       afterwards, on this device or any other you sync with.</div>
+     <div class="rs-keep" style="border-left-color:var(--die)">Going: ${plural(c.words,"word")},
+       ${plural(c.cards,"card")}, ${c.stars?plural(c.stars,"star"):"no stars"}${c.read?", and the read mark":""}.</div>
+     <div class="rs-row"><button id="rsNo2">No, keep it</button><button class="go" id="rsGo" disabled>Erase</button></div>`);
+  $("#rsNo2").addEventListener("click",closeSheet);
+  armDestructive("#rsGo","Erase",()=>doResetChapter(idx));
+}
+
+function doResetChapter(idx){
+  const ex=exclusiveKeys(idx);
+  ex.forEach(k=>{ delete state.vocab[k]; });
+  state.cards=state.cards.filter(c=>!ex.has(c.front));
+  if(state.game.read) delete state.game.read[idx];
+  if(_scrollPos){ delete _scrollPos[idx]; IDB.set("scroll:"+bookId(),_scrollPos); }
+  saveProgress(); markDirty(); updateBadges();
+  if(state.chapterIdx===idx) renderChapter(idx,true);
+  if(voyShown()) repaintVoyage();
+  closeSheet();
+  toast("Insel "+(idx+1)+" is bare rock again");
+}
+
+/* ---- the whole book: same two steps, plus its name in your own hand ---- */
+function askResetBook(){
+  if(!state.book) return;
+  const c=bookCost(), n=state.book.chapters.length;
+  openSheet("Reset "+(state.book.title||"this book")+"?",
+    `<div style="font-size:14px;line-height:1.6">This would return the whole archipelago to bare rock —
+       every island, every chapter, as if you had opened the book for the first time this morning.</div>
+     <ul class="rs-list">
+       <li><b>${plural(c.known,"word")}</b> known and <b>${plural(c.learning,"word")}</b> still learning</li>
+       <li>your whole deck \u2014 <b>${plural(c.cards,"card")}</b>, with every review they have had</li>
+       <li><b>${plural(c.read,"chapter")}</b> marked read, and every star</li>
+       <li><b>${c.xp} XP</b> and your bond \u2014 ${esc(c.tier)} \u2014 back to nothing</li>
+       <li>the keepers' names and everything they are wearing</li>
+     </ul>
+     <div class="rs-keep">All ${n} chapters of text and every audio track stay aboard. You would be
+       reading the same book, from the beginning, with none of the mileage.</div>
+     <div class="rs-row"><button id="rsNo">Keep it</button><button id="rsYes">Continue\u2026</button></div>`);
+  $("#rsNo").addEventListener("click",closeSheet);
+  $("#rsYes").addEventListener("click",confirmResetBook);
+}
+
+function confirmResetBook(){
+  const t=state.book.title||"this book";
+  openSheet("Type its name to be sure",
+    `<div class="rs-final">There is no undo. Everything you have built in <b>${esc(t)}</b> goes,
+       and it goes for good.</div>
+     <div style="font-size:13px;line-height:1.6;margin-top:14px;color:var(--ink-2)">
+       If you are certain, write <b>${esc(t)}</b> below.</div>
+     <input class="rs-type" id="rsName" placeholder="${esc(t)}" autocapitalize="off" autocorrect="off" spellcheck="false">
+     <div class="rs-row"><button id="rsNo2">No, keep it</button><button class="go" id="rsGo" disabled>Erase everything</button></div>`);
+  $("#rsNo2").addEventListener("click",closeSheet);
+  const go=$("#rsGo"), inp=$("#rsName");
+  let timeUp=false;
+  setTimeout(()=>{ timeUp=true; check(); },1200);
+  const check=()=>{ go.disabled=!(timeUp && inp.value.trim().toLowerCase()===t.trim().toLowerCase()); };
+  inp.addEventListener("input",check);
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!go.disabled) doResetBook(); });
+  go.addEventListener("click",()=>{ if(!go.disabled) doResetBook(); });
+  setTimeout(()=>{ try{ inp.focus(); }catch(e){} },80);
+}
+
+function doResetBook(){
+  state.vocab={}; state.cards=[]; state.game=normGame(null); ensureGame();
+  _scrollPos={}; IDB.set("scroll:"+bookId(),{});
+  saveProgress(); markDirty(); updateBadges();
+  const l=lib(), id=bookId();
+  if(l.books[id]){ l.books[id].last=0; libSave(l); }
+  renderChapter(state.chapterIdx,true);
+  if(voyShown()) repaintVoyage();
+  closeSheet();
+  toast((state.book.title||"The book")+" is back to bare rock");
+}
+
+/* A destructive button that stays dead for a beat, so the tap that opened this
+   sheet cannot also be the tap that empties it. */
+function armDestructive(sel,label,fn){
+  const b=$(sel); if(!b) return;
+  let left=2;
+  b.disabled=true; b.textContent=label+" (2)";
+  const t=setInterval(()=>{
+    left--;
+    if(left<=0){ clearInterval(t); b.disabled=false; b.textContent=label; }
+    else b.textContent=label+" ("+left+")";
+  },700);
+  b.addEventListener("click",()=>{ if(!b.disabled){ clearInterval(t); fn(); } });
+}
+
+$("#rsBook").addEventListener("click",()=>{
+  $("#menu").classList.remove("show");
+  if(!state.book){ toast("No book is open"); return; }
+  askResetBook();
+});
 
 (async function boot(){
   try{
