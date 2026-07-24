@@ -2826,7 +2826,7 @@ function renderChapterEnd(idx){
   $("#chapEnd").innerHTML=`<div class="chap-end">
     <span class="done">That's chapter ${idx+1} of ${state.book.chapters.length} behind you</span>
     <button class="btn ghost" id="ceIsle">Visit Insel ${idx+1}</button>
-    <button class="btn ghost" id="ceDrill">Üben · practise it</button>
+    <button class="btn ghost" id="ceDrill">Üben · let ${esc(companionName(idx))} ask you</button>
     ${last?"":`<button class="btn" id="ceNext">Next chapter →</button>`}</div>`;
   $("#ceIsle").addEventListener("click",()=>{ markRead(idx); openVoyage(); renderIsland(idx); });
   $("#ceDrill").addEventListener("click",()=>{ markRead(idx); drillOpen(idx,"read"); });
@@ -3613,14 +3613,14 @@ function keeperWear(idx){
   return [
     {n:OUTFITS[keeperFit(idx)], got:true, need:""},
     {n:HAIRS[keeperHair(idx)], got:true, need:""},
-    {n:"flower in her hair", got:t>=1, need:"bond: acquaintance"},
-    {n:(idx%2? "sun hat":"kerchief"), got:st>=2, need:"island 22% in bloom"},
-    {n:"satchel", got:t>=2, need:"bond: friend"},
-    {n:"shell necklace", got:st>=3, need:"island 45% in bloom"},
-    {n:"scarf", got:t>=3, need:"bond: close friend"},
-    {n:"boots", got:st>=4||keeperFit(idx)===2, need:"island 70% in bloom"},
-    {n:"a small tortoise friend", got:t>=4, need:"bond: kindred spirit"},
-    {n:"lantern", got:P.night, need:"island in full bloom (festival night)"},
+    {n:"flower for her", got:t>=1, need:"she picks one once she knows your face"},
+    {n:(idx%2? "sun hat":"kerchief"), got:st>=2, need:"comes out when the shore is 22% in bloom"},
+    {n:"satchel", got:t>=2, need:"she carries it once you are friends"},
+    {n:"shell necklace", got:st>=3, need:"strung when the shore is 45% in bloom"},
+    {n:"scarf", got:t>=3, need:"hers to wear once you are close friends"},
+    {n:"boots", got:st>=4||keeperFit(idx)===2, need:"for the longer walks, at 70% in bloom"},
+    {n:"a small tortoise friend", got:t>=4, need:"he shows up for kindred spirits"},
+    {n:"lantern", got:P.night, need:"lit on the festival night, when the shore is in full bloom"},
   ];
 }
 function keeperSVG(P,o){
@@ -4105,7 +4105,7 @@ function renderIsland(idx){
     <button class="back-map" id="backMap">‹ all islands</button>
     <div class="stage">${islandSVG(idx,b,{big:true,showGirl:true})}</div>
     <div class="companion-line"><span class="who">${esc(name)} · keeper of Insel ${idx+1} · ${esc(K.label)}</span>${esc(companionLine(idx))}</div>
-    <div class="wardrobe">${wear.map(w=>`<span class="wear${w.got?" on":""}" title="${w.got?"":esc("unlocks at "+w.need)}">${esc(w.n)}${w.got?"":" · locked"}</span>`).join("")}</div>
+    <div class="wardrobe">${wear.map(w=>`<span class="wear${w.got?" on":""}" title="${w.got?"":esc(w.need)}">${esc(w.n)}${w.got?"":" · not yet"}</span>`).join("")}</div>
     <div class="isle-stats">
       <div class="stat"><div class="v">${b}%</div><div class="l">in bloom</div></div>
       <div class="stat"><div class="v">${known}/${keys.size}</div><div class="l">words known</div></div>
@@ -4119,8 +4119,8 @@ function renderIsland(idx){
     <div class="tiernote">Your bond: ${TIERS[bondTier(bondXP())].name}</div>
     <button class="isle-cta" id="isleGo">Read chapter ${idx+1} →</button>
     <button class="dr-cta${canDrill?"":" quiet"}" id="isleDrill">${canDrill
-      ? (pract.runs? "Üben · another round with "+esc(name) : "Üben · practice this island with "+esc(name))
-      : "Nothing to practise here yet"}</button>
+      ? (pract.runs? "Üben · another round with "+esc(name) : "Üben · practise with "+esc(name))
+      : "Nothing for her to ask you yet"}</button>
     <div class="bloom-cap" style="margin-top:7px">${canDrill
       ? (pract.runs? plural(pract.runs,"round")+" so far, best "+pract.best+"% — twelve questions on this chapter's own words, verbs and sentences."
                    : "Twelve questions drawn from this chapter alone: its words, its verbs, its idioms, its sentences. Everything you get right feeds the shore.")
@@ -4599,7 +4599,7 @@ const QPOOL=[
    why:"Finishing is what turns reading into reading German."},
   {id:"red",key:"read",   n:()=>400, lab:n=>"Read "+n+" words",
    why:"Volume does the quiet work that drilling cannot."},
-  {id:"ueb",key:"drill",  n:()=>1,   lab:()=>"Practise one island",
+  {id:"ueb",key:"drill",  n:()=>1,   lab:()=>"Sit down with one keeper",
    why:"Twelve questions aimed at one chapter beat an hour of drifting."}
 ];
 function today(){ const g=ensureGame(), d=dayKey();
@@ -4658,7 +4658,7 @@ function nextAction(){
   /* Once a chapter has been read to the end, the fastest thing you can do with
      it is be asked about it. */
   if(masteryPct(i)<70 && drillAvailable(i))
-    return {t:"Practise Insel "+(i+1),s:masteryPct(i)+"% practised — twelve questions from this chapter alone.",
+    return {t:"A round with "+companionName(i),s:masteryPct(i)+"% practised — twelve questions from Insel "+(i+1)+" alone.",
             go:()=>{ drillOpen(i,voyShown()?"isle":"read"); }};
   if(cov<90) return {t:"Learn a few words in chapter "+(i+1),s:cov+"% known — tap the ones that stop you.",go:()=>{ closeVoyage(); }};
   const nxt=Math.min(i+1,state.book.chapters.length-1);
