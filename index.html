@@ -217,15 +217,23 @@
   .dock{padding-bottom:calc(11px + env(safe-area-inset-bottom));}
 
   @media(max-width:760px){
-    header{flex-wrap:wrap;gap:8px 10px;padding-left:14px;padding-right:14px;}
-    .brand{font-size:15px;flex:0 0 auto;gap:7px;}
+    header{flex-wrap:wrap;gap:8px 10px;padding-left:14px;padding-right:14px;max-width:100%;}
+    .brand{font-size:15px;flex:0 1 auto;gap:7px;min-width:0;}
     .mk-lk{width:15px;height:15px;}
     .mk-arch{width:22px;height:20px;}
-    .top-actions{flex-wrap:nowrap;gap:6px;}
+    /* Seven actions no longer fit one line on a narrow phone. They used to be
+       told never to wrap, so instead they ran off the right-hand edge and took
+       the whole page with them — you could pan the screen sideways into empty
+       space. Let them wrap; nothing is ever pushed off-screen again. */
+    .top-actions{flex-wrap:wrap;justify-content:flex-end;gap:6px;min-width:0;}
     .tbtn{padding:8px 10px;gap:0;}
     .tbtn .lbl{display:none;}
-    .chapsel{order:5;flex:1 0 100%;gap:7px;}
-    .chapsel select{flex:1 1 auto;min-width:0;max-width:none;font-size:16px;padding:8px 10px;}
+    /* Same story for the chapter picker: a <select> in WebKit refuses to
+       shrink below the width of its longest option unless it is given an
+       explicit one, and these options are whole chapter titles. */
+    .chapsel{order:5;flex:1 1 100%;gap:7px;min-width:0;max-width:100%;overflow:hidden;}
+    .chapsel select{flex:1 1 0;width:100%;min-width:0;max-width:100%;font-size:16px;padding:8px 10px;
+      text-overflow:ellipsis;}
     .navbtn{width:34px;height:34px;flex:0 0 auto;}
     /* 16px keeps iOS from zooming — and zoom is what makes fields feel wobbly */
     .wd-input,.start textarea,.dock select,#rate{font-size:16px;}
@@ -233,7 +241,14 @@
     .start{margin:3vh auto;}
     .start h1{font-size:30px;}
   }
-  @media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important;}}
+  /* A last line of defence: whatever else happens, the page itself does not
+     pan sideways. `clip` rather than `hidden` so no new scroll box is made. */
+  body{overflow-x:clip;}
+  header{max-width:100%;}
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none !important;scroll-behavior:auto !important;
+      animation-duration:.001ms !important;animation-iteration-count:1 !important;}
+  }
 
   /* ---- glossary auto-gloss + idiom + grammar (word panel) ---- */
   .auto-gloss{font-family:var(--serif);font-size:15px;line-height:1.5;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:9px 11px;margin-bottom:12px;}
@@ -371,21 +386,27 @@
   body.dark .isle.locked{filter:grayscale(.6) brightness(.8);}
 
   /* The menu is taller than a phone. It has to be able to scroll on its own —
-     and it has to stop that scroll from leaking into the page behind it. */
+     and it has to stop that scroll from leaking into the page behind it.
+     It also used to arrive by display:none → block, which is not an arrival at
+     all, just a different screen. It settles down out of the gear now. */
   .menu{position:fixed;right:16px;z-index:70;background:var(--paper-2);
     border:1px solid var(--line);border-radius:14px;padding:14px;width:250px;
-    box-shadow:0 18px 44px -20px rgba(0,0,0,.5);display:none;
+    box-shadow:0 18px 44px -20px rgba(0,0,0,.5);
     top:calc(52px + env(safe-area-inset-top));
     max-height:calc(100vh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     overflow-y:auto;-webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;scrollbar-width:thin;}
+    overscroll-behavior:contain;scrollbar-width:thin;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transform:translateY(-10px) scale(.97);transform-origin:top right;
+    transition:opacity .2s ease, transform .26s cubic-bezier(.2,.8,.2,1), visibility 0s linear .26s;}
   @supports(height:100dvh){
     .menu{max-height:calc(100dvh - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));}
   }
   /* Must come *after* the rule above, not up with the other phone rules —
      equal specificity, so whichever is written last is the one that lands. */
-  @media(max-width:760px){ .menu{left:12px;right:12px;width:auto;} }
-  .menu.show{display:block;}
+  @media(max-width:760px){ .menu{left:12px;right:12px;width:auto;transform-origin:top center;} }
+  .menu.show{opacity:1;visibility:visible;pointer-events:auto;transform:none;
+    transition:opacity .2s ease, transform .26s cubic-bezier(.2,.8,.2,1), visibility 0s;}
   .menu::-webkit-scrollbar{width:7px;}
   .menu::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 22%,transparent);border-radius:4px;}
   .menu::-webkit-scrollbar-track{background:transparent;}
@@ -703,6 +724,21 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   .tbtn.on{background:var(--der);color:#fff;border-color:var(--der);font-weight:600;}
   /* seven actions is a lot for a 390px screen — the wordmark yields first */
   @media(max-width:430px){ .brand span{display:none;} .top-actions{gap:5px;} .tbtn{padding:8px;} }
+
+  /* ============================================================================
+     THE REST OF THE POPS — anywhere the app swapped display:none for
+     display:block, something appeared between two frames with no sense of
+     having come from anywhere. One keyframe, used everywhere it happened.
+     ==========================================================================*/
+  @keyframes riseIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+  .panel:not(.hidden){animation:riseIn .26s cubic-bezier(.2,.8,.2,1);}   /* Word · Deck · Review · Grammar */
+  #wordDetail{animation:riseIn .24s cubic-bezier(.2,.8,.2,1);}           /* a word's gloss card */
+  #hbPasteWrap{animation:riseIn .24s cubic-bezier(.2,.8,.2,1);}          /* paste-a-passage box */
+  .split-prompt,.tidy{animation:riseIn .3s cubic-bezier(.2,.8,.2,1);}    /* the two offers */
+  .idiom-note,.gram-note,.auto-gloss{animation:riseIn .26s cubic-bezier(.2,.8,.2,1);}
+  .chap-end{animation:riseIn .3s cubic-bezier(.2,.8,.2,1);}
+  /* the file-picker hints and status dots, which change under you as you load */
+  .filehint:not(:empty),.status-dot{animation:riseIn .22s ease;}
 </style>
 </head>
 <body>
