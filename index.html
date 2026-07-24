@@ -766,6 +766,159 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
   .chap-end{animation:riseIn .3s cubic-bezier(.2,.8,.2,1);}
   /* the file-picker hints and status dots, which change under you as you load */
   .filehint:not(:empty),.status-dot{animation:riseIn .22s ease;}
+  /* =========================== the Übung ===========================
+     Practice is its own room, not a tab: a question wants the whole screen
+     and none of the page you were reading. It sits above the Archipel so
+     that leaving it puts you back on the island you came from, still open. */
+  .drill{position:fixed;inset:0;z-index:90;background:var(--paper);display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;transition:opacity .35s ease;overflow:hidden;}
+  .drill.show{opacity:1;pointer-events:auto;}
+  .dr-head{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:11px 18px;
+    border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--paper) 82%,#000 4%);
+    backdrop-filter:blur(6px);}
+  .dr-x{font-size:13px;font-weight:600;padding:7px 12px;border-radius:9px;background:var(--paper-2);border:1px solid var(--line);}
+  .dr-x:hover{border-color:var(--accent);}
+  .dr-where{min-width:0;}
+  .dr-where .t{font-family:var(--serif);font-size:16px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dr-where .s{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);margin-top:3px;}
+  .dr-tally{margin-left:auto;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);}
+  .dr-tally b{color:var(--das);font-weight:600;}
+  .dr-tally i{color:var(--die);font-style:normal;font-weight:600;}
+  .dr-pips{display:flex;gap:3px;}
+  .dr-pips span{width:7px;height:7px;border-radius:50%;background:color-mix(in srgb,var(--ink) 16%,transparent);}
+  .dr-pips span.ok{background:var(--das);}
+  .dr-pips span.no{background:var(--die);}
+  .dr-pips span.now{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent);}
+
+  .dr-scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .dr-body{max-width:600px;margin:0 auto;padding:20px 20px 140px;}
+
+  /* Her face, small, at the top of every question. It is the only thing in
+     the room that reacts to you, so it earns its place. */
+  .dr-keeper{display:flex;align-items:center;gap:13px;margin-bottom:18px;}
+  .dr-keeper .por{flex:0 0 auto;width:62px;height:62px;border-radius:50%;overflow:hidden;
+    border:1px solid var(--line);background:var(--paper-2);}
+  .dr-keeper .por svg{display:block;width:100%;height:100%;}
+  .dr-keeper .qt{min-width:0;font-family:var(--serif);font-size:15px;line-height:1.45;color:var(--ink-2);font-style:italic;}
+  .dr-keeper .qt b{font-style:normal;font-weight:600;color:var(--ink);}
+  .dr-keeper .qt .en{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--ink-mute);letter-spacing:.03em;}
+
+  .dr-kind{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:9px;}
+  .dr-q{font-family:var(--serif);font-size:23px;line-height:1.35;letter-spacing:-.005em;margin:0 0 6px;}
+  .dr-q .blank{display:inline-block;min-width:64px;border-bottom:2px solid var(--accent);vertical-align:baseline;}
+  .dr-q .hit{background:var(--accent-soft);border-radius:4px;padding:0 3px;}
+  .dr-sub{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);line-height:1.5;margin-bottom:16px;}
+  .dr-ctx{font-family:var(--serif);font-size:15px;line-height:1.6;color:var(--ink-2);
+    border-left:2px solid var(--line);padding:2px 0 2px 13px;margin:0 0 16px;}
+
+  .dr-opts{display:grid;gap:9px;}
+  .dr-opt{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:14px 15px;border-radius:12px;border:1px solid var(--line);background:var(--paper-2);
+    font-size:15.5px;font-family:var(--serif);line-height:1.35;transition:border-color .2s,background-color .2s,transform .12s;}
+  .dr-opt:hover:not(:disabled){border-color:var(--accent);transform:translateX(2px);}
+  .dr-opt:disabled{cursor:default;}
+  .dr-opt .k{flex:0 0 auto;width:21px;height:21px;border-radius:6px;background:color-mix(in srgb,var(--ink) 8%,transparent);
+    font-family:var(--mono);font-size:10.5px;display:flex;align-items:center;justify-content:center;color:var(--ink-mute);}
+  .dr-opt.right{border-color:var(--das);background:color-mix(in srgb,var(--das) 12%,var(--paper-2));}
+  .dr-opt.right .k{background:var(--das);color:#fff;}
+  .dr-opt.wrong{border-color:var(--die);background:color-mix(in srgb,var(--die) 11%,var(--paper-2));}
+  .dr-opt.wrong .k{background:var(--die);color:#fff;}
+  .dr-opt.dim{opacity:.45;}
+
+  /* type-it-in */
+  .dr-type{display:flex;gap:9px;}
+  .dr-type input{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:19px;padding:13px 15px;
+    border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink);}
+  .dr-type input:focus{outline:none;border-color:var(--accent);}
+  .dr-type button{flex:0 0 auto;padding:0 20px;border-radius:12px;background:var(--accent);color:var(--paper);font-weight:600;font-size:14px;}
+
+  /* rebuild-the-sentence */
+  .dr-build{min-height:56px;border:1px dashed var(--line);border-radius:12px;padding:9px;
+    display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;background:var(--paper-2);margin-bottom:11px;}
+  .dr-build:empty::after{content:"tap the words below, in order";font-family:var(--mono);font-size:11px;color:var(--ink-mute);}
+  .dr-bank{display:flex;flex-wrap:wrap;gap:6px;}
+  .chipw{font-family:var(--serif);font-size:16px;padding:7px 12px;border-radius:9px;
+    border:1px solid var(--line);background:var(--paper);transition:border-color .2s,opacity .2s,transform .12s;}
+  .chipw:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);}
+  .chipw.used{opacity:.25;pointer-events:none;}
+  .chipw.ok{border-color:var(--das);background:color-mix(in srgb,var(--das) 12%,var(--paper));}
+  .chipw.no{border-color:var(--die);background:color-mix(in srgb,var(--die) 11%,var(--paper));}
+
+  /* listening */
+  .dr-hear{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .dr-play{flex:0 0 auto;width:54px;height:54px;border-radius:50%;background:var(--accent);color:var(--paper);
+    font-size:19px;display:flex;align-items:center;justify-content:center;transition:filter .2s,transform .12s;}
+  .dr-play:hover{filter:brightness(1.08);transform:scale(1.04);}
+  .dr-play.playing{animation:pulseRing 1.4s ease-out infinite;}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent);}
+    100%{box-shadow:0 0 0 16px transparent;}}
+  .dr-hear .lbl{font-family:var(--mono);font-size:11px;color:var(--ink-mute);line-height:1.5;}
+
+  /* the answer, and why */
+  .dr-verdict{margin-top:18px;border-radius:13px;border:1px solid var(--line);background:var(--paper-2);padding:15px 16px;}
+  .dr-verdict.good{border-color:color-mix(in srgb,var(--das) 55%,var(--line));}
+  .dr-verdict.bad{border-color:color-mix(in srgb,var(--die) 48%,var(--line));}
+  .dr-verdict .vh{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
+  .dr-verdict.good .vh{color:var(--das);}
+  .dr-verdict.bad .vh{color:var(--die);}
+  .dr-verdict .vb{font-family:var(--serif);font-size:16px;line-height:1.55;}
+  .dr-verdict .vb b{font-weight:600;}
+  .dr-verdict .vwhy{font-size:13.5px;line-height:1.6;color:var(--ink-2);margin-top:9px;font-family:var(--sans);}
+  .dr-verdict .vwhy em{font-style:normal;color:var(--accent);font-weight:600;}
+  .dr-verdict .vgain{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink-mute);margin-top:9px;}
+
+  .dr-foot{position:fixed;left:0;right:0;bottom:0;padding:13px 20px calc(13px + env(safe-area-inset-bottom));
+    background:color-mix(in srgb,var(--paper) 92%,#000 3%);border-top:1px solid var(--line);backdrop-filter:blur(8px);z-index:2;}
+  .dr-foot .in{max-width:600px;margin:0 auto;display:flex;gap:10px;align-items:center;}
+  .dr-next{flex:1 1 auto;padding:14px;border-radius:12px;background:var(--accent);color:var(--paper);
+    font-weight:600;font-size:15px;transition:filter .2s;}
+  .dr-next:hover{filter:brightness(1.08);}
+  .dr-skip{flex:0 0 auto;padding:14px 16px;border-radius:12px;border:1px solid var(--line);
+    background:var(--paper-2);font-size:13px;font-weight:600;color:var(--ink-mute);}
+  .dr-skip:hover{border-color:var(--accent);color:var(--ink);}
+  .dr-hint{font-family:var(--mono);font-size:10px;color:var(--ink-mute);text-align:center;margin-top:8px;letter-spacing:.04em;}
+  @media(max-width:700px){ .dr-hint{display:none;} }
+
+  /* ---- the end of a round: she comes to meet you ---- */
+  .dr-end{max-width:560px;margin:0 auto;padding:26px 20px 130px;text-align:center;}
+  .dr-portrait{width:196px;height:196px;margin:0 auto 4px;border-radius:50%;overflow:hidden;
+    border:1px solid var(--line);box-shadow:0 22px 44px -26px rgba(0,0,0,.45);}
+  .dr-portrait svg{display:block;width:100%;height:100%;}
+  .dr-say{font-family:var(--serif);font-size:24px;line-height:1.32;margin:20px 0 0;letter-spacing:-.01em;}
+  .dr-say .en{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:lowercase;
+    color:var(--ink-mute);margin-top:7px;}
+  .dr-tail{font-family:var(--serif);font-size:17px;line-height:1.55;font-style:italic;color:var(--ink-2);margin:14px auto 0;max-width:420px;}
+  .dr-who{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--die);margin-top:16px;}
+  .dr-score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px;}
+  .dr-score .stat .v{font-family:var(--serif);font-size:26px;font-weight:600;}
+  .dr-grew{margin-top:14px;border:1px solid var(--line);border-radius:13px;background:var(--paper-2);padding:14px 16px;text-align:left;}
+  .dr-grew h5{margin:0 0 9px;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-mute);font-weight:500;}
+  .dr-grew .line{font-size:13.5px;line-height:1.65;color:var(--ink-2);display:flex;gap:9px;}
+  .dr-grew .line b{color:var(--ink);font-weight:600;}
+  .dr-grew .line .m{flex:0 0 auto;color:var(--accent);font-family:var(--mono);font-size:11px;padding-top:2px;}
+  .dr-bloomrow{margin-top:14px;}
+  .dr-bloomrow .cap{font-family:var(--mono);font-size:10.5px;color:var(--ink-mute);display:flex;justify-content:space-between;margin-bottom:6px;}
+  .dr-bloomrow .cap b{color:var(--das);}
+  .dr-gained{position:relative;height:9px;border-radius:6px;background:color-mix(in srgb,var(--ink) 12%,transparent);overflow:hidden;}
+  .dr-gained .was{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.55;border-radius:6px;}
+  .dr-gained .now{position:absolute;inset:0 auto 0 0;width:0;border-radius:6px;
+    background:linear-gradient(90deg,var(--das),var(--accent));transition:width 1.1s cubic-bezier(.2,.8,.2,1);}
+  .dr-again{display:flex;gap:10px;margin-top:22px;}
+  .dr-again button{flex:1 1 0;padding:13px;border-radius:12px;font-weight:600;font-size:14px;
+    border:1px solid var(--line);background:var(--paper-2);}
+  .dr-again button.solid{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+  .dr-again button:hover{filter:brightness(1.05);border-color:var(--accent);}
+
+  /* mastery, wherever progress is reported */
+  .isle-mast{font-family:var(--mono);font-size:10px;color:var(--die);margin-top:2px;}
+  .dr-cta{margin-top:10px;width:100%;padding:13px;font-size:14px;font-weight:600;
+    background:var(--die);color:#fff;border-radius:11px;transition:filter .2s;}
+  .dr-cta:hover{filter:brightness(1.07);}
+  .dr-cta.quiet{background:var(--paper-2);color:var(--ink);border:1px solid var(--line);}
+  @media(prefers-reduced-motion:reduce){
+    .drill,.dr-gained .now,.dr-play.playing{transition:none;animation:none;}
+  }
+
 </style>
 </head>
 <body>
@@ -980,6 +1133,16 @@ html.booting *,html.booting *::before,html.booting *::after{transition:none !imp
     <div id="voyMap" class="map-wrap"></div>
     <div id="voyIsle" class="isle-detail" style="display:none"></div>
   </div>
+</div>
+
+<div class="drill" id="drill" role="dialog" aria-modal="true" aria-label="Practice">
+  <div class="dr-head">
+    <button class="dr-x" id="drX">&lsaquo; Leave</button>
+    <div class="dr-where"><div class="t" id="drTitle"></div><div class="s" id="drSub"></div></div>
+    <div class="dr-tally" id="drTally"></div>
+  </div>
+  <div class="dr-scroll" id="drScroll"><div id="drBody"></div></div>
+  <div class="dr-foot" id="drFoot" style="display:none"></div>
 </div>
 
 <audio id="audio" playsinline webkit-playsinline preload="metadata"></audio>
@@ -1726,6 +1889,211 @@ window.LK_DATA=(function(){
   return {GLOSSARY,IDIOMS,GRAMMAR};
 })();
 </script>
+<script>/* Lesekern practice data — the tables the Übung asks its questions from.
+   Kept apart from the glossary because it answers a different question: the
+   glossary says what a word means, this says how a word behaves. Both are
+   bundled, offline and editable in place. */
+window.LK_DRILL=(function(){
+  /* --- verbs, written out rather than derived ---------------------------
+     German's strong verbs are irregular precisely where a rule would put you
+     wrong (er gibt, er nahm, er hat genommen), so a generated paradigm would
+     be confidently mistaken about the very forms Momo is full of. Each row is
+     [infinitive, English, ich, du, er/sie/es, Präteritum(er), Partizip II,
+      auxiliary h|s, Konjunktiv II(er)]. A dash means the form isn't used. */
+  const CONJ=[
+    ["sein","to be","bin","bist","ist","war","gewesen","s","wäre"],
+    ["haben","to have","habe","hast","hat","hatte","gehabt","h","hätte"],
+    ["werden","to become","werde","wirst","wird","wurde","geworden","s","würde"],
+    ["können","can, to be able","kann","kannst","kann","konnte","gekonnt","h","könnte"],
+    ["müssen","must, to have to","muss","musst","muss","musste","gemusst","h","müsste"],
+    ["wollen","to want","will","willst","will","wollte","gewollt","h","wollte"],
+    ["sollen","should, to be supposed to","soll","sollst","soll","sollte","gesollt","h","sollte"],
+    ["dürfen","may, to be allowed","darf","darfst","darf","durfte","gedurft","h","dürfte"],
+    ["mögen","to like","mag","magst","mag","mochte","gemocht","h","möchte"],
+    ["wissen","to know (a fact)","weiß","weißt","weiß","wusste","gewusst","h","wüsste"],
+    ["gehen","to go","gehe","gehst","geht","ging","gegangen","s","ginge"],
+    ["kommen","to come","komme","kommst","kommt","kam","gekommen","s","käme"],
+    ["sehen","to see","sehe","siehst","sieht","sah","gesehen","h","sähe"],
+    ["sagen","to say","sage","sagst","sagt","sagte","gesagt","h","sagte"],
+    ["machen","to make, to do","mache","machst","macht","machte","gemacht","h","machte"],
+    ["geben","to give","gebe","gibst","gibt","gab","gegeben","h","gäbe"],
+    ["nehmen","to take","nehme","nimmst","nimmt","nahm","genommen","h","nähme"],
+    ["sprechen","to speak","spreche","sprichst","spricht","sprach","gesprochen","h","spräche"],
+    ["stehen","to stand","stehe","stehst","steht","stand","gestanden","h","stünde"],
+    ["liegen","to lie, to be lying","liege","liegst","liegt","lag","gelegen","h","läge"],
+    ["sitzen","to sit","sitze","sitzt","sitzt","saß","gesessen","h","säße"],
+    ["lassen","to let, to leave","lasse","lässt","lässt","ließ","gelassen","h","ließe"],
+    ["halten","to hold, to stop","halte","hältst","hält","hielt","gehalten","h","hielte"],
+    ["fahren","to travel, to drive","fahre","fährst","fährt","fuhr","gefahren","s","führe"],
+    ["tragen","to carry, to wear","trage","trägst","trägt","trug","getragen","h","trüge"],
+    ["fallen","to fall","falle","fällst","fällt","fiel","gefallen","s","fiele"],
+    ["finden","to find","finde","findest","findet","fand","gefunden","h","fände"],
+    ["bringen","to bring","bringe","bringst","bringt","brachte","gebracht","h","brächte"],
+    ["denken","to think","denke","denkst","denkt","dachte","gedacht","h","dächte"],
+    ["essen","to eat","esse","isst","isst","aß","gegessen","h","äße"],
+    ["lesen","to read","lese","liest","liest","las","gelesen","h","läse"],
+    ["schlafen","to sleep","schlafe","schläfst","schläft","schlief","geschlafen","h","schliefe"],
+    ["laufen","to run, to walk","laufe","läufst","läuft","lief","gelaufen","s","liefe"],
+    ["rufen","to call, to shout","rufe","rufst","ruft","rief","gerufen","h","riefe"],
+    ["ziehen","to pull, to move","ziehe","ziehst","zieht","zog","gezogen","h","zöge"],
+    ["schreiben","to write","schreibe","schreibst","schreibt","schrieb","geschrieben","h","schriebe"],
+    ["bleiben","to stay","bleibe","bleibst","bleibt","blieb","geblieben","s","bliebe"],
+    ["heißen","to be called","heiße","heißt","heißt","hieß","geheißen","h","hieße"],
+    ["tun","to do","tue","tust","tut","tat","getan","h","täte"],
+    ["werfen","to throw","werfe","wirfst","wirft","warf","geworfen","h","würfe"],
+    ["schließen","to close","schließe","schließt","schließt","schloss","geschlossen","h","schlösse"],
+    ["verstehen","to understand","verstehe","verstehst","versteht","verstand","verstanden","h","verstünde"],
+    ["beginnen","to begin","beginne","beginnst","beginnt","begann","begonnen","h","begänne"],
+    ["helfen","to help","helfe","hilfst","hilft","half","geholfen","h","hülfe"],
+    ["treten","to step, to kick","trete","trittst","tritt","trat","getreten","s","träte"],
+    ["schweigen","to be silent","schweige","schweigst","schweigt","schwieg","geschwiegen","h","schwiege"],
+    ["vergessen","to forget","vergesse","vergisst","vergisst","vergaß","vergessen","h","vergäße"],
+    ["erkennen","to recognise","erkenne","erkennst","erkennt","erkannte","erkannt","h","erkennte"],
+    ["verlieren","to lose","verliere","verlierst","verliert","verlor","verloren","h","verlöre"],
+    ["verschwinden","to disappear","verschwinde","verschwindest","verschwindet","verschwand","verschwunden","s","verschwände"],
+    ["erscheinen","to appear","erscheine","erscheinst","erscheint","erschien","erschienen","s","erschiene"],
+    ["geschehen","to happen","—","—","geschieht","geschah","geschehen","s","geschähe"],
+    ["gelingen","to succeed","—","—","gelingt","gelang","gelungen","s","gelänge"],
+    ["scheinen","to seem, to shine","scheine","scheinst","scheint","schien","geschienen","h","schiene"],
+    ["steigen","to climb, to rise","steige","steigst","steigt","stieg","gestiegen","s","stiege"],
+    ["warten","to wait","warte","wartest","wartet","wartete","gewartet","h","wartete"],
+    ["hören","to hear","höre","hörst","hört","hörte","gehört","h","hörte"],
+    ["fragen","to ask","frage","fragst","fragt","fragte","gefragt","h","fragte"],
+    ["antworten","to answer","antworte","antwortest","antwortet","antwortete","geantwortet","h","antwortete"],
+    ["suchen","to look for","suche","suchst","sucht","suchte","gesucht","h","suchte"],
+    ["brauchen","to need","brauche","brauchst","braucht","brauchte","gebraucht","h","brauchte"],
+    ["zeigen","to show","zeige","zeigst","zeigt","zeigte","gezeigt","h","zeigte"],
+    ["erzählen","to tell, to narrate","erzähle","erzählst","erzählt","erzählte","erzählt","h","erzählte"],
+    ["versuchen","to try","versuche","versuchst","versucht","versuchte","versucht","h","versuchte"],
+    ["öffnen","to open","öffne","öffnest","öffnet","öffnete","geöffnet","h","öffnete"],
+    ["glauben","to believe","glaube","glaubst","glaubt","glaubte","geglaubt","h","glaubte"],
+    ["leben","to live","lebe","lebst","lebt","lebte","gelebt","h","lebte"],
+    ["arbeiten","to work","arbeite","arbeitest","arbeitet","arbeitete","gearbeitet","h","arbeitete"],
+    ["spielen","to play","spiele","spielst","spielt","spielte","gespielt","h","spielte"],
+    ["sparen","to save (up)","spare","sparst","spart","sparte","gespart","h","sparte"],
+    ["lächeln","to smile","lächle","lächelst","lächelt","lächelte","gelächelt","h","lächelte"],
+    ["schauen","to look","schaue","schaust","schaut","schaute","geschaut","h","schaute"],
+    ["setzen","to set, to sit down","setze","setzt","setzt","setzte","gesetzt","h","setzte"],
+    ["legen","to lay, to put","lege","legst","legt","legte","gelegt","h","legte"],
+    ["stellen","to place, to put","stelle","stellst","stellt","stellte","gestellt","h","stellte"],
+    ["drehen","to turn","drehe","drehst","dreht","drehte","gedreht","h","drehte"],
+    ["führen","to lead","führe","führst","führt","führte","geführt","h","führte"],
+    ["folgen","to follow","folge","folgst","folgt","folgte","gefolgt","s","folgte"],
+    ["kehren","to sweep, to turn","kehre","kehrst","kehrt","kehrte","gekehrt","h","kehrte"],
+  ];
+
+  /* --- separable verbs -------------------------------------------------
+     The prefix flies to the end of the main clause, which is what makes a
+     stray „zu“ or „an“ at a sentence's close so puzzling the first time.
+     [infinitive, prefix, er-form of the stem, English, an example object]. */
+  const SEP=[
+    ["zuhören","zu","hört","to listen (to)","den Menschen"],
+    ["ankommen","an","kommt","to arrive","am Amphitheater"],
+    ["anfangen","an","fängt","to begin","mit der Arbeit"],
+    ["aufhören","auf","hört","to stop","mit dem Reden"],
+    ["aufstehen","auf","steht","to get up","sehr früh"],
+    ["aussehen","aus","sieht","to look, to appear","müde"],
+    ["mitnehmen","mit","nimmt","to take along","den Besen"],
+    ["zurückkommen","zurück","kommt","to come back","zum Theater"],
+    ["einschlafen","ein","schläft","to fall asleep","auf den Stufen"],
+    ["weggehen","weg","geht","to go away","ohne ein Wort"],
+    ["nachdenken","nach","denkt","to think it over","über die Zeit"],
+    ["vorlesen","vor","liest","to read aloud","eine Geschichte"],
+    ["zumachen","zu","macht","to close","das Tor"],
+    ["aufmachen","auf","macht","to open","die Tür"],
+    ["hereinkommen","herein","kommt","to come in","ganz leise"],
+    ["weitergehen","weiter","geht","to go on","die Straße hinunter"],
+  ];
+
+  /* --- the four cases, as a preposition governs them --------------------
+     Case is where the grammar note in the panel becomes a thing you can be
+     asked. Only prepositions with one fixed case are drilled outright; the
+     two-way ones are asked as wohin/wo, which is the real question. */
+  const PREP_DAT=["aus","bei","mit","nach","seit","von","zu","gegenüber"];
+  const PREP_ACC=["durch","für","gegen","ohne","um"];
+  const PREP_TWO=["an","auf","hinter","in","neben","über","unter","vor","zwischen"];
+
+  /* Nouns with a settled gender and a plural, used for the article drills so
+     that a question about „der/die/das“ can also ask about the case. */
+  const NOUNS=[
+    ["Zeit","die","time"],["Mensch","der","person"],["Kind","das","child"],
+    ["Stunde","die","hour"],["Mann","der","man"],["Frau","die","woman"],
+    ["Haus","das","house"],["Straße","die","street"],["Freund","der","friend"],
+    ["Wort","das","word"],["Blume","die","flower"],["Himmel","der","sky"],
+    ["Herz","das","heart"],["Nacht","die","night"],["Tag","der","day"],
+    ["Theater","das","theatre"],["Geschichte","die","story"],["Besen","der","broom"],
+  ];
+
+  /* --- what she says -----------------------------------------------------
+     Every line is German first with its English kept close, because that is
+     how the rest of the app teaches: never a translation underneath, always
+     the meaning within reach of the phrase. Moods are named for the face
+     they're spoken with. */
+  const SAY={
+    right:[
+      ["Ganz genau!","exactly right"],["Richtig!","correct"],["Sehr gut!","very good"],
+      ["Das stimmt.","that's right"],["Du hast es!","you've got it"],["Bravo!","bravo"],
+      ["Genau so.","just so"],["Prima!","great"],["Wunderbar.","wonderful"],
+    ],
+    wrong:[
+      ["Fast!","almost"],["Nicht ganz.","not quite"],["Knapp daneben.","just off"],
+      ["Halb so wild.","no great harm"],["Das kommt noch.","that will come"],
+      ["Schau mal:","have a look:"],["Merk dir das:","remember this one:"],
+    ],
+    streak:[
+      ["Drei am Stück!","three in a row"],["Du bist in Fahrt.","you're on a roll"],
+      ["Weiter so!","keep it up"],["Immer weiter.","on and on"],
+    ],
+    /* Asking to be shown is not the same as getting it wrong, and being told
+       „fast!“ when you never guessed is nonsense. She just tells you. */
+    shown:[
+      ["Schau her.","here it is"],["Kein Problem.","no trouble"],
+      ["Das zeig ich dir gern.","I'll gladly show you"],
+      ["Merk dir das.","hold on to this one"],["Beim nächsten Mal.","next time round"],
+    ],
+  };
+
+  /* Eight bands of ending, each with its own face. The keys are the moods
+     keeperFace() draws; the lines are hers to say when the round is done. */
+  const ENDING=[
+    {min:100,mood:"radiant",gest:"cheer",
+     de:"Fehlerfrei — kein einziger Fehler!",en:"flawless — not one mistake",
+     tail:"Ich glaube, die ganze Insel hat es gemerkt."},
+    {min:85,mood:"proud",gest:"clap",
+     de:"Das war stark.",en:"that was strong",
+     tail:"Du liest nicht mehr wie ein Gast hier."},
+    {min:70,mood:"happy",gest:"wave",
+     de:"Gut gemacht!",en:"well done",
+     tail:"Der Boden ist ein Stückchen weicher geworden."},
+    {min:55,mood:"warm",gest:"",
+     de:"Solide Runde.",en:"a solid round",
+     tail:"Die Wörter, die noch klemmen, kommen morgen wieder."},
+    {min:40,mood:"cheer",gest:"wave",
+     de:"Ein guter Anfang.",en:"a good start",
+     tail:"Beim zweiten Mal sitzt die Hälfte davon schon."},
+    {min:20,mood:"aww",gest:"",
+     de:"Das war zäh, ich weiß.",en:"that was heavy going, I know",
+     tail:"Zäh ist nicht schlimm. Zäh heißt nur: neu."},
+    {min:0,mood:"think",gest:"think",
+     de:"Kein Grund zur Sorge.",en:"no cause for worry",
+     tail:"Lies das Kapitel noch einmal und komm zurück — ich warte hier."},
+  ];
+
+  /* When the same category keeps going wrong she says so, by name. This is
+     the whole point of practising on one shore at a time. */
+  const WEAK={
+    vocab:["Die Vokabeln sind noch frisch","the words are still new — tap them in the text and they'll settle"],
+    gender:["der, die, das","learn the article with the noun and it stops being a coin-toss"],
+    verb:["Die Verben","German saves its irregularities for its commonest verbs — Momo is full of them"],
+    case:["Die Fälle","which case a preposition takes is a list, not a feeling — the Grammar tab has it"],
+    order:["Der Satzbau","word order is a habit; rebuilding real sentences is how it becomes one"],
+    idiom:["Die Redewendungen","idioms never mean the sum of their words — that's what makes them worth keeping"],
+    listen:["Das Hören","the ear is slower than the eye at first, and then suddenly it isn't"],
+  };
+
+  return {CONJ,SEP,PREP_DAT,PREP_ACC,PREP_TWO,NOUNS,SAY,ENDING,WEAK};
+})();
+</script>
 <script>
 const $=s=>document.querySelector(s);
 /* Unicode normalisation is by far the most expensive thing in the reader, and
@@ -2394,6 +2762,9 @@ $("#rate").addEventListener("change",e=>audio.playbackRate=+e.target.value);
 $("#followBtn").addEventListener("click",()=>{ state.follow=!state.follow; $("#followBtn").classList.toggle("on",state.follow); });
 
 function highlightSpoken(){
+  /* While the Übung is playing a sentence back it is driving this same
+     element, and the reader underneath must not go chasing the words. */
+  if(typeof _drAudioOn!=="undefined" && _drAudioOn) return;
   const curTrack=+audio.dataset.track; const t=audio.currentTime;
   const els=state.speakEls; if(!els.length)return;
   let p=state.speakPtr;
@@ -2455,8 +2826,10 @@ function renderChapterEnd(idx){
   $("#chapEnd").innerHTML=`<div class="chap-end">
     <span class="done">That's chapter ${idx+1} of ${state.book.chapters.length} behind you</span>
     <button class="btn ghost" id="ceIsle">Visit Insel ${idx+1}</button>
+    <button class="btn ghost" id="ceDrill">Üben · practise it</button>
     ${last?"":`<button class="btn" id="ceNext">Next chapter →</button>`}</div>`;
   $("#ceIsle").addEventListener("click",()=>{ markRead(idx); openVoyage(); renderIsland(idx); });
+  $("#ceDrill").addEventListener("click",()=>{ markRead(idx); drillOpen(idx,"read"); });
   const nx=$("#ceNext"); if(nx) nx.addEventListener("click",()=>{ markRead(idx); renderChapter(idx+1); });
 }
 
@@ -3023,7 +3396,7 @@ function nextMin(t){ return TIERS[t+1]?TIERS[t+1].min:TIERS[t].min; }
 
 /* unique word keys per chapter, computed once and cached on the chapter */
 let _keyCache=[];
-function resetKeyCache(){ _keyCache=[]; }
+function resetKeyCache(){ _keyCache=[]; resetDrillCache(); }
 function chapterKeys(idx){
   const ch=state.book.chapters[idx]; if(!ch||!ch.words) return null;
   if(!_keyCache[idx]){ const s=new Set(); for(const w of ch.words) s.add(norm(ch.text.slice(w.a,w.b))); s.delete(""); _keyCache[idx]=s; }
@@ -3034,9 +3407,17 @@ function coverageFraction(idx){
   let known=0; s.forEach(k=>{ const v=state.vocab[k]; if(v&&v.status==="known")known++; });
   return known/s.size;
 }
+/* An island is what you have taken from its chapter. Reading it and knowing
+   its words is the ground of that, and always was — those two terms are left
+   exactly as they were, so no shore ever comes back from a session lower than
+   you left it. Practice is the third thing, and it is added on top: it closes
+   part of the distance still to go, which means it always helps and helps
+   most where there is most left to do. */
 function islandBloom(idx){
   const cov=coverageFraction(idx), read=(state.game.read&&state.game.read[idx])?1:0;
-  return Math.round(Math.min(1, cov*0.8 + read*0.2)*100);
+  const base=Math.min(1, cov*0.8 + read*0.2);
+  const m=masteryFraction(idx);
+  return Math.round(Math.min(1, base + m*0.34*(1-base))*100);
 }
 function bloomStage(b){ return b>=90?5:b>=70?4:b>=45?3:b>=22?2:b>=6?1:0; }
 /* Five islands are yours immediately; each chapter you finish (or start learning
@@ -3247,18 +3628,18 @@ function keeperSVG(P,o){
   const skin=P.skin, sh=P.skinSh, hair=P.hair, hair2=P.hair2;
   const happy=t>=3, warm=t>=1;
   const hatOn=st>=2, sunhat=hatOn&&o.sunhat, kerchief=hatOn&&!o.sunhat;
-  const boots=st>=4||fit===2, satchel=t>=2, necklace=st>=3, scarf=t>=3, pet=t>=4, lantern=N;
+  const boots=st>=4||fit===2, satchel=t>=2, necklace=st>=3, scarf=t>=3, pet=t>=4;
+  /* A lantern is for the festival night, not for a face that is meant to be
+     looking at you: the Übung asks for a gesture instead. */
+  const gest=o.gesture||"", lantern=N&&!gest;
 
-  /* --- face --- */
-  const eyes = happy
-    ? `<path d="M-3.2 0 Q-2.3 -2 -1.4 0" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/><path d="M1.4 0 Q2.3 -2 3.2 0" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/>`
-    : `<circle cx="-2.3" cy="0.2" r="1.05" fill="#4a332a"/><circle cx="2.3" cy="0.2" r="1.05" fill="#4a332a"/><circle cx="-1.95" cy="-0.2" r="0.34" fill="#fff" opacity=".85"/><circle cx="2.65" cy="-0.2" r="0.34" fill="#fff" opacity=".85"/>`;
-  const mouth = happy
-    ? `<path d="M-2.5 3 Q0 6.2 2.5 3 Q0 4.3 -2.5 3 Z" fill="#c56b62"/>`
-    : (warm? `<path d="M-2.1 3.2 Q0 5 2.1 3.2" stroke="#a85a52" stroke-width="1" fill="none" stroke-linecap="round"/>`
-           : `<path d="M-1.7 3.4 Q0 4.3 1.7 3.4" stroke="#a85a52" stroke-width="1" fill="none" stroke-linecap="round"/>`);
-  const cheeks = warm? `<circle cx="-4.2" cy="2.1" r="1.4" fill="${P.flower}" opacity=".38"/><circle cx="4.2" cy="2.1" r="1.4" fill="${P.flower}" opacity=".38"/>`:"";
-  const brows = `<path d="M-3.6 -2.6 q1.3 -0.9 2.6 -0.2" stroke="${hair}" stroke-width="0.7" fill="none" stroke-linecap="round" opacity=".8"/><path d="M1 -2.8 q1.3 -0.7 2.6 0.2" stroke="${hair}" stroke-width="0.7" fill="none" stroke-linecap="round" opacity=".8"/>`;
+  /* --- face ---
+     On the map and on her island she wears the face your bond has earned her.
+     In the Übung she is being spoken to, and answers: pass a mood and it wins
+     over the bond, which is the whole reason the exercises feel like a
+     conversation rather than a test. */
+  const FACE=keeperFace(o.mood || (happy?"happy":(warm?"warm":"calm")), P, hair);
+  const eyes=FACE.e, mouth=FACE.m, cheeks=FACE.c, brows=FACE.b, aura=FACE.a;
 
   /* --- hair --- */
   const cap=`<path d="M-6.6 -0.3 Q-7.6 -9.4 0 -9.4 Q7.6 -9.4 6.6 -0.3 Q6 -5.9 0 -5.9 Q-6 -5.9 -6.6 -0.3 Z" fill="${hair}"/>`;
@@ -3290,11 +3671,22 @@ function keeperSVG(P,o){
     case 6: body=`<path d="M-7.4 31 Q-8.4 18 0 10.6 Q8.4 18 7.4 31 Z" fill="${D}"/><path d="M-9.2 30 Q-10.4 16 0 9 Q10.4 16 9.2 30 Q0 26 -9.2 30 Z" fill="${DD}" opacity=".92"/><path d="M-7 -1 Q-8.4 -12 0 -12 Q8.4 -12 7 -1 Q0 -6 -7 -1 Z" fill="${DD}" opacity=".85"/>`; break;
     default: body=`<path d="M-8.6 33 Q-9.4 19 0 10.6 Q9.4 19 8.6 33 Z" fill="${D}"/><path d="M-7.6 25 Q0 28.6 7.6 25 Q0 30 -7.6 25 Z" fill="${W}" opacity=".85"/><path d="M-8.6 33 Q0 36.4 8.6 33" stroke="${DD}" stroke-width="1.4" fill="none"/><rect x="-6.6" y="19" width="13.2" height="2.2" rx="1" fill="${P.flower3}"/>`;
   }
-  /* arms */
-  const armL=`<path d="M-4.8 12.6 Q-7.8 17.6 -7 23.4" stroke="${skin}" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="-7.1" cy="24" r="1.75" fill="${skin}"/>`;
-  const armR = (t>=2 && !lantern)
-    ? `<path d="M4.8 12.6 Q8.8 8.6 9.6 2.8" stroke="${skin}" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="9.8" cy="2.2" r="1.85" fill="${skin}"/>`
-    : `<path d="M4.8 12.6 Q7.8 17.6 7.2 23.2" stroke="${skin}" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="7.3" cy="23.8" r="1.75" fill="${skin}"/>`;
+  /* arms — down by her sides unless she has something to say with them */
+  const A=(d,cx,cy,r)=>`<path d="${d}" stroke="${skin}" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="${r||1.75}" fill="${skin}"/>`;
+  const restL=A("M-4.8 12.6 Q-7.8 17.6 -7 23.4",-7.1,24);
+  const restR=A("M4.8 12.6 Q7.8 17.6 7.2 23.2",7.3,23.8);
+  const upR  =A("M4.8 12.6 Q8.8 8.6 9.6 2.8",9.8,2.2,1.85);
+  const upL  =A("M-4.8 12.6 Q-8.8 8.6 -9.6 2.8",-9.8,2.2,1.85);
+  const waveR=A("M4.8 12.6 Q10 7.4 9.2 0.4",9.2,-0.4,1.9)+
+    `<g stroke="${P.foam}" stroke-width=".8" fill="none" opacity=".75" stroke-linecap="round"><path d="M11.6 -2.6 q1.6 1.4 0 3.4"/><path d="M13.4 -4 q2.6 2.4 0 5.6"/></g>`;
+  const clapL=A("M-4.8 12.6 Q-5.6 15.6 -1.6 15.2",-1.2,15.2,1.7);
+  const clapR=A("M4.8 12.6 Q5.6 15.6 1.6 15.2",1.2,15.2,1.7);
+  const chinR=A("M4.8 12.6 Q8 8.4 3.4 5.4",2.6,5.2,1.7);
+  let armL=restL, armR=(t>=2 && !lantern)?upR:restR;
+  if(gest==="cheer"){ armL=upL; armR=upR; }
+  else if(gest==="wave"){ armR=waveR; }
+  else if(gest==="clap"){ armL=clapL; armR=clapR; }
+  else if(gest==="think"){ armR=chinR; }
   const lamp = lantern? `<g transform="translate(7.3,23.8)"><line x1="0" y1="0" x2="0" y2="3" stroke="${P.wood}" stroke-width="0.7"/><rect x="-2.4" y="3" width="4.8" height="6" rx="1.6" fill="#ffe9a8"/><rect x="-2.8" y="8.6" width="5.6" height="1.2" rx="0.6" fill="${P.wood}"/><circle cx="0" cy="6" r="7" fill="url(#glowG)" opacity=".55"/></g>`:"";
   const bag = satchel? `<path d="M-4.6 12.4 L4.8 20.6" stroke="${P.wood}" stroke-width="1.1" fill="none"/><rect x="4.2" y="19.6" width="5.4" height="4.6" rx="1.2" fill="${P.wood}"/><rect x="4.2" y="19.6" width="5.4" height="1.6" rx="0.8" fill="${P.sandDk}"/>`:"";
   const neck = necklace? `<path d="M-3 8.4 Q0 11.4 3 8.4" stroke="#fff" stroke-width="0.7" fill="none" opacity=".9"/><circle cx="0" cy="10.9" r="0.9" fill="${P.foam}"/><circle cx="-1.9" cy="10" r="0.6" fill="#fff"/><circle cx="1.9" cy="10" r="0.6" fill="#fff"/>`:"";
@@ -3312,7 +3704,7 @@ function keeperSVG(P,o){
     <rect x="-1.9" y="4.4" width="3.8" height="4.6" rx="1.7" fill="${sh}"/>
     ${neck}${scarfS}
     <circle cx="0" cy="0" r="6.5" fill="${skin}"/>
-    ${hairFront}${brows}${eyes}${cheeks}${mouth}${hairFlower}${hat}
+    ${hairFront}${brows}${eyes}${cheeks}${mouth}${hairFlower}${hat}${aura||""}
   </g>`;
 }
 
@@ -3676,7 +4068,7 @@ function renderMap(){
   const blooms=chs.map((c,i)=>i<open?islandBloom(i):0);
   const bloomed=blooms.reduce((n,b)=>n+(b>=90?1:0),0);
   let html=`<div id="logHost"></div>${tidyBanner()}
-    <p class="map-intro">One island for every chapter of <b>${esc(state.book.title)}</b> — each with its own shore, its own weather, and its own keeper watching the water for you. Read, learn the words, and the island answers by blooming.<br><span class="voy-sub">${open} of ${chs.length} shores within reach · ${bloomed} in full bloom</span></p>
+    <p class="map-intro">One island for every chapter of <b>${esc(state.book.title)}</b> — each with its own shore, its own weather, and its own keeper watching the water for you. Read it, learn its words, practise what it asks of you — and the island answers by blooming.<br><span class="voy-sub">${open} of ${chs.length} shores within reach · ${bloomed} in full bloom</span></p>
     <div class="isle-grid">`;
   chs.forEach((c,i)=>{
     const unlocked=i<open, b=blooms[i], K=isleKind(i);
@@ -3685,7 +4077,8 @@ function renderMap(){
       <div class="isle-heart">${heart}</div>
       ${unlocked?islandSVG(i,b,{showGirl:true}):`<svg viewBox="0 0 240 170"><rect width="240" height="170" fill="#e9edf0"/><ellipse cx="120" cy="140" rx="94" ry="18" fill="#c8cdd2" opacity=".6"/><ellipse cx="120" cy="136" rx="82" ry="14" fill="#d3d8dc"/><g opacity=".38" fill="none" stroke="#6b7480" stroke-width="2.2"><path d="M113 92v-5a7 7 0 0 1 14 0v5"/><rect x="108" y="92" width="24" height="19" rx="3.5" fill="#6b7480" stroke="none" opacity=".55"/></g></svg>`}
       <div class="isle-cap"><div class="isle-n">Insel ${i+1}</div><div class="isle-name">${esc((c.title||"").split(" — ")[0])}</div>
-      ${unlocked?`<div class="isle-kind">${esc(K.label)}</div><div class="isle-stars">${starRow(chapterStars(i))}</div><div class="isle-bloom">${b}% in bloom</div>`
+      ${unlocked?`<div class="isle-kind">${esc(K.label)}</div><div class="isle-stars">${starRow(chapterStars(i))}</div><div class="isle-bloom">${b}% in bloom</div>${
+        masteryPct(i)?`<div class="isle-mast">${masteryPct(i)}% practised</div>`:""}`
                 :`<div class="isle-bloom">still out past the fog</div>`}</div>
     </div>`;
   });
@@ -3706,6 +4099,8 @@ function renderIsland(idx){
   const keys=chapterKeys(idx)||new Set();
   let known=0; keys.forEach(k=>{ if(state.vocab[k]&&state.vocab[k].status==="known")known++; });
   const wear=keeperWear(idx);
+  const mast=masteryPct(idx), canDrill=drillAvailable(idx);
+  const pract=(state.game.drill&&state.game.drill[idx])||{runs:0,best:0};
   $("#voyIsle").innerHTML=`
     <button class="back-map" id="backMap">‹ all islands</button>
     <div class="stage">${islandSVG(idx,b,{big:true,showGirl:true})}</div>
@@ -3714,16 +4109,27 @@ function renderIsland(idx){
     <div class="isle-stats">
       <div class="stat"><div class="v">${b}%</div><div class="l">in bloom</div></div>
       <div class="stat"><div class="v">${known}/${keys.size}</div><div class="l">words known</div></div>
-      <div class="stat"><div class="v">${read}</div><div class="l">read to end</div></div>
+      <div class="stat"><div class="v">${mast}%</div><div class="l">practised</div></div>
     </div>
     <div class="bloom-bar"><div class="bloom-fill" style="width:${b}%"></div></div>
-    <div class="bloom-cap">Every known word and finished read lifts this shore. ${b>=90?"It's in full bloom — danke!":"Keep going and watch it change."}</div>
+    <div class="bloom-cap">${b>=90? "Every known word, finished read and round of practice lifts this shore. It's in full bloom — danke!"
+      : mast>=100? ("You have been through everything this shore knows how to ask. What lifts it from here is marking its words known as you read"+(read==="yes"?"":", and reaching the end of the chapter")+".")
+      : "Every known word, every finished read and every round of practice lifts this shore."}</div>
     <div class="tiernote">Chapter stars <span class="isle-stars">${starRow(chapterStars(idx))}</span> — one for reaching the end, one at 60% of its words known, one at 90%.</div>
     <div class="tiernote">Your bond: ${TIERS[bondTier(bondXP())].name}</div>
     <button class="isle-cta" id="isleGo">Read chapter ${idx+1} →</button>
+    <button class="dr-cta${canDrill?"":" quiet"}" id="isleDrill">${canDrill
+      ? (pract.runs? "Üben · another round with "+esc(name) : "Üben · practice this island with "+esc(name))
+      : "Nothing to practise here yet"}</button>
+    <div class="bloom-cap" style="margin-top:7px">${canDrill
+      ? (pract.runs? plural(pract.runs,"round")+" so far, best "+pract.best+"% — twelve questions on this chapter's own words, verbs and sentences."
+                   : "Twelve questions drawn from this chapter alone: its words, its verbs, its idioms, its sentences. Everything you get right feeds the shore.")
+      : "This chapter's text isn't on the device, so there is nothing to ask about yet."}</div>
     <button class="isle-reset" id="isleReset">Reset this island…</button>`+GLOW_DEFS;
   $("#backMap").addEventListener("click",()=>{ sfx("page"); voySwap(renderMap,true); });
   $("#isleGo").addEventListener("click",()=>toReader(idx));
+  const dz=$("#isleDrill");
+  if(dz && canDrill) dz.addEventListener("click",()=>drillOpen(idx,"isle"));
   $("#isleReset").addEventListener("click",()=>askResetChapter(idx));
 }
 function openVoyage(instant){
@@ -4122,11 +4528,17 @@ const LEVELS=[
   {min:5400, de:"Sternenleser",     en:"star-reader"},
   {min:7500, de:"Meister der Zeit", en:"master of hours"}
 ];
-const XPV={known:5,mine:3,review:2,ontime:3,chapter:30,quest:25,day:8,read:2};
+const XPV={known:5,mine:3,review:2,ontime:3,chapter:30,quest:25,day:8,read:2,
+  /* practice: small per answer, so a round is worth roughly a chapter's
+     worth of attention only if you actually get it right */
+  drill:3,round:14,clean:16};
 
 function normGame(g){
   return Object.assign({reviews:0,read:{},names:{},tier:0,
-    days:{},seed:0,rank:0,today:null,quests:null,frac:null,racc:0},g||{});
+    days:{},seed:0,rank:0,today:null,quests:null,frac:null,racc:0,
+    /* drill: what each island has been asked and answered. wq: how often a
+       word has come back right, anywhere — three and it is a word you know. */
+    drill:{},wq:{}},g||{});
 }
 /* ensureGame() is asked for the ledger constantly — by the day's tasks, by the
    quest counter, by every award. It used to hand back a brand-new object each
@@ -4142,6 +4554,8 @@ function ensureGame(){
   if(!g.days) g.days={};
   if(!g.read) g.read={};
   if(!g.names) g.names={};
+  if(!g.drill) g.drill={};
+  if(!g.wq) g.wq={};
   /* one-off: carry the old derived score over so nobody starts from zero */
   if(!g.seed && !Object.keys(g.days).length){ g.seed=derivedXP(); }
   g.rank=Math.max(g.rank||0,rankOf(totalXP()));
@@ -4184,10 +4598,12 @@ const QPOOL=[
   {id:"cha",key:"chapter",n:()=>1,   lab:()=>"Reach the end of a chapter",
    why:"Finishing is what turns reading into reading German."},
   {id:"red",key:"read",   n:()=>400, lab:n=>"Read "+n+" words",
-   why:"Volume does the quiet work that drilling cannot."}
+   why:"Volume does the quiet work that drilling cannot."},
+  {id:"ueb",key:"drill",  n:()=>1,   lab:()=>"Practise one island",
+   why:"Twelve questions aimed at one chapter beat an hour of drifting."}
 ];
 function today(){ const g=ensureGame(), d=dayKey();
-  if(!g.today||g.today.d!==d) g.today={d,review:0,known:0,mine:0,chapter:0,read:0};
+  if(!g.today||g.today.d!==d) g.today={d,review:0,known:0,mine:0,chapter:0,read:0,drill:0};
   return g.today; }
 function quests(){
   const g=ensureGame(), d=dayKey();
@@ -4239,6 +4655,11 @@ function nextAction(){
     if(j>=0) return {t:"Read chapter "+(j+1),s:"This one's text isn't on the device.",go:()=>{ closeVoyage(); renderChapter(j,true); }}; }
   if(!(state.game.read&&state.game.read[i])) return {t:"Finish chapter "+(i+1),s:"You're partway through — reaching the end lights the next island.",go:()=>{ closeVoyage(); }};
   const cov=Math.round(coverageFraction(i)*100);
+  /* Once a chapter has been read to the end, the fastest thing you can do with
+     it is be asked about it. */
+  if(masteryPct(i)<70 && drillAvailable(i))
+    return {t:"Practise Insel "+(i+1),s:masteryPct(i)+"% practised — twelve questions from this chapter alone.",
+            go:()=>{ drillOpen(i,voyShown()?"isle":"read"); }};
   if(cov<90) return {t:"Learn a few words in chapter "+(i+1),s:cov+"% known — tap the ones that stop you.",go:()=>{ closeVoyage(); }};
   const nxt=Math.min(i+1,state.book.chapters.length-1);
   return {t:"On to chapter "+(nxt+1),s:"This shore is in bloom.",go:()=>{ closeVoyage(); renderChapter(nxt,true); }};
@@ -4404,12 +4825,24 @@ function mergeGame(local,remote){
     else if(typeof r.read[k]==="number" && typeof g.read[k]==="number") g.read[k]=Math.min(g.read[k],r.read[k]);
   }
   for(const k in (r.names||{})) if(!g.names[k]) g.names[k]=r.names[k];
+  /* Practice merges the way everything else here does: by taking the better
+     of the two. A question answered on the other device counts on this one,
+     and nothing you have already got right can be taken back by an old code. */
+  g.drill=g.drill||{}; g.wq=g.wq||{};
+  for(const k in (r.drill||{})){
+    const rr=r.drill[k]||{}, gg=g.drill[k]||(g.drill[k]={ok:{},runs:0,best:0,n:0,last:0});
+    gg.ok=gg.ok||{};
+    for(const id in (rr.ok||{})) gg.ok[id]=Math.max(gg.ok[id]||0, rr.ok[id]||0);
+    gg.runs=Math.max(gg.runs||0,rr.runs||0); gg.best=Math.max(gg.best||0,rr.best||0);
+    gg.n=Math.max(gg.n||0,rr.n||0);          gg.last=Math.max(gg.last||0,rr.last||0);
+  }
+  for(const k in (r.wq||{})) g.wq[k]=Math.max(g.wq[k]||0, r.wq[k]||0);
   g.reviews=Math.max(g.reviews||0,r.reviews||0);
   g.tier=Math.max(g.tier||0,r.tier||0);
   g.rank=Math.max(g.rank||0,r.rank||0);
   if(r.today && (!g.today || r.today.d>g.today.d)) g.today=r.today;
   else if(r.today && g.today && r.today.d===g.today.d){
-    ["review","known","mine","chapter","read"].forEach(k=>g.today[k]=Math.max(g.today[k]||0,r.today[k]||0));
+    ["review","known","mine","chapter","read","drill"].forEach(k=>g.today[k]=Math.max(g.today[k]||0,r.today[k]||0));
   }
   if(r.frac && (!g.frac || r.frac.d>g.frac.d)) g.frac=r.frac;
   else if(r.frac && g.frac && r.frac.d===g.frac.d){
@@ -4542,6 +4975,843 @@ async function mergeCodeText(txt){
     if(msg) msg.textContent="That doesn't read as a Lesekern code.";
   }
 }
+
+/* ============================================================================
+   5 · DIE ÜBUNG — practice, one island at a time
+
+   Reading teaches you a word in the one sentence you met it in. That is a
+   real thing to know, and it is not the same as knowing the word. The Übung
+   is the other half: it asks about this chapter's own words, its own verbs,
+   its own sentences — never a generic exercise from somewhere else — and it
+   asks in the several different ways a language has of being known.
+
+   Everything it asks is generated from what the app already holds: the
+   chapter's text and word list, the glossary, the idiom list, the grammar
+   notes, the conjugation tables, and — when the audiobook is aboard — the
+   word timings. Nothing is fetched and nothing is written by hand per
+   chapter, so a new book brings its own exercises with it.
+
+   What you get right makes the island bloom, because it is the same progress:
+   a word answered three times over becomes a word you know, and a word you
+   know is what the shore has always been counting.
+   ==========================================================================*/
+
+const DR_N=12;                               // questions in a round
+const DRD=(window.LK_DRILL)||{CONJ:[],SEP:[],PREP_DAT:[],PREP_ACC:[],PREP_TWO:[],NOUNS:[],SAY:{right:[],wrong:[],streak:[]},ENDING:[],WEAK:{}};
+const CAT_LABEL={
+  vocab:"Wortschatz · vocabulary", gender:"der die das · gender",
+  verb:"Verbformen · verb forms", case:"Fälle · cases",
+  order:"Satzbau · word order", idiom:"Redewendung · idiom",
+  listen:"Hörübung · listening",
+};
+
+/* a small, repeatable random, so a chapter's pool is the same pool every time
+   — otherwise the denominator under "mastery" would wander as you practised */
+function seedRand(s){ let x=(s>>>0)||2463534242;
+  return ()=>{ x^=x<<13;x>>>=0; x^=x>>>17; x^=x<<5;x>>>=0; return x/4294967296; }; }
+function strSeed(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function shuffled(a,rnd){ const b=a.slice(); rnd=rnd||Math.random;
+  for(let i=b.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function pickN(a,n,rnd){ return shuffled(a,rnd).slice(0,n); }
+function cap(s){ return s? s[0].toUpperCase()+s.slice(1) : s; }
+
+/* ---------------------------------------------------------------------------
+   The chapter, cut into sentences. The reader already knows where every word
+   begins and ends; a sentence is just the run of words between two full
+   stops, carrying its own text and — if the audiobook aligned it — its own
+   second of tape.
+   ------------------------------------------------------------------------ */
+let _sentCache=[];
+function resetDrillCache(){ _sentCache=[]; _poolCache=[]; }
+function chapterSentences(idx){
+  if(_sentCache[idx]) return _sentCache[idx];
+  const ch=state.book&&state.book.chapters[idx];
+  if(!ch||!ch.text||!ch.words||!ch.words.length) return (_sentCache[idx]=[]);
+  const t=ch.text, ws=ch.words.slice().sort((a,b)=>a.a-b.a);
+  const out=[]; let cur=[];
+  const flush=()=>{
+    if(cur.length<3){ cur=[]; return; }
+    const a=cur[0].a, b=cur[cur.length-1].b;
+    out.push({
+      a, b, text:t.slice(a,b),
+      words:cur.map(w=>{ const raw=t.slice(w.a,w.b);
+        return {raw, key:norm(raw), a:w.a-a, b:w.b-a, s:w.s, e:w.e, tr:w.t}; }),
+    });
+    cur=[];
+  };
+  for(let i=0;i<ws.length;i++){
+    cur.push(ws[i]);
+    const tail=t.slice(ws[i].b, ws[i+1]? ws[i+1].a : t.length);
+    if(/[.!?…]/.test(tail) || /\n\s*\n/.test(tail) || i===ws.length-1) flush();
+  }
+  return (_sentCache[idx]=out);
+}
+/* a sentence rewritten with one of its words taken out */
+function blankOut(sn,wi){
+  const w=sn.words[wi];
+  return esc(sn.text.slice(0,w.a))+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+esc(sn.text.slice(w.b));
+}
+function markIn(sn,a,b){ return esc(sn.text.slice(0,a))+'<span class="hit">'+esc(sn.text.slice(a,b))+'</span>'+esc(sn.text.slice(b)); }
+/* the stretch of tape a sentence occupies, if it has one and it's all on one track */
+function sentAudio(sn){
+  const ws=sn.words.filter(w=>typeof w.s==="number");
+  if(ws.length<4) return null;
+  const tr=ws[0].tr; if(ws.some(w=>w.tr!==tr)) return null;
+  const s=Math.min(...ws.map(w=>w.s)), e=Math.max(...ws.map(w=>w.e));
+  if(!(e>s) || e-s>14) return null;
+  return {t:tr,s,e};
+}
+
+/* ---------------------------------------------------------------------------
+   The pool: every question this island can ask. Built once per chapter and
+   kept, because its size is the denominator under "mastery" and a moving
+   denominator would make progress meaningless.
+   ------------------------------------------------------------------------ */
+let _poolCache=[];
+const GOOD_W=/^[a-zäöüß]/i;
+/* The scaffolding of the language: articles, pronouns, the commonest
+   conjunctions and prepositions. Anyone reading Momo at all already has
+   these, and a multiple-choice question about „und" is a question spent on
+   nothing. They are only barred from the vocabulary drills — a cloze still
+   blanks them happily, because there the question is about the sentence, and
+   the case and verb drills are built on them outright. */
+const SKIP_VOCAB=new Set(["und","oder","aber","denn","dass","weil","wenn","als","ob",
+  "auch","nur","noch","schon","sehr","mehr","immer","nicht","kein","keine","nichts",
+  "ein","eine","einen","einem","einer","eines","der","die","das","den","dem","des",
+  "ich","du","er","sie","es","wir","ihr","man","sich","mich","dich","uns","euch",
+  "mir","dir","ihm","ihn","ihnen","mein","dein","sein","seine","ihre","seiner",
+  "in","an","auf","aus","bei","mit","nach","von","vom","zu","zum","zur","fur","um",
+  "uber","unter","vor","durch","gegen","ohne","seit","im","am","ins","ans","beim",
+  "hier","da","dort","dann","jetzt","so","wie","was","wer","wo","wann","warum",
+  "ja","nein","doch","mal","noch","denn","etwas","alle","alles","viel","wieder"]);
+function isName(g){ return !!(g && g.p==="name"); }
+/* The glossary records a noun's gender on every form of it, which is the right
+   thing for a gloss — „Männern“ still belongs to der Mann. It is the wrong
+   thing to build a question on: the answer to „welcher Artikel?“ for Männer is
+   die, not der, and for a dative plural it is den. So anything the gloss marks
+   as a plural or an oblique case is barred from the article drill. It is still
+   asked about in every other way. */
+const INFLECTED=/\bpl\b|plural|\bdat\b|\bacc\b|\bgen\b|\bnom\b/i;
+function isBaseNoun(g){ return !!(g && g.d && !INFLECTED.test(g.g||"")); }
+function surfaceMap(idx){
+  const ch=state.book.chapters[idx], m=new Map();
+  for(const w of ch.words||[]){ const raw=ch.text.slice(w.a,w.b), k=norm(raw);
+    if(k && !m.has(k)) m.set(k,raw); }
+  return m;
+}
+function drillPool(idx){
+  if(_poolCache[idx]) return _poolCache[idx];
+  const ch=state.book&&state.book.chapters[idx];
+  if(!ch||ch.ghost||!ch.text||!ch.words||!ch.words.length) return (_poolCache[idx]=[]);
+  const rnd=seedRand(strSeed((state.book.title||"b")+"#"+idx));
+  const sents=chapterSentences(idx), surf=surfaceMap(idx), keys=[...surf.keys()];
+  const pool=[];
+
+  /* --- the chapter's glossable words, best first ---------------------- */
+  const words=[];
+  for(const k of keys){
+    if(k.length<3) continue;
+    const g=glossFor(k); if(!g||!g.g) continue;
+    if(isName(g)) continue;
+    /* „Finger“ glossed as "finger", or „erinnern“ glossed as "sich erinnern =
+       to remember": when the English carries the German word inside it there
+       is nothing left to ask. Such words are still glossed in the reader and
+       still blanked in a cloze — they just don't get a vocabulary question. */
+    const en0=String(g.g).split(/[·(]/)[0].trim();
+    const give=!!norm(en0) && (norm(en0)===norm(k) || norm(g.g).includes(norm(k)));
+    words.push({k, raw:surf.get(k), g:g.g, p:g.p||"", d:g.d||"", weak:!!g.derived,
+      plain:SKIP_VOCAB.has(k) || give});
+  }
+  /* the bank the vocabulary questions are asked from: real glosses first,
+     scaffolding words never */
+  const worth=words.filter(w=>!w.plain);
+  const solid=worth.filter(w=>!w.weak);
+  const bank=(solid.length>=16?solid:(worth.length>=16?worth:words));
+  const enOf=w=>w.g.split(/[·(]/)[0].trim().replace(/\s+$/,"")||w.g;
+  const other=(w,n)=>pickN(bank.filter(x=>x.k!==w.k && enOf(x)!==enOf(w)),n,rnd);
+  const otherDe=(w,n)=>pickN(bank.filter(x=>x.k!==w.k && Math.abs(x.raw.length-w.raw.length)<5),n,rnd);
+
+  /* German → English, and back again. Two directions because recognising a
+     word and producing it are separate skills, and the second is the one
+     that lets you speak. */
+  const vocabPick=pickN(bank,34,rnd);
+  vocabPick.slice(0,20).forEach(w=>{
+    const wrong=other(w,3); if(wrong.length<3) return;
+    pool.push({id:"w:"+w.k, cat:"vocab", kind:"mc", key:w.k, disp:w.raw,
+      q:cap(w.raw), sub:"What does it mean here?",
+      opts:[w.g].concat(wrong.map(x=>x.g)), ans:w.g,
+      why:w.d? "<em>"+w.d+" "+w.raw+"</em> — the article is part of the word." : ""});
+  });
+  vocabPick.slice(6,22).forEach(w=>{
+    const wrong=otherDe(w,3); if(wrong.length<3) return;
+    pool.push({id:"e:"+w.k, cat:"vocab", kind:"mc", key:w.k, disp:w.raw,
+      q:cap(enOf(w)), sub:"Which German word is this?",
+      opts:[w.raw].concat(wrong.map(x=>x.raw)), ans:w.raw, why:""});
+  });
+  /* typing it out: no options to lean on */
+  pickN(bank.filter(w=>w.raw.length>=4 && w.raw.length<=13 && GOOD_W.test(w.raw)),9,rnd).forEach(w=>{
+    pool.push({id:"t:"+w.k, cat:"vocab", kind:"type", key:w.k, disp:w.raw,
+      q:cap(enOf(w)), sub:"Write it in German — accents and capitals are forgiven.",
+      ans:w.raw, hint:w.raw[0]+"…", why:""});
+  });
+
+  /* --- der / die / das ------------------------------------------------ */
+  pickN(words.filter(w=>/^(der|die|das)$/.test(w.d) && !INFLECTED.test(w.g)),12,rnd).forEach(w=>{
+    pool.push({id:"g:"+w.k, cat:"gender", kind:"mc", key:w.k,
+      q:cap(w.raw), sub:"Which article does this noun take?",
+      opts:["der","die","das"], ans:w.d, fixed:true,
+      why:"<em>"+w.d+" "+w.raw+"</em> — "+enOf(w)+". Learn the two together and it never has to be guessed again."});
+  });
+
+  /* --- a word lifted out of its own sentence -------------------------- */
+  const clozeS=sents.filter(s=>s.words.length>=6 && s.words.length<=20 && s.text.length<180);
+  pickN(clozeS,14,rnd).forEach((sn,n)=>{
+    const cands=sn.words.map((w,i)=>({w,i})).filter(o=>{
+      const g=glossFor(o.w.key);
+      if(!(o.w.raw.length>=4 && g && g.g && !isName(g))) return false;
+      /* „Blüte um Blüte entstand“ — blank one and the other is still sitting
+         there in plain view. Only ever hide a word the sentence says once. */
+      return sn.words.filter(x=>x.key===o.w.key).length===1;
+    });
+    if(!cands.length) return;
+    const pick=cands[Math.floor(rnd()*cands.length)], w=pick.w;
+    const wrong=pickN(bank.filter(x=>x.k!==w.key && Math.abs(x.raw.length-w.raw.length)<6),3,rnd);
+    if(wrong.length<3) return;
+    const g=glossFor(w.key);
+    pool.push({id:"c:"+sn.a+":"+pick.i, cat:"vocab", kind:"mc", key:w.key, disp:w.raw,
+      q:blankOut(sn,pick.i), raw:true, sub:"Which word belongs in the gap?",
+      opts:[w.raw].concat(wrong.map(x=>x.raw)), ans:w.raw,
+      why:"<em>"+w.raw+"</em> — "+(g?g.g:"")+"", audio:sentAudio(sn)});
+  });
+
+  /* --- idioms this chapter actually uses ------------------------------ */
+  const seenIdiom=new Set();
+  for(const sn of sents){
+    if(seenIdiom.size>=8) break;
+    const it=findIdiom(sn.text); if(!it || seenIdiom.has(it.de)) continue;
+    const at=normPhrase(sn.text).indexOf(normPhrase(it.de));
+    if(at<0) continue;
+    seenIdiom.add(it.de);
+    const wrong=pickN(IDIOMS_N.filter(x=>x.de!==it.de),3,rnd);
+    if(wrong.length<3) continue;
+    pool.push({id:"i:"+it.de, cat:"idiom", kind:"mc",
+      q:"„"+it.de+"“", sub:"It turns up in this chapter. What does it mean?",
+      ctx:sn.text.length<200?sn.text:"",
+      opts:[it.en].concat(wrong.map(x=>x.en)), ans:it.en,
+      why:"An idiom never means the sum of its words — which is exactly why it is worth keeping whole."});
+  }
+
+  /* --- verbs: the forms Momo is written in ---------------------------- */
+  const inChapter=f=>f && f!=="—" && surf.has(norm(f));
+  const liveVerbs=DRD.CONJ.filter(v=>inChapter(v[0])||inChapter(v[4])||inChapter(v[5])||inChapter(v[6])||inChapter(v[3]));
+  const verbs=liveVerbs.length>=6?liveVerbs:DRD.CONJ.slice(0,26);
+  const V=(v)=>({inf:v[0],en:v[1],ich:v[2],du:v[3],er:v[4],pra:v[5],pp:v[6],aux:v[7],k2:v[8]});
+  const others=(v,f)=>pickN(verbs.filter(x=>x[0]!==v[0]&&x[f]&&x[f]!=="—"),3,rnd).map(x=>x[f]);
+
+  pickN(verbs.filter(v=>inChapter(v[5])),9,rnd).forEach(vv=>{      // Präteritum met in the text
+    const v=V(vv), wrong=others(vv,5); if(wrong.length<3) return;
+    pool.push({id:"vi:"+v.inf, cat:"verb", kind:"mc",
+      q:"„"+v.pra+"“", sub:"Which verb is this a form of?",
+      opts:[v.inf].concat(pickN(verbs.filter(x=>x[0]!==v.inf),3,rnd).map(x=>x[0])), ans:v.inf,
+      why:"<em>"+v.pra+"</em> is the Präteritum of <em>"+v.inf+"</em> ("+v.en+") — the past tense written stories are told in."});
+  });
+  pickN(verbs,10,rnd).forEach(vv=>{
+    const v=V(vv), wrong=others(vv,5); if(wrong.length<3) return;
+    pool.push({id:"vp:"+v.inf, cat:"verb", kind:"mc",
+      q:"Damals "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+" er es.", raw:true,
+      sub:"Präteritum of <b>"+v.inf+"</b> — "+v.en,
+      opts:[v.pra].concat(wrong), ans:v.pra,
+      why:"<em>"+v.inf+" → er "+v.pra+"</em>. German keeps its irregularities for the verbs it uses most, so these are worth knowing by heart."});
+  });
+  pickN(verbs.filter(v=>v[6]&&v[6]!=="—"),9,rnd).forEach(vv=>{
+    const v=V(vv), wrong=others(vv,6); if(wrong.length<3) return;
+    pool.push({id:"vpp:"+v.inf, cat:"verb", kind:"mc",
+      q:"Er "+(v.aux==="s"?"ist":"hat")+" "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+".", raw:true,
+      sub:"Partizip II of <b>"+v.inf+"</b> — "+v.en,
+      opts:[v.pp].concat(wrong), ans:v.pp,
+      why:"<em>"+v.inf+" → "+v.pp+"</em>, and it goes to the very end of the clause."});
+  });
+  pickN(verbs.filter(v=>v[6]&&v[6]!=="—"),8,rnd).forEach(vv=>{
+    const v=V(vv);
+    pool.push({id:"vx:"+v.inf, cat:"verb", kind:"mc",
+      q:"Er "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+" "+v.pp+".", raw:true,
+      sub:"Perfekt of <b>"+v.inf+"</b> — haben or sein?",
+      opts:["hat","ist"], ans:v.aux==="s"?"ist":"hat", fixed:true,
+      why:v.aux==="s"
+        ? "<em>sein</em>. Verbs of motion and of becoming-something-else take sein: er <em>ist</em> "+v.pp+"."
+        : "<em>haben</em>, as most verbs do: er <em>hat</em> "+v.pp+"."});
+  });
+  pickN(verbs.filter(v=>v[3]&&v[3]!=="—"),8,rnd).forEach(vv=>{
+    const v=V(vv), wrong=others(vv,3); if(wrong.length<3) return;
+    pool.push({id:"vd:"+v.inf, cat:"verb", kind:"mc",
+      q:"Du "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+" …", raw:true,
+      sub:"<b>"+v.inf+"</b> — "+v.en+", in the du form",
+      opts:[v.du].concat(wrong), ans:v.du,
+      why:"<em>du "+v.du+"</em>"+(v.du.replace(/st$/,"")!==v.inf.replace(/e?n$/,"")?" — the stem vowel shifts in the du and er forms, which is the commonest trap in the present tense.":".")});
+  });
+
+  /* separable verbs: the stray prefix at the end of a sentence */
+  pickN(DRD.SEP.filter(s=>surf.has(norm(s[0]))||surf.has(norm(s[2]))),7,rnd).forEach(sp=>{
+    const [inf,pre,er,en,obj]=sp;
+    pool.push({id:"sp:"+inf, cat:"case", kind:"mc",
+      q:"Momo "+er+" "+obj+" "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+".", raw:true,
+      sub:"The verb is <b>"+inf+"</b> — "+en+". Which piece went to the end?",
+      opts:[pre].concat(pickN(["an","auf","aus","zu","mit","ein","nach","vor","weg","zurück"].filter(p=>p!==pre),3,rnd)),
+      ans:pre,
+      why:"<em>"+inf+"</em> splits in a main clause and its prefix flies to the end. A stray <em>"+pre+"</em> closing a sentence is almost always this."});
+  });
+
+  /* --- cases, where a preposition decides them ------------------------ */
+  const DAT={der:"dem",die:"der",das:"dem"}, ACC={der:"den",die:"die",das:"das"};
+  const nouns=DRD.NOUNS;
+  const usedPrep=(list)=>list.filter(p=>surf.has(norm(p)));
+  const dat=usedPrep(DRD.PREP_DAT), acc=usedPrep(DRD.PREP_ACC), two=usedPrep(DRD.PREP_TWO);
+  const caseOpts=(right)=>{ const all=["den","dem","der","die","das","des"];
+    return [right].concat(pickN(all.filter(x=>x!==right),3,rnd)); };
+  dat.slice(0,6).forEach((p,i)=>{
+    const n=nouns[(i*3+idx)%nouns.length], right=DAT[n[1]];
+    pool.push({id:"p:d:"+p, cat:"case", kind:"mc",
+      q:p+" "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+" "+n[0], raw:true,
+      sub:"<b>"+n[1]+" "+n[0]+"</b> — "+n[2]+". Which form after this preposition?",
+      opts:caseOpts(right), ans:right,
+      why:"<em>aus, bei, mit, nach, seit, von, zu</em> always take the dative — no exceptions, no feeling required. "+n[1]+" "+n[0]+" → <em>"+right+" "+n[0]+"</em>."});
+  });
+  acc.slice(0,5).forEach((p,i)=>{
+    const n=nouns[(i*5+idx+2)%nouns.length], right=ACC[n[1]];
+    pool.push({id:"p:a:"+p, cat:"case", kind:"mc",
+      q:p+" "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+" "+n[0], raw:true,
+      sub:"<b>"+n[1]+" "+n[0]+"</b> — "+n[2]+". Which form after this preposition?",
+      opts:caseOpts(right), ans:right,
+      why:"<em>durch, für, gegen, ohne, um</em> always take the accusative. Only the masculine actually changes shape — der → den — which is why the others feel like nothing happened."});
+  });
+  two.slice(0,5).forEach((p,i)=>{
+    const n=nouns[(i*7+idx+4)%nouns.length];
+    const motion=(i%2===0);
+    const right=motion?ACC[n[1]]:DAT[n[1]];
+    pool.push({id:"pw:"+p+":"+(motion?"a":"d"), cat:"case", kind:"mc",
+      q:(motion?"Sie ging ":"Sie stand ")+p+" "+'<span class="blank">&nbsp;&nbsp;&nbsp;</span>'+" "+n[0]+".", raw:true,
+      sub:"<b>"+n[1]+" "+n[0]+"</b> — "+n[2]+". "+(motion?"Wohin? (going somewhere)":"Wo? (standing somewhere)"),
+      opts:caseOpts(right), ans:right,
+      why:motion
+        ? "Movement towards → accusative. <em>in die Stadt</em> = into town; <em>in der Stadt</em> = already there."
+        : "A fixed place → dative. <em>in der Stadt</em> = in town; <em>in die Stadt</em> would mean going into it."});
+  });
+
+  /* --- rebuild a real sentence ---------------------------------------- */
+  pickN(sents.filter(s=>s.words.length>=5 && s.words.length<=9 && s.text.length<90 && !/[«»„"]/.test(s.text)),10,rnd)
+    .forEach(sn=>{
+      const ws=sn.words.map(w=>w.raw);
+      if(new Set(ws.map(w=>w.toLowerCase())).size!==ws.length) return;   // duplicates make it ambiguous
+      pool.push({id:"o:"+sn.a, cat:"order", kind:"order",
+        q:"Put this sentence back in order.",
+        sub:"It is one of this chapter's own. The finite verb wants to be second.",
+        words:ws, ans:ws.join(" "), full:sn.text, audio:sentAudio(sn),
+        why:"German holds the finite verb in second place in a main clause, whatever you put first — and sends it to the very end after weil, dass, als, wenn."});
+    });
+
+  /* --- listening, if the audiobook is aligned ------------------------- */
+  pickN(sents.filter(s=>s.words.length>=6 && s.words.length<=16 && sentAudio(s)),9,rnd).forEach(sn=>{
+    const au=sentAudio(sn);
+    const cands=sn.words.map((w,i)=>({w,i}))
+      .filter(o=>o.w.raw.length>=4 && sn.words.filter(x=>x.key===o.w.key).length===1);
+    if(!cands.length) return;
+    const pick=cands[Math.floor(rnd()*cands.length)], w=pick.w;
+    const wrong=pickN(bank.filter(x=>x.k!==w.key && Math.abs(x.raw.length-w.raw.length)<6),3,rnd);
+    if(wrong.length<3) return;
+    pool.push({id:"l:"+sn.a, cat:"listen", kind:"mc", key:w.key, disp:w.raw, audio:au, hear:true,
+      q:blankOut(sn,pick.i), raw:true, sub:"Listen, then fill the gap.",
+      opts:[w.raw].concat(wrong.map(x=>x.raw)), ans:w.raw,
+      why:"<em>"+w.raw+"</em>. Reading it and hearing it are two different memories of the same word; this is how they are introduced to each other."});
+  });
+
+  /* one shuffle, from the chapter's own seed, so the order is stable */
+  return (_poolCache[idx]=shuffled(pool,seedRand(strSeed("pool"+idx))));
+}
+
+/* ---------------------------------------------------------------------------
+   What the island remembers of your practice. An item is "sitting" once you
+   have had it right twice; mastery is how much of the island is sitting.
+   ------------------------------------------------------------------------ */
+function drillRec(idx){
+  const g=ensureGame(); if(!g.drill) g.drill={};
+  let r=g.drill[idx];
+  if(!r) r=g.drill[idx]={ok:{},runs:0,best:0,n:0,last:0};
+  if(!r.ok) r.ok={};
+  return r;
+}
+function drillTarget(idx){
+  const r=(state.game&&state.game.drill&&state.game.drill[idx])||null;
+  const n=(r&&r.n)|| (_poolCache[idx]?_poolCache[idx].length:0) || 60;
+  return Math.max(16, Math.min(40, Math.round(n*0.5)));
+}
+/* Half credit the first time you get something right, full credit the second.
+   One correct answer is evidence and two is a habit, and a bar that refuses to
+   move until the second is a bar that tells you nothing on the way there. */
+function masteryFraction(idx){
+  const r=(state.game&&state.game.drill&&state.game.drill[idx])||null;
+  if(!r||!r.ok) return 0;
+  let credit=0; for(const k in r.ok) credit+=Math.min(2,r.ok[k]||0);
+  return Math.min(1, credit/(2*drillTarget(idx)));
+}
+function masteryPct(idx){ return Math.round(masteryFraction(idx)*100); }
+
+/* a word answered right, three times over, is a word you know -------------- */
+function wordCorrect(key){
+  if(!key) return "";
+  const g=ensureGame(); if(!g.wq) g.wq={};
+  const n=g.wq[key]=Math.min(9,(g.wq[key]||0)+1);
+  let v=state.vocab[key];
+  if(!v) v=state.vocab[key]={status:"new",meaning:"",gender:""};
+  const gl=glossFor(key);
+  if(!v.meaning && gl && gl.g) v.meaning=gl.g;
+  if(!v.gender && gl && gl.d) v.gender=gl.d;
+  if(v.status==="new"){ v.status="learning"; v.t=Date.now(); repaintKey(key); return "learning"; }
+  if(v.status==="learning" && n>=3){
+    v.status="known"; v.t=Date.now(); repaintKey(key);
+    award(XPV.known,"known"); questTick("known",1);
+    return "known";
+  }
+  return "";
+}
+
+/* ---------------------------------------------------------------------------
+   Choosing the round. Whatever you got wrong last time comes back first,
+   then whatever you have never had right, then the rest — and no single kind
+   of question is allowed to take over a round.
+   ------------------------------------------------------------------------ */
+function pickSession(idx,n){
+  const pool=drillPool(idx); if(!pool.length) return [];
+  const rec=drillRec(idx), bad=rec.bad||{};
+  const audioReady=state.tracks.some(t=>state.audio[t]);
+  const live=pool.filter(it=>!it.hear || audioReady);
+  const score=it=>{
+    const ok=rec.ok[it.id]||0;
+    if(bad[it.id]) return 0;                 // owed
+    if(!ok) return 1;                        // never asked
+    if(ok<2) return 2;                       // half-known
+    return 3;                                // sitting; ask now and then
+  };
+  const tiers=[[],[],[],[]];
+  live.forEach(it=>tiers[score(it)].push(it));
+  const out=[], perCat={}, capCat=Math.max(3,Math.ceil(n/3));
+  const take=(list,limit)=>{
+    for(const it of shuffled(list)){
+      if(out.length>=n || limit<=0) break;
+      if(out.includes(it)) continue;
+      if((perCat[it.cat]||0)>=capCat) continue;
+      out.push(it); perCat[it.cat]=(perCat[it.cat]||0)+1; limit--;
+    }
+  };
+  /* The order these are drawn in is the whole schedule. A chapter offers a
+     hundred and fifty questions and a round holds twelve, so if new material
+     were taken first it would always be taken — and nothing would ever come
+     back a second or third time, which is the only way a word crosses over
+     into one you know. So the slots are reserved: what you owe first, then
+     what you have had right exactly once, and only then something new. */
+  take(tiers[0],3);                          // owed — got it wrong last time
+  take(tiers[2],4);                          // half-known — due its second look
+  take(tiers[1],n);                          // new ground
+  take(tiers[3],1);                          // one old friend, to keep it honest
+  take(tiers[2],n); take(tiers[0],n); take(tiers[3],n);   // top up from anywhere
+  if(out.length<n){                          // thin chapter: relax the cap
+    for(const it of shuffled(live)){ if(out.length>=n) break; if(!out.includes(it)) out.push(it); }
+  }
+  return shuffled(out).slice(0,n);
+}
+
+/* ---------------------------------------------------------------------------
+   Her face. The island keeper has always been drawn from her bond with you;
+   now she also reacts, and a round ends with her looking straight at you.
+   ------------------------------------------------------------------------ */
+function keeperFace(mood,P,hair){
+  const dot=(dx,dy,r)=>`<circle cx="${-2.3+(dx||0)}" cy="${0.2+(dy||0)}" r="${r||1.05}" fill="#4a332a"/><circle cx="${2.3+(dx||0)}" cy="${0.2+(dy||0)}" r="${r||1.05}" fill="#4a332a"/>`;
+  const shine=`<circle cx="-1.95" cy="-0.2" r=".34" fill="#fff" opacity=".85"/><circle cx="2.65" cy="-0.2" r=".34" fill="#fff" opacity=".85"/>`;
+  const archUp=`<path d="M-3.2 0 Q-2.3 -2 -1.4 0" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/><path d="M1.4 0 Q2.3 -2 3.2 0" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  const archDn=`<path d="M-3.3 -.4 Q-2.3 1.5 -1.3 -.4" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/><path d="M1.3 -.4 Q2.3 1.5 3.3 -.4" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  const flatEye=`<path d="M-3.3 .2 h2" stroke="#4a332a" stroke-width="1" stroke-linecap="round"/><path d="M1.3 .2 h2" stroke="#4a332a" stroke-width="1" stroke-linecap="round"/>`;
+  const browN=`<path d="M-3.6 -2.6 q1.3 -.9 2.6 -.2" stroke="${hair}" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".8"/><path d="M1 -2.8 q1.3 -.7 2.6 .2" stroke="${hair}" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".8"/>`;
+  const browUp=`<path d="M-3.8 -3.4 q1.4 -1 2.8 -.3" stroke="${hair}" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".85"/><path d="M1 -3.7 q1.4 -.7 2.8 .3" stroke="${hair}" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".85"/>`;
+  const browSad=`<path d="M-3.7 -3.2 q1.4 .5 2.6 -.1" stroke="${hair}" stroke-width=".75" fill="none" stroke-linecap="round" opacity=".85"/><path d="M1.1 -3.3 q1.2 -.6 2.6 .1" stroke="${hair}" stroke-width=".75" fill="none" stroke-linecap="round" opacity=".85"/>`;
+  const grinBig=`<path d="M-3 2.9 Q0 7 3 2.9 Q0 4.4 -3 2.9 Z" fill="#c56b62"/><path d="M-2.2 3.1 q2.2 .5 4.4 0" stroke="#fff" stroke-width=".9" fill="none" opacity=".85"/>`;
+  const grin=`<path d="M-2.5 3 Q0 6.2 2.5 3 Q0 4.3 -2.5 3 Z" fill="#c56b62"/>`;
+  const smile=`<path d="M-2.1 3.2 Q0 5 2.1 3.2" stroke="#a85a52" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  const smileS=`<path d="M-1.7 3.4 Q0 4.3 1.7 3.4" stroke="#a85a52" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  const wobble=`<path d="M-2 3.6 q1 -.8 2 0 q1 .8 2 0" stroke="#a85a52" stroke-width=".9" fill="none" stroke-linecap="round"/>`;
+  const oh=`<ellipse cx="0" cy="3.9" rx="1.1" ry="1.4" fill="#a85a52"/>`;
+  const flat=`<path d="M-1.8 3.6 h3.6" stroke="#a85a52" stroke-width=".9" stroke-linecap="round"/>`;
+  const smirk=`<path d="M-1.6 3.5 Q.4 5 2.3 3.1" stroke="#a85a52" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  const blush=o=>`<circle cx="-4.2" cy="2.1" r="1.4" fill="${P.flower}" opacity="${o}"/><circle cx="4.2" cy="2.1" r="1.4" fill="${P.flower}" opacity="${o}"/>`;
+  const sparks=`<g fill="#ffe27a" opacity=".95"><path d="M-9.5 -6 l.7 1.7 1.7 .7 -1.7 .7 -.7 1.7 -.7 -1.7 -1.7 -.7 1.7 -.7 z"/><path d="M9.2 -7.4 l.55 1.35 1.35 .55 -1.35 .55 -.55 1.35 -.55 -1.35 -1.35 -.55 1.35 -.55 z"/><path d="M7.4 2.2 l.4 1 1 .4 -1 .4 -.4 1 -.4 -1 -1 -.4 1 -.4 z"/></g>`;
+  const drop=`<path d="M8.2 -1.4 q1.5 2.2 0 3.2 q-1.5 -1 0 -3.2 z" fill="#8fc7e8" opacity=".9"/>`;
+  const zzz=`<g fill="none" stroke="#8a8178" stroke-width=".7" stroke-linecap="round" opacity=".8"><path d="M7.4 -6.4 h2.4 l-2.4 2.4 h2.4"/><path d="M10.6 -9.6 h1.7 l-1.7 1.7 h1.7"/></g>`;
+
+  const F={
+    calm:    {e:dot()+shine, b:browN,   m:smileS,  c:"",         a:""},
+    warm:    {e:dot()+shine, b:browN,   m:smile,   c:blush(.38), a:""},
+    happy:   {e:archUp,      b:browN,   m:grin,    c:blush(.38), a:""},
+    radiant: {e:archUp,      b:browUp,  m:grinBig, c:blush(.5),  a:sparks},
+    proud:   {e:archDn,      b:browUp,  m:grin,    c:blush(.42), a:""},
+    cheer:   {e:dot(0,-.2,1.25)+shine, b:browUp, m:grinBig, c:blush(.44), a:""},
+    aww:     {e:dot(0,.35,1.15)+shine, b:browSad, m:wobble, c:blush(.34), a:""},
+    oops:    {e:dot(0,0,1.3),b:browUp,  m:oh,      c:blush(.3),  a:drop},
+    surprise:{e:dot(0,-.1,1.45)+shine,b:browUp,m:oh, c:"",       a:""},
+    think:   {e:dot(-.6,-.5,1.05)+`<circle cx="-2.5" cy="-.4" r=".3" fill="#fff" opacity=".8"/><circle cx="2.1" cy="-.4" r=".3" fill="#fff" opacity=".8"/>`,
+              b:`<path d="M-3.6 -3.2 q1.3 -.9 2.6 -.2" stroke="${hair}" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".8"/><path d="M1 -2.6 q1.3 -.5 2.6 .3" stroke="${hair}" stroke-width=".7" fill="none" stroke-linecap="round" opacity=".8"/>`,
+              m:flat, c:"", a:""},
+    wink:    {e:`<path d="M-3.2 .2 Q-2.3 -1.6 -1.4 .2" stroke="#4a332a" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="2.3" cy=".2" r="1.05" fill="#4a332a"/><circle cx="2.65" cy="-.2" r=".34" fill="#fff" opacity=".85"/>`,
+              b:browN, m:smirk, c:blush(.4), a:""},
+    sleepy:  {e:flatEye,     b:browN,   m:smileS,  c:"",         a:zzz},
+  };
+  return F[mood]||F.calm;
+}
+
+/* the portrait: her, close up, in her island's own light */
+function keeperPortrait(idx,mood,gest,px){
+  const b=islandBloom(idx), st=bloomStage(b), P=islePalette(idx,st), uid="p"+idx+(mood||"")+(px||"");
+  const zoom=px==="small"?2.85:3.5, cy=px==="small"?48:44;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs><linearGradient id="sky${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${P.skyTop}"/><stop offset="1" stop-color="${P.skyBot}"/></linearGradient>
+      <radialGradient id="glowG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3b0" stop-opacity=".95"/><stop offset="1" stop-color="#fff3b0" stop-opacity="0"/></radialGradient></defs>
+    <rect width="100" height="100" fill="url(#sky${uid})"/>
+    <circle cx="50" cy="112" r="52" fill="${P.grass}" opacity=".85"/>
+    <circle cx="50" cy="118" r="52" fill="${P.grassDk}" opacity=".5"/>
+    <g transform="translate(50,${cy}) scale(${zoom})">${keeperSVG(P,{
+      scale:1, tier:bondTier(bondXP()), st, fit:keeperFit(idx), hair:keeperHair(idx),
+      sunhat:idx%2===0, mood, gesture:gest })}</g>
+  </svg>`;
+}
+
+/* ---------------------------------------------------------------------------
+   A round
+   ------------------------------------------------------------------------ */
+const DR={on:false, idx:-1, items:[], i:0, ok:0, no:0, marks:[], byCat:{}, wrongCat:{},
+  xp:0, promoted:[], started:[], bloom0:0, mast0:0, answered:false, from:"isle", built:[], run:0,
+  done:false, voy:null};
+let _drAudioOn=false, _drAudioT=null;
+
+function drillAvailable(idx){ return drillPool(idx).length>=6; }
+
+function drillOpen(idx,from){
+  if(!state.book) return;
+  const ch=state.book.chapters[idx];
+  if(!ch || ch.ghost || !ch.text){ toast("This chapter's text isn't on the device yet"); return; }
+  const items=pickSession(idx,DR_N);
+  if(items.length<4){ toast("Not enough of this chapter to practise on yet — read a little first"); return; }
+  const rec=drillRec(idx);
+  rec.n=Math.max(rec.n||0, drillPool(idx).length);
+  DR.on=true; DR.idx=idx; DR.items=items; DR.i=0; DR.ok=0; DR.no=0; DR.marks=[];
+  DR.byCat={}; DR.wrongCat={}; DR.xp=0; DR.promoted=[]; DR.started=[]; DR.answered=false; DR.built=[];
+  DR.from=from||"isle"; DR.run=0; DR.done=false;
+  /* where you were standing when you came in, so leaving puts you back there
+     rather than somewhere you never chose to be */
+  DR.voy=voyShown()? (_openIsle!=null? _openIsle : "map") : null;
+  DR.bloom0=islandBloom(idx); DR.mast0=masteryPct(idx);
+  sfx("open");
+  $("#drTitle").textContent=companionName(idx)+" · Insel "+(idx+1);
+  $("#drSub").textContent="Übung · "+(ch.title||"").split(" — ")[0];
+  $("#drill").classList.add("show");
+  renderDrillQ();
+}
+function drillClose(){
+  DR.on=false; drillStopAudio();
+  $("#drill").classList.remove("show");
+  updateCoverage(); markDirty(); gameTouch();
+  /* Back where you came from: the island if you opened it from there, the
+     map if you were looking at the whole archipelago, the page if you were
+     reading. Being handed an island you never opened is disorienting. */
+  if(voyShown()){
+    if(DR.voy==="map"){ _openIsle=null; renderMap(); }
+    else if(typeof DR.voy==="number"){ renderIsland(DR.voy); }
+  }
+}
+function drillStopAudio(){
+  clearTimeout(_drAudioT); _drAudioT=null;
+  if(_drAudioOn){ try{ audio.pause(); }catch(e){} _drAudioOn=false;
+    try{ audio.playbackRate=+$("#rate").value||1; }catch(e){} }
+  const b=document.querySelector(".dr-play"); if(b) b.classList.remove("playing");
+}
+function drillHear(it,btn){
+  if(!it.audio) return;
+  const name=state.tracks[it.audio.t], url=name&&state.audio[name];
+  if(!url){ toast("Add the audiobook and I'll say it aloud for you"); return; }
+  drillStopAudio();
+  _drAudioOn=true; if(btn) btn.classList.add("playing");
+  const start=Math.max(0,it.audio.s-0.12), stop=it.audio.e+0.3;
+  const go=()=>{
+    try{ audio.currentTime=start; }catch(e){}
+    audio.playbackRate=0.92;
+    const pr=audio.play(); if(pr&&pr.catch) pr.catch(()=>{ _drAudioOn=false; if(btn) btn.classList.remove("playing"); });
+    _drAudioT=setTimeout(()=>{ try{ audio.pause(); }catch(e){}
+      _drAudioOn=false; if(btn) btn.classList.remove("playing"); }, Math.max(400,(stop-start)*1000/0.92));
+  };
+  if(audio.dataset.track!==String(it.audio.t)){
+    audio.src=url; audio.dataset.track=it.audio.t;
+    try{ audio.load(); }catch(e){}
+    audio.addEventListener("loadedmetadata",go,{once:true});
+  } else if(audio.readyState>=1) go();
+  else audio.addEventListener("loadedmetadata",go,{once:true});
+}
+
+function drSay(pool){ const a=DRD.SAY[pool]||[]; return a.length?a[Math.floor(Math.random()*a.length)]:["",""]; }
+function drQuip(){
+  const it=DR.items[DR.i];
+  if(!it) return ["Bereit?","ready?"];
+  const first=DR.i===0;
+  if(first) return [["Fangen wir an.","let's begin"],["Nur wir zwei und das Kapitel.","just us two and the chapter"]][Math.floor(Math.random()*2)];
+  if(DR.run>=3) return drSay("streak");
+  const byCat={vocab:["Ein Wort von hier.","a word from this shore"],
+    gender:["Der, die oder das?","der, die or das?"],
+    verb:["Jetzt ein Verb.","now a verb"],
+    case:["Achte auf den Fall.","mind the case"],
+    order:["Bring ihn in Ordnung.","set it in order"],
+    idiom:["Eine Redewendung.","an idiom"],
+    listen:["Hör gut hin.","listen closely"]};
+  return byCat[it.cat]||["Weiter geht's.","on we go"];
+}
+
+function renderDrillQ(){
+  const it=DR.items[DR.i]; if(!it){ renderDrillEnd(); return; }
+  DR.answered=false;
+  const mood=DR.run>=3?"happy":(DR.i===0?"warm":"calm");
+  const [de,en]=drQuip();
+  const pips=DR.items.map((_,i)=>{
+    const m=DR.marks[i];
+    return `<span class="${m===1?"ok":m===0?"no":""}${i===DR.i?" now":""}"></span>`;
+  }).join("");
+  $("#drTally").innerHTML=`<span class="dr-pips">${pips}</span><span><b>${DR.ok}</b> · <i>${DR.no}</i></span>`;
+
+  let widget="";
+  if(it.kind==="mc"){
+    const opts=it.fixed? it.opts : shuffled(it.opts);
+    it._opts=opts;
+    widget=`<div class="dr-opts">${opts.map((o,i)=>
+      `<button class="dr-opt" data-i="${i}"><span class="k">${i+1}</span><span>${esc(o)}</span></button>`).join("")}</div>`;
+  } else if(it.kind==="type"){
+    widget=`<div class="dr-type"><input id="drIn" autocomplete="off" autocapitalize="off" autocorrect="off"
+      spellcheck="false" placeholder="${esc(it.hint||"…")}" /><button id="drGo">Prüfen</button></div>`;
+  } else if(it.kind==="order"){
+    DR.built=[];
+    widget=`<div class="dr-build" id="drBuild"></div>
+      <div class="dr-bank" id="drBank">${shuffled(it.words).map((w,i)=>
+        `<button class="chipw" data-w="${esc(w)}" data-i="${i}">${esc(w)}</button>`).join("")}</div>
+      <div class="dr-type" style="margin-top:12px"><button id="drGo" style="flex:1 1 auto">Prüfen</button></div>`;
+  }
+
+  const hear=it.hear? `<div class="dr-hear"><button class="dr-play" id="drPlay" aria-label="Play the sentence">▶</button>
+      <span class="lbl">Tap to hear it read.<br>Play it as often as you like.</span></div>` : "";
+
+  $("#drBody").innerHTML=`<div class="dr-body">
+    <div class="dr-keeper">
+      <span class="por">${keeperPortrait(DR.idx,mood,"","small")}</span>
+      <span class="qt"><b>${esc(de)}</b> <span class="en">${esc(en)}</span></span>
+    </div>
+    <div class="dr-kind">${esc(CAT_LABEL[it.cat]||it.cat)} · ${DR.i+1} / ${DR.items.length}</div>
+    ${hear}
+    <div class="dr-q">${it.raw? it.q : esc(it.q)}</div>
+    <div class="dr-sub">${it.sub||""}</div>
+    ${it.ctx? `<div class="dr-ctx">${esc(it.ctx)}</div>`:""}
+    ${widget}
+    <div id="drVerdict"></div>
+  </div>`;
+  $("#drFoot").style.display="";
+  $("#drFoot").innerHTML=`<div class="in"><button class="dr-skip" id="drShow">Zeig mir die Antwort</button></div>
+    <div class="dr-hint">1–4 to answer · Enter for the next · Esc to leave</div>`;
+  $("#drScroll").scrollTop=0;
+
+  const pl=$("#drPlay"); if(pl){ pl.addEventListener("click",()=>drillHear(it,pl)); setTimeout(()=>drillHear(it,pl),260); }
+  $("#drShow").addEventListener("click",()=>drillGrade(null,true));
+  $("#drBody").querySelectorAll(".dr-opt").forEach(b=>
+    b.addEventListener("click",()=>drillGrade(it._opts[+b.dataset.i])));
+  const go=$("#drGo");
+  if(it.kind==="type"){
+    const inp=$("#drIn");
+    inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); drillGrade(inp.value); } });
+    go.addEventListener("click",()=>drillGrade(inp.value));
+    setTimeout(()=>{ if(window.innerWidth>900) inp.focus(); },40);
+  }
+  if(it.kind==="order"){
+    const build=$("#drBuild"), bank=$("#drBank");
+    const paint=()=>{ build.innerHTML=DR.built.map((w,i)=>`<button class="chipw" data-b="${i}">${esc(w)}</button>`).join("");
+      build.querySelectorAll("[data-b]").forEach(c=>c.addEventListener("click",()=>{
+        if(DR.answered) return;
+        const i=+c.dataset.b, w=DR.built.splice(i,1)[0];
+        const back=[...bank.querySelectorAll(".chipw.used")].find(x=>x.dataset.w===w);
+        if(back) back.classList.remove("used");
+        paint(); sfx("tap");
+      })); };
+    bank.querySelectorAll(".chipw").forEach(c=>c.addEventListener("click",()=>{
+      if(DR.answered||c.classList.contains("used")) return;
+      c.classList.add("used"); DR.built.push(c.dataset.w); paint(); sfx("tap");
+    }));
+    go.addEventListener("click",()=>drillGrade(DR.built.join(" ")));
+  }
+}
+
+function drillGrade(given,shown){
+  if(DR.answered) return;
+  const it=DR.items[DR.i]; if(!it) return;
+  DR.answered=true; drillStopAudio();
+  let right=false;
+  if(shown) right=false;
+  else if(it.kind==="type") right = norm(String(given||""))===norm(it.ans) && !!String(given||"").trim();
+  else if(it.kind==="order") right = String(given||"").trim()===it.ans;
+  else right = given===it.ans;
+
+  const rec=drillRec(DR.idx);
+  if(!rec.bad) rec.bad={};
+  DR.marks[DR.i]=right?1:0;
+  DR.byCat[it.cat]=(DR.byCat[it.cat]||0)+1;
+
+  let promoted="";
+  if(right){
+    DR.ok++; DR.run++;
+    rec.ok[it.id]=Math.min(3,(rec.ok[it.id]||0)+1);
+    delete rec.bad[it.id];
+    award(XPV.drill,"drill"); DR.xp+=XPV.drill;
+    if(it.key){ promoted=wordCorrect(it.key);
+      if(promoted==="known") DR.promoted.push(it.disp||it.key);
+      else if(promoted==="learning") DR.started.push(it.disp||it.key); }
+    sfx("good");
+  } else {
+    DR.no++; DR.run=0;
+    /* Marked as owed, so it is first in the queue next time — but the credit
+       it has already earned stays put. Nothing in this app goes backwards for
+       having been attempted, and a shore that wilted because you sat down to
+       practise would be teaching you the wrong lesson entirely. */
+    rec.bad[it.id]=1;
+    DR.wrongCat[it.cat]=(DR.wrongCat[it.cat]||0)+1;
+    sfx("again");
+  }
+  rec.last=Date.now();
+  markDirty();
+
+  /* show the marking on the answer itself */
+  if(it.kind==="mc"){
+    $("#drBody").querySelectorAll(".dr-opt").forEach(b=>{
+      const v=it._opts[+b.dataset.i]; b.disabled=true;
+      if(v===it.ans) b.classList.add("right");
+      else if(!shown && v===given) b.classList.add("wrong");
+      else b.classList.add("dim");
+    });
+  } else if(it.kind==="order"){
+    const build=$("#drBuild"), want=it.ans.split(" ");
+    build.querySelectorAll("[data-b]").forEach((c,i)=>c.classList.add(DR.built[i]===want[i]?"ok":"no"));
+  } else if(it.kind==="type"){
+    const inp=$("#drIn"); if(inp) inp.disabled=true;
+    const go=$("#drGo"); if(go) go.disabled=true;
+  }
+
+  const [sde,sen]=drSay(right?"right":(shown?"shown":"wrong"));
+  /* A right answer is already marked in green on the option you chose, so
+     repeating it here is the third time of asking. Show it back only when it
+     was wrong — or when the answer is a whole sentence worth seeing whole. */
+  const answer = it.kind==="order"? esc(it.full||it.ans) : "<b>"+esc(it.ans)+"</b>";
+  const showAns = !right || it.kind==="order";
+  $("#drVerdict").innerHTML=`<div class="dr-verdict ${right?"good":"bad"}">
+    <div class="vh">${esc(sde)} <span style="opacity:.7;text-transform:none;letter-spacing:.02em">${esc(sen)}</span></div>
+    ${showAns? `<div class="vb">${right?"":"Es heißt: "}${answer}</div>`:""}
+    ${it.why? `<div class="vwhy">${it.why}</div>`:""}
+    ${right? `<div class="vgain">+${XPV.drill} XP${promoted==="known"?" · „"+esc(it.disp||it.key)+"“ is a word you know now":promoted==="learning"?" · added to your learning words":""}</div>`:""}
+  </div>`;
+
+  /* her face answers before the words do */
+  const por=$("#drBody").querySelector(".por");
+  if(por) por.innerHTML=keeperPortrait(DR.idx, right?(DR.run>=3?"radiant":"happy"):(shown?"think":"aww"), "", "small");
+  const qt=$("#drBody").querySelector(".qt");
+  if(qt) qt.innerHTML=`<b>${esc(sde)}</b> <span class="en">${esc(sen)}</span>`;
+
+  const last=DR.i>=DR.items.length-1;
+  $("#drFoot").innerHTML=`<div class="in"><button class="dr-next" id="drNext">${last?"Runde beenden →":"Weiter →"}</button></div>
+    <div class="dr-hint">Enter for the next one</div>`;
+  $("#drNext").addEventListener("click",drillAdvance);
+  const v=$("#drVerdict"); if(v) v.scrollIntoView({block:"nearest",behavior:REDUCED?"auto":"smooth"});
+}
+function drillAdvance(){
+  /* The round can only be finished once. Enter is bound to "next question",
+     and on the closing card there is no next question — without this guard a
+     held-down Enter key would score the same round over and over. */
+  if(!DR.answered || DR.done) return;
+  DR.i++;
+  if(DR.i>=DR.items.length){ DR.done=true; DR.answered=false; renderDrillEnd(); }
+  else renderDrillQ();
+}
+
+/* ---------------------------------------------------------------------------
+   The end of the round: what it did to the island, and what she makes of it
+   ------------------------------------------------------------------------ */
+function renderDrillEnd(){
+  const idx=DR.idx, n=DR.items.length, pct=Math.round(DR.ok/Math.max(1,n)*100);
+  const rec=drillRec(idx);
+  rec.runs=(rec.runs||0)+1;
+  rec.best=Math.max(rec.best||0,pct);
+  rec.last=Date.now();
+
+  award(XPV.round,"round"); DR.xp+=XPV.round;
+  if(DR.no===0){ award(XPV.clean,"clean"); DR.xp+=XPV.clean; }
+  questTick("drill",1);
+  markDirty(); gameTouch(); updateCoverage();
+  sfx(DR.no===0?"bloom":"open");
+
+  const bloom=islandBloom(idx), mast=masteryPct(idx);
+  const band=DRD.ENDING.find(b=>pct>=b.min)||DRD.ENDING[DRD.ENDING.length-1];
+  const name=companionName(idx);
+
+  /* the one thing that went wrong most often, said by name */
+  let weakest="", weakN=0;
+  for(const k in DR.wrongCat) if(DR.wrongCat[k]>weakN){ weakN=DR.wrongCat[k]; weakest=k; }
+  const weak=(weakN>=2 && DRD.WEAK[weakest])? DRD.WEAK[weakest] : null;
+
+  const grew=[];
+  if(DR.promoted.length) grew.push(["✿", "<b>"+plural(DR.promoted.length,"word")+"</b> crossed over into words you know — "+DR.promoted.slice(0,4).map(esc).join(", ")+(DR.promoted.length>4?"…":"")+". Three right answers is the crossing."]);
+  if(DR.started.length) grew.push(["→", "<b>"+plural(DR.started.length,"word")+"</b> joined your learning words: "+DR.started.slice(0,4).map(esc).join(", ")+(DR.started.length>4?"…":"")+"."]);
+  if(bloom>DR.bloom0) grew.push(["↑", "The island came up from <b>"+DR.bloom0+"%</b> to <b>"+bloom+"%</b> in bloom."]);
+  if(mast>DR.mast0) grew.push(["◍", "You have now been through <b>"+mast+"%</b> of what this shore can ask, up from "+DR.mast0+"%."]);
+  if(DR.ok && !weak) grew.push(["·", plural(DR.ok,"question")+" answered right — every one of them comes back later, further apart each time, until it stops being a question."]);
+  if(weak) grew.push(["·", "<b>"+esc(weak[0])+"</b> — "+esc(weak[1])+"."]);
+  if(!grew.length) grew.push(["·","Nothing took root this round — and nothing was lost either. Everything you saw is now first in the queue next time."]);
+
+  $("#drTally").innerHTML="";
+  $("#drFoot").style.display="none";
+  $("#drBody").innerHTML=`<div class="dr-end">
+    <div class="dr-portrait">${keeperPortrait(idx,band.mood,band.gest)}</div>
+    <div class="dr-say">${esc(band.de)}<span class="en">${esc(band.en)}</span></div>
+    <div class="dr-tail">${esc(band.tail)}</div>
+    <div class="dr-who">${esc(name)} · keeper of Insel ${idx+1}</div>
+    <div class="dr-score">
+      <div class="stat"><div class="v">${DR.ok}/${n}</div><div class="l">right</div></div>
+      <div class="stat"><div class="v">+${DR.xp}</div><div class="l">XP</div></div>
+      <div class="stat"><div class="v">${rec.runs}</div><div class="l">round${rec.runs===1?"":"s"} here</div></div>
+    </div>
+    <div class="dr-bloomrow">
+      <div class="cap"><span>Insel ${idx+1} in bloom</span><span><b>${bloom}%</b>${bloom>DR.bloom0?" · +"+(bloom-DR.bloom0):""}</span></div>
+      <div class="dr-gained"><span class="was" style="width:${DR.bloom0}%"></span><span class="now" id="drGrow"></span></div>
+    </div>
+    <div class="dr-grew"><h5>What this round changed</h5>
+      ${grew.map(g=>`<div class="line"><span class="m">${g[0]}</span><span>${g[1]}</span></div>`).join("")}</div>
+    <div class="dr-again">
+      <button id="drMore">Noch eine Runde</button>
+      <button class="solid" id="drBack">${DR.from==="read"?"Zurück zum Text":"Zurück zur Insel"}</button>
+    </div>
+  </div>`;
+  requestAnimationFrame(()=>{ const g=$("#drGrow"); if(g) g.style.width=bloom+"%"; });
+  $("#drMore").addEventListener("click",()=>{ const f=DR.from; drillOpen(idx,f); });
+  $("#drBack").addEventListener("click",drillClose);
+}
+
+/* keys, for the desk rather than the sofa */
+document.addEventListener("keydown",e=>{
+  if(!DR.on) return;
+  if(e.key==="Escape"){ e.preventDefault(); drillClose(); return; }
+  if(e.key==="Enter" && DR.answered){ e.preventDefault(); drillAdvance(); return; }
+  const it=DR.items[DR.i];
+  if(!DR.answered && it && it.kind==="mc" && /^[1-9]$/.test(e.key)){
+    const b=$("#drBody").querySelector('.dr-opt[data-i="'+(+e.key-1)+'"]');
+    if(b){ e.preventDefault(); b.click(); }
+  }
+});
+$("#drX").addEventListener("click",drillClose);
+
 
 /* ----------------------------- wiring it up ----------------------------- */
 function shelfGhostNote(id){
@@ -4901,6 +6171,8 @@ function askResetChapter(idx){
   if(c.read) lost.push("its <b>read to the end</b> mark");
   if(c.stars) lost.push("its <b>"+plural(c.stars,"star")+"</b>");
   if(c.words) lost.push("<b>"+plural(c.words,"word")+"</b> you have met only here");
+  const pr=(state.game.drill&&state.game.drill[idx])||null;
+  if(pr&&pr.runs) lost.push("<b>"+plural(pr.runs,"round")+"</b> of practice on this island");
   if(c.cards) lost.push("<b>"+plural(c.cards,"card")+"</b> made from those words");
   lost.push("how far down the page you had read");
   openSheet("Reset Insel "+(idx+1)+"?",
@@ -4935,6 +6207,8 @@ function doResetChapter(idx){
   ex.forEach(k=>{ delete state.vocab[k]; });
   state.cards=state.cards.filter(c=>!ex.has(c.front));
   if(state.game.read) delete state.game.read[idx];
+  if(state.game.drill) delete state.game.drill[idx];
+  if(state.game.wq) ex.forEach(k=>{ delete state.game.wq[k]; });
   if(_scrollPos){ delete _scrollPos[idx]; IDB.set("scroll:"+bookId(),_scrollPos); }
   saveProgress(); markDirty(); updateBadges();
   if(state.chapterIdx===idx) renderChapter(idx,true);
